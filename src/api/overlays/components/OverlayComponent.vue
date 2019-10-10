@@ -8,7 +8,7 @@
                 v-if="dismissable"
                 @click="destroy">
             </button>
-            <div class="c-overlay__contents" ref="element"></div>
+            <div class="c-overlay__contents" ref="element" tabindex="0"></div>
             <div class="c-overlay__button-bar" v-if="buttons">
                 <button class="c-button"
                         v-for="(button, index) in buttons"
@@ -69,6 +69,7 @@
             flex: 1 1 auto;
             display: flex;
             flex-direction: column;
+            outline: none;
             overflow: hidden;
         }
 
@@ -174,6 +175,9 @@
         inject: ['dismiss', 'element', 'buttons', 'dismissable'],
         mounted() {
             this.$refs.element.appendChild(this.element);
+            setTimeout(() => {
+                this.$refs.element.focus();
+            }, 0);
         },
         methods: {
             destroy: function () {
