@@ -26,7 +26,7 @@
  * @namespace platform/commonUI/inspect
  */
 
-define({
+export default {
     BUBBLE_TEMPLATE: "<mct-container key=\"bubble\" " +
                 "bubble-title=\"{{bubbleTitle}}\" " +
                 "bubble-layout=\"{{bubbleLayout}}\">" +
@@ -44,4 +44,4 @@ define({
     // defined in /platform/commonUI/general/res/sass/_constants.scss
     BUBBLE_MARGIN_LR: 10,
     BUBBLE_MAX_WIDTH: 300
-});
+};;

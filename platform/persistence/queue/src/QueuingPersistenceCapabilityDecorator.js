@@ -1,3 +1,4 @@
+import QueuingPersistenceCapability from ".\\QueuingPersistenceCapability.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -26,60 +27,57 @@
  * as well.
  * @namespace platform/persistence/queue
  */
-define(
-    ['./QueuingPersistenceCapability'],
-    function (QueuingPersistenceCapability) {
+;
 
-        /**
-         * Capability decorator. Adds queueing support to persistence
-         * capabilities for domain objects, such that persistence attempts
-         * will be handled in batches (allowing failure notification to
-         * also be presented in batches.)
-         *
-         * @memberof platform/persistence/queue
-         * @constructor
-         * @implements {CapabilityService}
-         * @param {platform/persistence/queue.PersistenceQueue} persistenceQueue
-         * @param {CapabilityService} the decorated capability service
-         */
-        function QueuingPersistenceCapabilityDecorator(
-            persistenceQueue,
-            capabilityService
-        ) {
-            this.persistenceQueue = persistenceQueue;
-            this.capabilityService = capabilityService;
+/**
+ * Capability decorator. Adds queueing support to persistence
+ * capabilities for domain objects, such that persistence attempts
+ * will be handled in batches (allowing failure notification to
+ * also be presented in batches.)
+ *
+ * @memberof platform/persistence/queue
+ * @constructor
+ * @implements {CapabilityService}
+ * @param {platform/persistence/queue.PersistenceQueue} persistenceQueue
+ * @param {CapabilityService} the decorated capability service
+ */
+function QueuingPersistenceCapabilityDecorator(
+    persistenceQueue,
+    capabilityService
+) {
+    this.persistenceQueue = persistenceQueue;
+    this.capabilityService = capabilityService;
+}
+
+QueuingPersistenceCapabilityDecorator.prototype.getCapabilities = function (model, id) {
+    var capabilityService = this.capabilityService,
+        persistenceQueue = this.persistenceQueue;
+
+    function decoratePersistence(capabilities) {
+        var originalPersistence = capabilities.persistence;
+        if (originalPersistence) {
+            capabilities.persistence = function (domainObject) {
+                // Get/instantiate the original
+                var original =
+                    (typeof originalPersistence === 'function') ?
+                        originalPersistence(domainObject) :
+                        originalPersistence;
+
+                // Provide a decorated version
+                return new QueuingPersistenceCapability(
+                    persistenceQueue,
+                    original,
+                    domainObject
+                );
+            };
         }
-
-        QueuingPersistenceCapabilityDecorator.prototype.getCapabilities = function (model, id) {
-            var capabilityService = this.capabilityService,
-                persistenceQueue = this.persistenceQueue;
-
-            function decoratePersistence(capabilities) {
-                var originalPersistence = capabilities.persistence;
-                if (originalPersistence) {
-                    capabilities.persistence = function (domainObject) {
-                        // Get/instantiate the original
-                        var original =
-                            (typeof originalPersistence === 'function') ?
-                                originalPersistence(domainObject) :
-                                originalPersistence;
-
-                        // Provide a decorated version
-                        return new QueuingPersistenceCapability(
-                            persistenceQueue,
-                            original,
-                            domainObject
-                        );
-                    };
-                }
-                return capabilities;
-            }
-
-            return decoratePersistence(
-                capabilityService.getCapabilities(model, id)
-            );
-        };
-
-        return QueuingPersistenceCapabilityDecorator;
+        return capabilities;
     }
-);
+
+    return decoratePersistence(
+        capabilityService.getCapabilities(model, id)
+    );
+};
+
+var bindingVariable = QueuingPersistenceCapabilityDecorator;
+export default bindingVariable;

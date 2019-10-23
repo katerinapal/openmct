@@ -1,3 +1,5 @@
+import require from ".\\resolve\\RequireConfigurator.js";
+import FrameworkLayer from ".\\FrameworkLayer.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -27,45 +29,31 @@
  * and the wiring-together of the extensions they expose.
  * @namespace platform/framework
  */
-define(
-    [
-        'require',
-        'es6-promise',
-        './FrameworkLayer',
-        'angular',
-        'angular-route'
-    ],
-    function (
-        require,
-        es6promise,
-        FrameworkLayer,
-        angular
-    ) {
+;
 
-        function Main() {
-        }
+function Main() {
+}
 
-        Main.prototype.run = function (legacyRegistry) {
-            // Get a reference to Angular's injector, so we can get $http and $log
-            // services, which are useful to the framework layer.
-            var injector = angular.injector(['ng']);
+Main.prototype.run = function (legacyRegistry) {
+    // Get a reference to Angular's injector, so we can get $http and $log
+    // services, which are useful to the framework layer.
+    var injector = angular.injector(['ng']);
 
-            // Look up log level from query string
-            function logLevel() {
-                var match = /[?&]log=([a-z]+)/.exec(window.location.search);
-                return match ? match[1] : "";
-            }
-
-            // Polyfill Promise, in case browser does not natively provide Promise
-            window.Promise = window.Promise || es6promise.Promise;
-
-            // Reconfigure base url, since bundle paths will all be relative
-            // to the root now.
-            requirejs.config({"baseUrl": ""});
-            injector.instantiate(['$http', '$log', FrameworkLayer])
-                .initializeApplication(angular, legacyRegistry, logLevel());
-        };
-
-        return Main;
+    // Look up log level from query string
+    function logLevel() {
+        var match = /[?&]log=([a-z]+)/.exec(window.location.search);
+        return match ? match[1] : "";
     }
-);
+
+    // Polyfill Promise, in case browser does not natively provide Promise
+    window.Promise = window.Promise || es6promise.Promise;
+
+    // Reconfigure base url, since bundle paths will all be relative
+    // to the root now.
+    requirejs.config({"baseUrl": ""});
+    injector.instantiate(['$http', '$log', FrameworkLayer])
+        .initializeApplication(angular, legacyRegistry, logLevel());
+};
+
+var bindingVariable = Main;
+export default bindingVariable;

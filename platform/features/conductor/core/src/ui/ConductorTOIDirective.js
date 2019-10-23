@@ -1,3 +1,4 @@
+import ConductorTOIController from ".\\ConductorTOIController.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,44 +21,44 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['./ConductorTOIController'], function (ConductorTOIController) {
+;
+/**
+ * A directive that encapsulates the TOI specific behavior of the Time Conductor UI.
+ * @constructor
+ */
+function ConductorTOIDirective() {
     /**
-     * A directive that encapsulates the TOI specific behavior of the Time Conductor UI.
-     * @constructor
+     * The mct-conductor-axis renders a horizontal axis with regular
+     * labelled 'ticks'. It requires 'start' and 'end' integer values to
+     * be specified as attributes.
      */
-    function ConductorTOIDirective() {
-        /**
-         * The mct-conductor-axis renders a horizontal axis with regular
-         * labelled 'ticks'. It requires 'start' and 'end' integer values to
-         * be specified as attributes.
-         */
-        return {
-            controller: [
-                '$scope',
-                'openmct',
-                ConductorTOIController
-            ],
-            controllerAs: 'toi',
-            scope: {
-                viewService: "="
-            },
-            bindToController: true,
+    return {
+        controller: [
+            '$scope',
+            'openmct',
+            ConductorTOIController
+        ],
+        controllerAs: 'toi',
+        scope: {
+            viewService: "="
+        },
+        bindToController: true,
 
-            restrict: 'E',
-            priority: 1000,
+        restrict: 'E',
+        priority: 1000,
 
-            template:
-                '<div class="l-data-visualization-holder l-row-elem flex-elem">' +
-                '   <a class="l-page-button s-icon-button icon-pointer-left"></a>' +
-                '   <div class="l-data-visualization" ng-click="toi.setTOIFromPosition($event)">' +
-                '       <mct-include key="\'time-of-interest\'" class="l-toi-holder show-val" ' +
-                '       ng-class="{ pinned: toi.pinned, \'val-to-left\': toi.left > 80 }" ' +
-                '       ng-style="{\'left\': toi.left + \'%\'}"></mct-include>' +
-                '   </div>' +
-                '   <a class="l-page-button align-right s-icon-button icon-pointer-right"></a>' +
-                '</div>'
-        };
-    }
+        template:
+            '<div class="l-data-visualization-holder l-row-elem flex-elem">' +
+            '   <a class="l-page-button s-icon-button icon-pointer-left"></a>' +
+            '   <div class="l-data-visualization" ng-click="toi.setTOIFromPosition($event)">' +
+            '       <mct-include key="\'time-of-interest\'" class="l-toi-holder show-val" ' +
+            '       ng-class="{ pinned: toi.pinned, \'val-to-left\': toi.left > 80 }" ' +
+            '       ng-style="{\'left\': toi.left + \'%\'}"></mct-include>' +
+            '   </div>' +
+            '   <a class="l-page-button align-right s-icon-button icon-pointer-right"></a>' +
+            '</div>'
+    };
+}
 
-    return ConductorTOIDirective;
-});
+var bindingVariable = ConductorTOIDirective;
+export default bindingVariable;

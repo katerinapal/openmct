@@ -20,58 +20,55 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The `mct-click-elsewhere` directive will evaluate its
-         * associated expression whenever a `mousedown` occurs anywhere
-         * outside of the element that has the `mct-click-elsewhere`
-         * directive attached. This is useful for dismissing popups
-         * and the like.
-         */
-        function MCTClickElsewhere($document) {
+/**
+ * The `mct-click-elsewhere` directive will evaluate its
+ * associated expression whenever a `mousedown` occurs anywhere
+ * outside of the element that has the `mct-click-elsewhere`
+ * directive attached. This is useful for dismissing popups
+ * and the like.
+ */
+function MCTClickElsewhere($document) {
 
-            // Link; install event handlers.
-            function link(scope, element, attrs) {
-                // Keep a reference to the body, to attach/detach
-                // mouse event handlers; mousedown and mouseup cannot
-                // only be attached to the element being linked, as the
-                // mouse may leave this element during the drag.
-                var body = $document.find('body');
+    // Link; install event handlers.
+    function link(scope, element, attrs) {
+        // Keep a reference to the body, to attach/detach
+        // mouse event handlers; mousedown and mouseup cannot
+        // only be attached to the element being linked, as the
+        // mouse may leave this element during the drag.
+        var body = $document.find('body');
 
-                function clickBody(event) {
-                    var x = event.clientX,
-                        y = event.clientY,
-                        rect = element[0].getBoundingClientRect(),
-                        xMin = rect.left,
-                        xMax = xMin + rect.width,
-                        yMin = rect.top,
-                        yMax = yMin + rect.height;
+        function clickBody(event) {
+            var x = event.clientX,
+                y = event.clientY,
+                rect = element[0].getBoundingClientRect(),
+                xMin = rect.left,
+                xMax = xMin + rect.width,
+                yMin = rect.top,
+                yMax = yMin + rect.height;
 
-                    if (x < xMin || x > xMax || y < yMin || y > yMax) {
-                        scope.$apply(function () {
-                            scope.$eval(attrs.mctClickElsewhere);
-                        });
-                    }
-                }
-
-                body.on("mousedown", clickBody);
-                scope.$on("$destroy", function () {
-                    body.off("mousedown", clickBody);
+            if (x < xMin || x > xMax || y < yMin || y > yMax) {
+                scope.$apply(function () {
+                    scope.$eval(attrs.mctClickElsewhere);
                 });
             }
-
-            return {
-                // mct-drag only makes sense as an attribute
-                restrict: "A",
-                // Link function, to install event handlers
-                link: link
-            };
         }
 
-        return MCTClickElsewhere;
+        body.on("mousedown", clickBody);
+        scope.$on("$destroy", function () {
+            body.off("mousedown", clickBody);
+        });
     }
-);
+
+    return {
+        // mct-drag only makes sense as an attribute
+        restrict: "A",
+        // Link function, to install event handlers
+        link: link
+    };
+}
+
+var bindingVariable = MCTClickElsewhere;
+export default bindingVariable;
 

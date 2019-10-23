@@ -20,46 +20,43 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Supports the Library and Elements panes in Edit mode.
-         * @memberof platform/commonUI/edit
-         * @constructor
-         */
-        function EditPanesController($scope) {
-            var self = this;
+/**
+ * Supports the Library and Elements panes in Edit mode.
+ * @memberof platform/commonUI/edit
+ * @constructor
+ */
+function EditPanesController($scope) {
+    var self = this;
 
-            // Update root object based on represented object
-            function updateRoot(domainObject) {
-                var root = self.rootDomainObject,
-                    context = domainObject &&
-                        domainObject.getCapability('context'),
-                    newRoot = context && context.getTrueRoot(),
-                    oldId = root && root.getId(),
-                    newId = newRoot && newRoot.getId();
+    // Update root object based on represented object
+    function updateRoot(domainObject) {
+        var root = self.rootDomainObject,
+            context = domainObject &&
+                domainObject.getCapability('context'),
+            newRoot = context && context.getTrueRoot(),
+            oldId = root && root.getId(),
+            newId = newRoot && newRoot.getId();
 
-                // Only update if this has actually changed,
-                // to avoid excessive refreshing.
-                if (oldId !== newId) {
-                    self.rootDomainObject = newRoot;
-                }
-            }
-
-            // Update root when represented object changes
-            $scope.$watch('domainObject', updateRoot);
+        // Only update if this has actually changed,
+        // to avoid excessive refreshing.
+        if (oldId !== newId) {
+            self.rootDomainObject = newRoot;
         }
-        /**
-         * Get the root-level domain object, as reported by the
-         * represented domain object.
-         * @returns {DomainObject} the root object
-         */
-        EditPanesController.prototype.getRoot = function () {
-            return this.rootDomainObject;
-        };
-
-        return EditPanesController;
     }
-);
+
+    // Update root when represented object changes
+    $scope.$watch('domainObject', updateRoot);
+}
+/**
+ * Get the root-level domain object, as reported by the
+ * represented domain object.
+ * @returns {DomainObject} the root object
+ */
+EditPanesController.prototype.getRoot = function () {
+    return this.rootDomainObject;
+};
+
+var bindingVariable = EditPanesController;
+export default bindingVariable;

@@ -1,3 +1,4 @@
+import TransactionalPersistenceCapability from ".\\TransactionalPersistenceCapability.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,54 +22,51 @@
  *****************************************************************************/
 /*global define*/
 
-define(
-    ['./TransactionalPersistenceCapability'],
-    function (TransactionalPersistenceCapability) {
+;
 
-        /**
-         * Wraps the [PersistenceCapability]{@link PersistenceCapability} with
-         * transactional capabilities.
-         * @param $q
-         * @param transactionService
-         * @param capabilityService
-         * @see TransactionalPersistenceCapability
-         * @constructor
-         */
-        function TransactionCapabilityDecorator(
-            $q,
-            transactionService,
-            capabilityService
-        ) {
-            this.capabilityService = capabilityService;
-            this.transactionService = transactionService;
-            this.$q = $q;
-        }
+/**
+ * Wraps the [PersistenceCapability]{@link PersistenceCapability} with
+ * transactional capabilities.
+ * @param $q
+ * @param transactionService
+ * @param capabilityService
+ * @see TransactionalPersistenceCapability
+ * @constructor
+ */
+function TransactionCapabilityDecorator(
+    $q,
+    transactionService,
+    capabilityService
+) {
+    this.capabilityService = capabilityService;
+    this.transactionService = transactionService;
+    this.$q = $q;
+}
 
-        /**
-         * Decorate PersistenceCapability to queue persistence calls when a
-         * transaction is in progress.
-         */
-        TransactionCapabilityDecorator.prototype.getCapabilities = function () {
-            var self = this,
-                capabilities = this.capabilityService.getCapabilities
-                    .apply(this.capabilityService, arguments),
-                persistenceCapability = capabilities.persistence;
+/**
+ * Decorate PersistenceCapability to queue persistence calls when a
+ * transaction is in progress.
+ */
+TransactionCapabilityDecorator.prototype.getCapabilities = function () {
+    var self = this,
+        capabilities = this.capabilityService.getCapabilities
+            .apply(this.capabilityService, arguments),
+        persistenceCapability = capabilities.persistence;
 
-            capabilities.persistence = function (domainObject) {
-                var original =
-                    (typeof persistenceCapability === 'function') ?
-                        persistenceCapability(domainObject) :
-                        persistenceCapability;
-                return new TransactionalPersistenceCapability(
-                    self.$q,
-                    self.transactionService,
-                    original,
-                    domainObject
-                );
-            };
-            return capabilities;
-        };
+    capabilities.persistence = function (domainObject) {
+        var original =
+            (typeof persistenceCapability === 'function') ?
+                persistenceCapability(domainObject) :
+                persistenceCapability;
+        return new TransactionalPersistenceCapability(
+            self.$q,
+            self.transactionService,
+            original,
+            domainObject
+        );
+    };
+    return capabilities;
+};
 
-        return TransactionCapabilityDecorator;
-    }
-);
+var bindingVariable = TransactionCapabilityDecorator;
+export default bindingVariable;

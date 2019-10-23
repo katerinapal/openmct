@@ -1,3 +1,4 @@
+import SwimlaneDragConstants from ".\\SwimlaneDragConstants.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,128 +21,125 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./SwimlaneDragConstants'],
-    function (SwimlaneDragConstants) {
+;
 
-        /**
-         * Defines the `mct-swimlane-drop` directive. When a drop occurs
-         * on an element with this attribute, the swimlane targeted by the drop
-         * (identified by the value of this attribute, as an Angular expression)
-         * will receive the dropped domain object (at which point it can handle
-         * the drop, typically by inserting/reordering.)
-         * @param {DndService} dndService drag-and-drop service
-         */
-        function MCTSwimlaneDrop(dndService) {
+/**
+ * Defines the `mct-swimlane-drop` directive. When a drop occurs
+ * on an element with this attribute, the swimlane targeted by the drop
+ * (identified by the value of this attribute, as an Angular expression)
+ * will receive the dropped domain object (at which point it can handle
+ * the drop, typically by inserting/reordering.)
+ * @param {DndService} dndService drag-and-drop service
+ */
+function MCTSwimlaneDrop(dndService) {
 
-            // Handle dragover events
-            function dragOver(e, element, swimlane) {
-                var event = (e || {}).originalEvent || e,
-                    height = element[0].offsetHeight,
-                    rect = element[0].getBoundingClientRect(),
-                    offset = event.pageY - rect.top,
-                    id = dndService.getData(
-                        SwimlaneDragConstants.MCT_DRAG_TYPE
-                    ),
-                    draggedObject = dndService.getData(
-                        SwimlaneDragConstants.MCT_EXTENDED_DRAG_TYPE
-                    );
+    // Handle dragover events
+    function dragOver(e, element, swimlane) {
+        var event = (e || {}).originalEvent || e,
+            height = element[0].offsetHeight,
+            rect = element[0].getBoundingClientRect(),
+            offset = event.pageY - rect.top,
+            id = dndService.getData(
+                SwimlaneDragConstants.MCT_DRAG_TYPE
+            ),
+            draggedObject = dndService.getData(
+                SwimlaneDragConstants.MCT_EXTENDED_DRAG_TYPE
+            );
 
-                if (id) {
-                    // TODO: Vary this based on modifier keys
-                    event.dataTransfer.dropEffect = 'move';
+        if (id) {
+            // TODO: Vary this based on modifier keys
+            event.dataTransfer.dropEffect = 'move';
 
-                    // Set the swimlane's drop highlight state; top 75% is
-                    // for drop-into, bottom 25% is for drop-after.
-                    swimlane.highlight(
-                        offset < (height * 0.75) &&
-                                swimlane.allowDropIn(id, draggedObject)
-                    );
-                    swimlane.highlightBottom(
-                        offset >= (height * 0.75) &&
-                                swimlane.allowDropAfter(id, draggedObject)
-                    );
+            // Set the swimlane's drop highlight state; top 75% is
+            // for drop-into, bottom 25% is for drop-after.
+            swimlane.highlight(
+                offset < (height * 0.75) &&
+                        swimlane.allowDropIn(id, draggedObject)
+            );
+            swimlane.highlightBottom(
+                offset >= (height * 0.75) &&
+                        swimlane.allowDropAfter(id, draggedObject)
+            );
 
-                    // Indicate that we will accept the drag
-                    if (swimlane.highlight() || swimlane.highlightBottom()) {
-                        event.preventDefault(); // Required in Chrome?
-                        return false;
-                    }
-                }
+            // Indicate that we will accept the drag
+            if (swimlane.highlight() || swimlane.highlightBottom()) {
+                event.preventDefault(); // Required in Chrome?
+                return false;
             }
+        }
+    }
 
-            // Handle drop events
-            function drop(e, element, swimlane) {
-                var event = (e || {}).originalEvent || e,
-                    dataTransfer = event.dataTransfer,
-                    id = dataTransfer.getData(
-                        SwimlaneDragConstants.MCT_DRAG_TYPE
-                    ),
-                    draggedSwimlane = dndService.getData(
-                        SwimlaneDragConstants.TIMELINE_SWIMLANE_DRAG_TYPE
-                    ),
-                    droppedObject = draggedSwimlane ?
-                        draggedSwimlane.domainObject :
-                        dndService.getData(
-                            SwimlaneDragConstants.MCT_EXTENDED_DRAG_TYPE
-                        );
+    // Handle drop events
+    function drop(e, element, swimlane) {
+        var event = (e || {}).originalEvent || e,
+            dataTransfer = event.dataTransfer,
+            id = dataTransfer.getData(
+                SwimlaneDragConstants.MCT_DRAG_TYPE
+            ),
+            draggedSwimlane = dndService.getData(
+                SwimlaneDragConstants.TIMELINE_SWIMLANE_DRAG_TYPE
+            ),
+            droppedObject = draggedSwimlane ?
+                draggedSwimlane.domainObject :
+                dndService.getData(
+                    SwimlaneDragConstants.MCT_EXTENDED_DRAG_TYPE
+                );
 
-                if (id) {
-                    event.stopPropagation();
-                    e.preventDefault();
-                    // Delegate the drop to the swimlane itself
-                    swimlane.drop(id, droppedObject);
-                }
-
-                // Clear the swimlane highlights
-                swimlane.highlight(false);
-                swimlane.highlightBottom(false);
-            }
-
-            function link(scope, element, attrs) {
-                // Lookup swimlane by evaluating this attribute
-                function lookupSwimlane() {
-                    return scope.$eval(attrs.mctSwimlaneDrop);
-                }
-                // Handle dragover
-                element.on('dragover', function (e) {
-                    var swimlane = lookupSwimlane(),
-                        highlight = swimlane.highlight(),
-                        highlightBottom = swimlane.highlightBottom();
-
-                    dragOver(e, element, swimlane);
-
-                    if (highlightBottom !== swimlane.highlightBottom() ||
-                            highlight !== swimlane.highlight()) {
-                        scope.$apply();
-                    }
-                });
-                // Handle drops
-                element.on('drop', function (e) {
-                    drop(e, element, lookupSwimlane());
-                    scope.$apply();
-                });
-                // Clear highlights when drag leaves this swimlane
-                element.on('dragleave', function () {
-                    var swimlane = lookupSwimlane(),
-                        wasHighlighted = swimlane.highlight() ||
-                                swimlane.highlightBottom();
-                    swimlane.highlight(false);
-                    swimlane.highlightBottom(false);
-                    if (wasHighlighted) {
-                        scope.$apply();
-                    }
-                });
-            }
-
-            return {
-                // Applies to attributes
-                restrict: "A",
-                // Link using above function
-                link: link
-            };
+        if (id) {
+            event.stopPropagation();
+            e.preventDefault();
+            // Delegate the drop to the swimlane itself
+            swimlane.drop(id, droppedObject);
         }
 
-        return MCTSwimlaneDrop;
+        // Clear the swimlane highlights
+        swimlane.highlight(false);
+        swimlane.highlightBottom(false);
     }
-);
+
+    function link(scope, element, attrs) {
+        // Lookup swimlane by evaluating this attribute
+        function lookupSwimlane() {
+            return scope.$eval(attrs.mctSwimlaneDrop);
+        }
+        // Handle dragover
+        element.on('dragover', function (e) {
+            var swimlane = lookupSwimlane(),
+                highlight = swimlane.highlight(),
+                highlightBottom = swimlane.highlightBottom();
+
+            dragOver(e, element, swimlane);
+
+            if (highlightBottom !== swimlane.highlightBottom() ||
+                    highlight !== swimlane.highlight()) {
+                scope.$apply();
+            }
+        });
+        // Handle drops
+        element.on('drop', function (e) {
+            drop(e, element, lookupSwimlane());
+            scope.$apply();
+        });
+        // Clear highlights when drag leaves this swimlane
+        element.on('dragleave', function () {
+            var swimlane = lookupSwimlane(),
+                wasHighlighted = swimlane.highlight() ||
+                        swimlane.highlightBottom();
+            swimlane.highlight(false);
+            swimlane.highlightBottom(false);
+            if (wasHighlighted) {
+                scope.$apply();
+            }
+        });
+    }
+
+    return {
+        // Applies to attributes
+        restrict: "A",
+        // Link using above function
+        link: link
+    };
+}
+
+var bindingVariable = MCTSwimlaneDrop;
+export default bindingVariable;

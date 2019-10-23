@@ -20,14 +20,14 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['vue'], function (Vue) {
-    function VueView(options) {
-        var vm = new Vue(options);
-        this.show = function (container) {
-            container.appendChild(vm.$mount().$el);
-        };
-        this.destroy = vm.$destroy.bind(vm);
-    }
+;
+function VueView(options) {
+    var vm = new Vue(options);
+    this.show = function (container) {
+        container.appendChild(vm.$mount().$el);
+    };
+    this.destroy = vm.$destroy.bind(vm);
+}
 
-    return VueView;
-});
+var bindingVariable = VueView;
+export default bindingVariable;

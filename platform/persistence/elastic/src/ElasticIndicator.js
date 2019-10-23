@@ -20,80 +20,77 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        // Set of connection states; changing among these states will be
-        // reflected in the indicator's appearance.
-        // CONNECTED: Everything nominal, expect to be able to read/write.
-        // DISCONNECTED: HTTP failed; maybe misconfigured, disconnected.
-        // PENDING: Still trying to connect, and haven't failed yet.
-        var CONNECTED = {
-                text: "Connected",
-                glyphClass: "ok",
-                description: "Connected to the domain object database."
-            },
-            DISCONNECTED = {
-                text: "Disconnected",
-                glyphClass: "err",
-                description: "Unable to connect to the domain object database."
-            },
-            PENDING = {
-                text: "Checking connection..."
-            };
+// Set of connection states; changing among these states will be
+// reflected in the indicator's appearance.
+// CONNECTED: Everything nominal, expect to be able to read/write.
+// DISCONNECTED: HTTP failed; maybe misconfigured, disconnected.
+// PENDING: Still trying to connect, and haven't failed yet.
+var CONNECTED = {
+        text: "Connected",
+        glyphClass: "ok",
+        description: "Connected to the domain object database."
+    },
+    DISCONNECTED = {
+        text: "Disconnected",
+        glyphClass: "err",
+        description: "Unable to connect to the domain object database."
+    },
+    PENDING = {
+        text: "Checking connection..."
+    };
 
-        /**
-         * Indicator for the current ElasticSearch connection. Polls
-         * ElasticSearch at a regular interval (defined by bundle constants)
-         * to ensure that the database is available.
-         * @constructor
-         * @memberof platform/persistence/elastic
-         * @implements {Indicator}
-         * @param $http Angular's $http service
-         * @param $interval Angular's $interval service
-         * @param {string} path the URL to poll for elasticsearch availability
-         * @param {number} interval the interval, in milliseconds, to poll at
-         */
-        function ElasticIndicator($http, $interval, path, interval) {
-            // Track the current connection state
-            var self = this;
+/**
+ * Indicator for the current ElasticSearch connection. Polls
+ * ElasticSearch at a regular interval (defined by bundle constants)
+ * to ensure that the database is available.
+ * @constructor
+ * @memberof platform/persistence/elastic
+ * @implements {Indicator}
+ * @param $http Angular's $http service
+ * @param $interval Angular's $interval service
+ * @param {string} path the URL to poll for elasticsearch availability
+ * @param {number} interval the interval, in milliseconds, to poll at
+ */
+function ElasticIndicator($http, $interval, path, interval) {
+    // Track the current connection state
+    var self = this;
 
-            this.state = PENDING;
+    this.state = PENDING;
 
-            // Callback if the HTTP request to ElasticSearch fails
-            function handleError() {
-                self.state = DISCONNECTED;
-            }
-
-            // Callback if the HTTP request succeeds.
-            function handleResponse() {
-                self.state = CONNECTED;
-            }
-
-            // Try to connect to ElasticSearch, and update the indicator.
-            function updateIndicator() {
-                $http.get(path).then(handleResponse, handleError);
-            }
-
-            // Update the indicator initially, and start polling.
-            updateIndicator();
-            $interval(updateIndicator, interval, 0, false);
-        }
-
-        ElasticIndicator.prototype.getCssClass = function () {
-            return "icon-database";
-        };
-        ElasticIndicator.prototype.getGlyphClass = function () {
-            return this.state.glyphClass;
-        };
-        ElasticIndicator.prototype.getText = function () {
-            return this.state.text;
-        };
-        ElasticIndicator.prototype.getDescription = function () {
-            return this.state.description;
-        };
-
-        return ElasticIndicator;
+    // Callback if the HTTP request to ElasticSearch fails
+    function handleError() {
+        self.state = DISCONNECTED;
     }
-);
+
+    // Callback if the HTTP request succeeds.
+    function handleResponse() {
+        self.state = CONNECTED;
+    }
+
+    // Try to connect to ElasticSearch, and update the indicator.
+    function updateIndicator() {
+        $http.get(path).then(handleResponse, handleError);
+    }
+
+    // Update the indicator initially, and start polling.
+    updateIndicator();
+    $interval(updateIndicator, interval, 0, false);
+}
+
+ElasticIndicator.prototype.getCssClass = function () {
+    return "icon-database";
+};
+ElasticIndicator.prototype.getGlyphClass = function () {
+    return this.state.glyphClass;
+};
+ElasticIndicator.prototype.getText = function () {
+    return this.state.text;
+};
+ElasticIndicator.prototype.getDescription = function () {
+    return this.state.description;
+};
+
+var bindingVariable = ElasticIndicator;
+export default bindingVariable;

@@ -20,116 +20,112 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'moment'
-], function (
-    moment
-) {
+;
 
-    var DATE_FORMAT = "YYYY-MM-DD HH:mm:ss.SSS",
-        DATE_FORMATS = [
-            DATE_FORMAT,
-            "YYYY-MM-DD HH:mm:ss",
-            "YYYY-MM-DD HH:mm",
-            "YYYY-MM-DD"
-        ];
+var DATE_FORMAT = "YYYY-MM-DD HH:mm:ss.SSS",
+    DATE_FORMATS = [
+        DATE_FORMAT,
+        "YYYY-MM-DD HH:mm:ss",
+        "YYYY-MM-DD HH:mm",
+        "YYYY-MM-DD"
+    ];
 
+/**
+ * @typedef Scale
+ * @property {number} min the minimum scale value, in ms
+ * @property {number} max the maximum scale value, in ms
+ */
+
+/**
+ * Formatter for UTC timestamps. Interprets numeric values as
+ * milliseconds since the start of 1970.
+ *
+ * @implements {Format}
+ * @constructor
+ * @memberof platform/commonUI/formats
+ */
+function UTCTimeFormat() {
+    this.key = "utc";
+}
+
+/**
+ * Returns an appropriate time format based on the provided value and
+ * the threshold required.
+ * @private
+ */
+function getScaledFormat(d) {
+    var momentified = moment.utc(d);
     /**
-     * @typedef Scale
-     * @property {number} min the minimum scale value, in ms
-     * @property {number} max the maximum scale value, in ms
-     */
-
-    /**
-     * Formatter for UTC timestamps. Interprets numeric values as
-     * milliseconds since the start of 1970.
+     * Uses logic from d3 Time-Scales, v3 of the API. See
+     * https://github.com/d3/d3-3.x-api-reference/blob/master/Time-Scales.md
      *
-     * @implements {Format}
-     * @constructor
-     * @memberof platform/commonUI/formats
+     * Licensed
      */
-    function UTCTimeFormat() {
-        this.key = "utc";
+    var format = [
+        [".SSS", function (m) {
+            return m.milliseconds();
+        }],
+        [":ss", function (m) {
+            return m.seconds();
+        }],
+        ["HH:mm", function (m) {
+            return m.minutes();
+        }],
+        ["HH", function (m) {
+            return m.hours();
+        }],
+        ["ddd DD", function (m) {
+            return m.days() &&
+                m.date() !== 1;
+        }],
+        ["MMM DD", function (m) {
+            return m.date() !== 1;
+        }],
+        ["MMMM", function (m) {
+            return m.month();
+        }],
+        ["YYYY", function () {
+            return true;
+        }]
+    ].filter(function (row) {
+            return row[1](momentified);
+        })[0][0];
+
+    if (format !== undefined) {
+        return moment.utc(d).format(format);
     }
+}
 
-    /**
-     * Returns an appropriate time format based on the provided value and
-     * the threshold required.
-     * @private
-     */
-    function getScaledFormat(d) {
-        var momentified = moment.utc(d);
-        /**
-         * Uses logic from d3 Time-Scales, v3 of the API. See
-         * https://github.com/d3/d3-3.x-api-reference/blob/master/Time-Scales.md
-         *
-         * Licensed
-         */
-        var format = [
-            [".SSS", function (m) {
-                return m.milliseconds();
-            }],
-            [":ss", function (m) {
-                return m.seconds();
-            }],
-            ["HH:mm", function (m) {
-                return m.minutes();
-            }],
-            ["HH", function (m) {
-                return m.hours();
-            }],
-            ["ddd DD", function (m) {
-                return m.days() &&
-                    m.date() !== 1;
-            }],
-            ["MMM DD", function (m) {
-                return m.date() !== 1;
-            }],
-            ["MMMM", function (m) {
-                return m.month();
-            }],
-            ["YYYY", function () {
-                return true;
-            }]
-        ].filter(function (row) {
-                return row[1](momentified);
-            })[0][0];
-
-        if (format !== undefined) {
-            return moment.utc(d).format(format);
-        }
+/**
+ * @param {number} value The value to format.
+ * @param {number} [minValue] Contextual information for scaled formatting used in linear scales such as conductor
+ * and plot axes. Specifies the smallest number on the scale.
+ * @param {number} [maxValue] Contextual information for scaled formatting used in linear scales such as conductor
+ * and plot axes. Specifies the largest number on the scale
+ * @param {number} [count] Contextual information for scaled formatting used in linear scales such as conductor
+ * and plot axes. The number of labels on the scale.
+ * @returns {string} the formatted date(s). If multiple values were requested, then an array of
+ * formatted values will be returned. Where a value could not be formatted, `undefined` will be returned at its position
+ * in the array.
+ */
+UTCTimeFormat.prototype.format = function (value) {
+    if (arguments.length > 1) {
+        return getScaledFormat(value);
+    } else {
+        return moment.utc(value).format(DATE_FORMAT) + "Z";
     }
+};
 
-    /**
-     * @param {number} value The value to format.
-     * @param {number} [minValue] Contextual information for scaled formatting used in linear scales such as conductor
-     * and plot axes. Specifies the smallest number on the scale.
-     * @param {number} [maxValue] Contextual information for scaled formatting used in linear scales such as conductor
-     * and plot axes. Specifies the largest number on the scale
-     * @param {number} [count] Contextual information for scaled formatting used in linear scales such as conductor
-     * and plot axes. The number of labels on the scale.
-     * @returns {string} the formatted date(s). If multiple values were requested, then an array of
-     * formatted values will be returned. Where a value could not be formatted, `undefined` will be returned at its position
-     * in the array.
-     */
-    UTCTimeFormat.prototype.format = function (value) {
-        if (arguments.length > 1) {
-            return getScaledFormat(value);
-        } else {
-            return moment.utc(value).format(DATE_FORMAT) + "Z";
-        }
-    };
+UTCTimeFormat.prototype.parse = function (text) {
+    if (typeof text === 'number') {
+        return text;
+    }
+    return moment.utc(text, DATE_FORMATS).valueOf();
+};
 
-    UTCTimeFormat.prototype.parse = function (text) {
-        if (typeof text === 'number') {
-            return text;
-        }
-        return moment.utc(text, DATE_FORMATS).valueOf();
-    };
+UTCTimeFormat.prototype.validate = function (text) {
+    return moment.utc(text, DATE_FORMATS).isValid();
+};
 
-    UTCTimeFormat.prototype.validate = function (text) {
-        return moment.utc(text, DATE_FORMATS).isValid();
-    };
-
-    return UTCTimeFormat;
-});
+var bindingVariable = UTCTimeFormat;
+export default bindingVariable;

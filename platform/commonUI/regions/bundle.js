@@ -1,3 +1,6 @@
+import InspectorController from ".\\src\\InspectorController.js";
+import EditableRegionPolicy from ".\\src\\EditableRegionPolicy.js";
+import legacyRegistry from "..\\..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,35 +23,24 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './src/InspectorController',
-    './src/EditableRegionPolicy',
-    'legacyRegistry'
-], function (
-    InspectorController,
-    EditableRegionPolicy,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/commonUI/regions", {
-        "extensions": {
-            "controllers": [
-                {
-                    "key": "InspectorController",
-                    "implementation": InspectorController,
-                    "depends": [
-                        "$scope",
-                        "openmct",
-                        "$document"
-                    ]
-                }
-            ],
-            "policies": [
-                {
-                    "category": "region",
-                    "implementation": EditableRegionPolicy
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/commonUI/regions", {
+    "extensions": {
+        "controllers": [
+            {
+                "key": "InspectorController",
+                "implementation": InspectorController,
+                "depends": [
+                    "$scope",
+                    "openmct",
+                    "$document"
+                ]
+            }
+        ],
+        "policies": [
+            {
+                "category": "region",
+                "implementation": EditableRegionPolicy
+            }
+        ]
+    }
 });

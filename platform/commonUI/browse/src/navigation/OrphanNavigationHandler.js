@@ -20,56 +20,56 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Navigates away from orphan objects whenever they are detected.
-     *
-     * An orphan object is an object whose apparent parent does not
-     * actually contain it. This may occur in certain circumstances, such
-     * as when persistence succeeds for a newly-created object but fails
-     * for its parent.
-     *
-     * @param throttle the `throttle` service
-     * @param topic the `topic` service
-     * @param navigationService the `navigationService`
-     * @constructor
-     */
-    function OrphanNavigationHandler(throttle, topic, navigationService) {
-        var throttledCheckNavigation;
+/**
+ * Navigates away from orphan objects whenever they are detected.
+ *
+ * An orphan object is an object whose apparent parent does not
+ * actually contain it. This may occur in certain circumstances, such
+ * as when persistence succeeds for a newly-created object but fails
+ * for its parent.
+ *
+ * @param throttle the `throttle` service
+ * @param topic the `topic` service
+ * @param navigationService the `navigationService`
+ * @constructor
+ */
+function OrphanNavigationHandler(throttle, topic, navigationService) {
+    var throttledCheckNavigation;
 
-        function getParent(domainObject) {
-            var context = domainObject.getCapability('context');
-            return context.getParent();
-        }
-
-        function preventOrphanNavigation(domainObject) {
-            var parent = getParent(domainObject);
-            parent.useCapability('composition')
-                .then(function (composees) {
-                    var isOrphan = composees.every(function (c) {
-                        return c.getId() !== domainObject.getId();
-                    });
-                    if (isOrphan) {
-                        parent.getCapability('action').perform('navigate');
-                    }
-                });
-        }
-
-        function checkNavigation() {
-            var navigatedObject = navigationService.getNavigation();
-            if (navigatedObject.hasCapability('context')) {
-                if (!navigatedObject.getCapability('editor').isEditContextRoot()) {
-                    preventOrphanNavigation(navigatedObject);
-                }
-            }
-        }
-
-        throttledCheckNavigation = throttle(checkNavigation);
-
-        navigationService.addListener(throttledCheckNavigation);
-        topic('mutation').listen(throttledCheckNavigation);
+    function getParent(domainObject) {
+        var context = domainObject.getCapability('context');
+        return context.getParent();
     }
 
-    return OrphanNavigationHandler;
-});
+    function preventOrphanNavigation(domainObject) {
+        var parent = getParent(domainObject);
+        parent.useCapability('composition')
+            .then(function (composees) {
+                var isOrphan = composees.every(function (c) {
+                    return c.getId() !== domainObject.getId();
+                });
+                if (isOrphan) {
+                    parent.getCapability('action').perform('navigate');
+                }
+            });
+    }
+
+    function checkNavigation() {
+        var navigatedObject = navigationService.getNavigation();
+        if (navigatedObject.hasCapability('context')) {
+            if (!navigatedObject.getCapability('editor').isEditContextRoot()) {
+                preventOrphanNavigation(navigatedObject);
+            }
+        }
+    }
+
+    throttledCheckNavigation = throttle(checkNavigation);
+
+    navigationService.addListener(throttledCheckNavigation);
+    topic('mutation').listen(throttledCheckNavigation);
+}
+
+var bindingVariable = OrphanNavigationHandler;
+export default bindingVariable;

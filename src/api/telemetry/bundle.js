@@ -1,3 +1,6 @@
+import TelemetryAPI from ".\\TelemetryAPI.js";
+import LegacyTelemetryProvider from ".\\LegacyTelemetryProvider.js";
+import legacyRegistry from "..\\..\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,36 +23,26 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './TelemetryAPI',
-    './LegacyTelemetryProvider',
-    'legacyRegistry'
-], function (
-    TelemetryAPI,
-    LegacyTelemetryProvider,
-    legacyRegistry
-) {
-    legacyRegistry.register('src/api/telemetry', {
-        name: 'Telemetry API',
-        description: 'The public Telemetry API',
-        extensions: {
-            runs: [
-                {
-                    key: "TelemetryAPI",
-                    implementation: TelemetryAPI,
-                    depends: [
-                        'formatService'
-                    ]
-                },
-                {
-                    key: "LegacyTelemetryAdapter",
-                    implementation: LegacyTelemetryProvider,
-                    depends: [
-                        "openmct",
-                        "instantiate"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register('src/api/telemetry', {
+    name: 'Telemetry API',
+    description: 'The public Telemetry API',
+    extensions: {
+        runs: [
+            {
+                key: "TelemetryAPI",
+                implementation: TelemetryAPI,
+                depends: [
+                    'formatService'
+                ]
+            },
+            {
+                key: "LegacyTelemetryAdapter",
+                implementation: LegacyTelemetryProvider,
+                depends: [
+                    "openmct",
+                    "instantiate"
+                ]
+            }
+        ]
+    }
 });

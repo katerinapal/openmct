@@ -20,79 +20,76 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The EditRepresenter is responsible for implementing
-         * representation-level behavior relevant to Edit mode.
-         * Specifically, this listens for changes to view configuration
-         * or to domain object models, and triggers persistence when
-         * these are detected.
-         *
-         * This is exposed as an extension of category `representers`,
-         * which mct-representation will utilize to add additional
-         * behavior to each representation.
-         *
-         * This will be called once per mct-representation directive,
-         * and may be reused for different domain objects and/or
-         * representations resulting from changes there.
-         *
-         * @memberof platform/commonUI/edit
-         * @implements {Representer}
-         * @constructor
-         */
-        function EditRepresenter($log, $scope) {
-            this.$log = $log;
-            this.$scope = $scope;
+/**
+ * The EditRepresenter is responsible for implementing
+ * representation-level behavior relevant to Edit mode.
+ * Specifically, this listens for changes to view configuration
+ * or to domain object models, and triggers persistence when
+ * these are detected.
+ *
+ * This is exposed as an extension of category `representers`,
+ * which mct-representation will utilize to add additional
+ * behavior to each representation.
+ *
+ * This will be called once per mct-representation directive,
+ * and may be reused for different domain objects and/or
+ * representations resulting from changes there.
+ *
+ * @memberof platform/commonUI/edit
+ * @implements {Representer}
+ * @constructor
+ */
+function EditRepresenter($log, $scope) {
+    this.$log = $log;
+    this.$scope = $scope;
 
-            this.$scope.commit = this.commit.bind(this);
+    this.$scope.commit = this.commit.bind(this);
+}
+
+/**
+ * Commit any changes made to the in-scope model to the domain object.
+ * Also commits any changes made to $scope.configuration to the proper
+ * configuration value for the current representation.
+ *
+ * @param {String} message a message to log with the commit message.
+ */
+EditRepresenter.prototype.commit = function (message) {
+    var model = this.$scope.model,
+        configuration = this.$scope.configuration,
+        domainObject = this.domainObject;
+
+    this.$log.debug([
+        "Committing ",
+        domainObject && domainObject.getModel().name,
+        "(" + (domainObject && domainObject.getId()) + "):",
+        message
+    ].join(" "));
+
+    if (this.domainObject) {
+        if (this.key && configuration) {
+            model.configuration = model.configuration || {};
+            model.configuration[this.key] = configuration;
         }
-
-        /**
-         * Commit any changes made to the in-scope model to the domain object.
-         * Also commits any changes made to $scope.configuration to the proper
-         * configuration value for the current representation.
-         *
-         * @param {String} message a message to log with the commit message.
-         */
-        EditRepresenter.prototype.commit = function (message) {
-            var model = this.$scope.model,
-                configuration = this.$scope.configuration,
-                domainObject = this.domainObject;
-
-            this.$log.debug([
-                "Committing ",
-                domainObject && domainObject.getModel().name,
-                "(" + (domainObject && domainObject.getId()) + "):",
-                message
-            ].join(" "));
-
-            if (this.domainObject) {
-                if (this.key && configuration) {
-                    model.configuration = model.configuration || {};
-                    model.configuration[this.key] = configuration;
-                }
-                domainObject.useCapability('mutation', function () {
-                    return model;
-                });
-            }
-        };
-
-        // Handle a specific representation of a specific domain object
-        EditRepresenter.prototype.represent = function (representation, representedObject) {
-            this.domainObject = representedObject;
-            if (representation) {
-                this.key = representation.key;
-            } else {
-                delete this.key;
-            }
-        };
-
-        // Respond to the destruction of the current representation.
-        EditRepresenter.prototype.destroy = function () {};
-
-        return EditRepresenter;
+        domainObject.useCapability('mutation', function () {
+            return model;
+        });
     }
-);
+};
+
+// Handle a specific representation of a specific domain object
+EditRepresenter.prototype.represent = function (representation, representedObject) {
+    this.domainObject = representedObject;
+    if (representation) {
+        this.key = representation.key;
+    } else {
+        delete this.key;
+    }
+};
+
+// Respond to the destruction of the current representation.
+EditRepresenter.prototype.destroy = function () {};
+
+var bindingVariable = EditRepresenter;
+export default bindingVariable;

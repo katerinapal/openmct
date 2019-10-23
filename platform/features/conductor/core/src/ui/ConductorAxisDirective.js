@@ -1,3 +1,4 @@
+import ConductorAxisController from ".\\ConductorAxisController.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,37 +21,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['./ConductorAxisController'], function (ConductorAxisController) {
-    function ConductorAxisDirective() {
-        /**
-         * The mct-conductor-axis renders a horizontal axis with regular
-         * labelled 'ticks'. It requires 'start' and 'end' integer values to
-         * be specified as attributes.
-         */
-        return {
-            controller: [
-                'openmct',
-                'formatService',
-                '$scope',
-                '$element',
-                ConductorAxisController
-            ],
-            controllerAs: 'axis',
-            scope: {
-                viewService: "="
-            },
-            bindToController: true,
+;
+function ConductorAxisDirective() {
+    /**
+     * The mct-conductor-axis renders a horizontal axis with regular
+     * labelled 'ticks'. It requires 'start' and 'end' integer values to
+     * be specified as attributes.
+     */
+    return {
+        controller: [
+            'openmct',
+            'formatService',
+            '$scope',
+            '$element',
+            ConductorAxisController
+        ],
+        controllerAs: 'axis',
+        scope: {
+            viewService: "="
+        },
+        bindToController: true,
 
-            restrict: 'E',
-            priority: 1000,
+        restrict: 'E',
+        priority: 1000,
 
-            template: '<div class="l-axis-holder" ' +
-            '    mct-drag-down="axis.panStart()"' +
-            '    mct-drag-up="axis.panStop(delta)"' +
-            '    mct-drag="axis.pan(delta)"' +
-            '    mct-resize="axis.resize()"></div>'
-        };
-    }
+        template: '<div class="l-axis-holder" ' +
+        '    mct-drag-down="axis.panStart()"' +
+        '    mct-drag-up="axis.panStop(delta)"' +
+        '    mct-drag="axis.pan(delta)"' +
+        '    mct-resize="axis.resize()"></div>'
+    };
+}
 
-    return ConductorAxisDirective;
-});
+var bindingVariable = ConductorAxisDirective;
+export default bindingVariable;

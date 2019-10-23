@@ -20,13 +20,5 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "EventEmitter"
-], function (
-    EventEmitter
-) {
-    /**
-     * Provides a singleton event bus for sharing between objects.
-     */
-    return new EventEmitter();
-});
+var bindingVariable = new EventEmitter();;
+export default bindingVariable;

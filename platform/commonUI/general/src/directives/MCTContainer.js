@@ -23,68 +23,65 @@
 /**
  * Module defining MCTContainer. Created by vwoeltje on 11/17/14.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The mct-container is similar to the mct-include directive
-         * insofar as it allows templates to be referenced by
-         * symbolic keys instead of by URL. Unlike mct-include, it
-         * supports transclusion.
-         *
-         * Unlike mct-include, mct-container accepts a key as a
-         * plain string attribute, instead of as an Angular
-         * expression.
-         *
-         * @memberof platform/commonUI/general
-         * @constructor
-         */
-        function MCTContainer(containers) {
-            var containerMap = {};
+/**
+ * The mct-container is similar to the mct-include directive
+ * insofar as it allows templates to be referenced by
+ * symbolic keys instead of by URL. Unlike mct-include, it
+ * supports transclusion.
+ *
+ * Unlike mct-include, mct-container accepts a key as a
+ * plain string attribute, instead of as an Angular
+ * expression.
+ *
+ * @memberof platform/commonUI/general
+ * @constructor
+ */
+function MCTContainer(containers) {
+    var containerMap = {};
 
-            // Initialize container map from extensions
-            containers.forEach(function (container) {
-                containerMap[container.key] = container;
-            });
+    // Initialize container map from extensions
+    containers.forEach(function (container) {
+        containerMap[container.key] = container;
+    });
 
-            return {
+    return {
 
-                // Allow only at the element level
-                restrict: 'E',
+        // Allow only at the element level
+        restrict: 'E',
 
-                // Support transclusion
-                transclude: true,
+        // Support transclusion
+        transclude: true,
 
-                // Create a new (non-isolate) scope
-                scope: true,
+        // Create a new (non-isolate) scope
+        scope: true,
 
-                // Populate initial scope based on attributes requested
-                // by the container definition
-                link: function (scope, element, attrs) {
-                    var key = attrs.key,
-                        container = containerMap[key],
-                        alias = "container",
-                        copiedAttributes = {};
+        // Populate initial scope based on attributes requested
+        // by the container definition
+        link: function (scope, element, attrs) {
+            var key = attrs.key,
+                container = containerMap[key],
+                alias = "container",
+                copiedAttributes = {};
 
-                    if (container) {
-                        alias = container.alias || alias;
-                        (container.attributes || []).forEach(function (attr) {
-                            copiedAttributes[attr] = attrs[attr];
-                        });
-                    }
+            if (container) {
+                alias = container.alias || alias;
+                (container.attributes || []).forEach(function (attr) {
+                    copiedAttributes[attr] = attrs[attr];
+                });
+            }
 
-                    scope[alias] = copiedAttributes;
-                },
+            scope[alias] = copiedAttributes;
+        },
 
-                template: function (element, attrs) {
-                    var key = attrs.key,
-                        container = containerMap[key];
-                    return container ? container.template : "";
-                }
-            };
+        template: function (element, attrs) {
+            var key = attrs.key,
+                container = containerMap[key];
+            return container ? container.template : "";
         }
+    };
+}
 
-        return MCTContainer;
-    }
-);
+var bindingVariable = MCTContainer;
+export default bindingVariable;

@@ -20,36 +20,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A policy for determining whether a region part should be visible or
-         * not, based on its editability and the current state of the domain
-         * object .
-         * @constructor
-         * @implements {Policy}
-         * @memberof platform/commonUI/regions
-         */
-        function EditableRegionPolicy() {
-        }
+/**
+ * A policy for determining whether a region part should be visible or
+ * not, based on its editability and the current state of the domain
+ * object .
+ * @constructor
+ * @implements {Policy}
+ * @memberof platform/commonUI/regions
+ */
+function EditableRegionPolicy() {
+}
 
-        EditableRegionPolicy.prototype.allow = function (regionPart, domainObject) {
-            if (!regionPart.modes) {
-                return true;
-            }
-            if (domainObject.hasCapability('editor') && domainObject.getCapability('editor').inEditContext()) {
-                //If the domain object is in edit mode, only include a part
-                // if it is marked editable
-                return regionPart.modes.indexOf('edit') !== -1;
-            } else {
-                //If the domain object is not in edit mode, return any parts
-                // that are not explicitly marked editable
-                return regionPart.modes.indexOf('browse') !== -1;
-            }
-        };
-
-        return EditableRegionPolicy;
+EditableRegionPolicy.prototype.allow = function (regionPart, domainObject) {
+    if (!regionPart.modes) {
+        return true;
     }
-);
+    if (domainObject.hasCapability('editor') && domainObject.getCapability('editor').inEditContext()) {
+        //If the domain object is in edit mode, only include a part
+        // if it is marked editable
+        return regionPart.modes.indexOf('edit') !== -1;
+    } else {
+        //If the domain object is not in edit mode, return any parts
+        // that are not explicitly marked editable
+        return regionPart.modes.indexOf('browse') !== -1;
+    }
+};
+
+var bindingVariable = EditableRegionPolicy;
+export default bindingVariable;

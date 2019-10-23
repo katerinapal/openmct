@@ -20,78 +20,76 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        // Set of connection states; changing among these states will be
-        // reflected in the indicator's appearance.
-        // CONNECTED: Everything nominal, expect to be able to read/write.
-        // DISCONNECTED: HTTP failed; maybe misconfigured, disconnected.
-        // PENDING: Still trying to connect, and haven't failed yet.
-        var CONNECTED = {
-                glyphClass: "ok"
-            },
-            PENDING = {
-                glyphClass: 'caution'
-            },
-            DISCONNECTED = {
-                glyphClass: "err"
-            };
-        function URLIndicator($http, $interval) {
-            var self = this;
-            this.cssClass = this.options.cssClass ? this.options.cssClass : "icon-database";
-            this.URLpath = this.options.url;
-            this.label = this.options.label ? this.options.label : this.options.url;
-            this.interval = this.options.interval || 10000;
-            this.state = PENDING;
+// Set of connection states; changing among these states will be
+// reflected in the indicator's appearance.
+// CONNECTED: Everything nominal, expect to be able to read/write.
+// DISCONNECTED: HTTP failed; maybe misconfigured, disconnected.
+// PENDING: Still trying to connect, and haven't failed yet.
+var CONNECTED = {
+        glyphClass: "ok"
+    },
+    PENDING = {
+        glyphClass: 'caution'
+    },
+    DISCONNECTED = {
+        glyphClass: "err"
+    };
+function URLIndicator($http, $interval) {
+    var self = this;
+    this.cssClass = this.options.cssClass ? this.options.cssClass : "icon-database";
+    this.URLpath = this.options.url;
+    this.label = this.options.label ? this.options.label : this.options.url;
+    this.interval = this.options.interval || 10000;
+    this.state = PENDING;
 
-            function handleError(e) {
-                self.state = DISCONNECTED;
-            }
-            function handleResponse() {
-                self.state = CONNECTED;
-            }
-            function updateIndicator() {
-                $http.get(self.URLpath).then(handleResponse, handleError);
-            }
-            updateIndicator();
-            $interval(updateIndicator, self.interval, 0, false);
+    function handleError(e) {
+        self.state = DISCONNECTED;
+    }
+    function handleResponse() {
+        self.state = CONNECTED;
+    }
+    function updateIndicator() {
+        $http.get(self.URLpath).then(handleResponse, handleError);
+    }
+    updateIndicator();
+    $interval(updateIndicator, self.interval, 0, false);
+}
+
+URLIndicator.prototype.getCssClass = function () {
+    return this.cssClass;
+};
+URLIndicator.prototype.getGlyphClass = function () {
+    return this.state.glyphClass;
+};
+URLIndicator.prototype.getText = function () {
+    switch (this.state) {
+        case CONNECTED: {
+            return this.label + " is connected";
         }
-
-        URLIndicator.prototype.getCssClass = function () {
-            return this.cssClass;
-        };
-        URLIndicator.prototype.getGlyphClass = function () {
-            return this.state.glyphClass;
-        };
-        URLIndicator.prototype.getText = function () {
-            switch (this.state) {
-                case CONNECTED: {
-                    return this.label + " is connected";
-                }
-                case PENDING: {
-                    return "Checking status of " + this.label + " please stand by...";
-                }
-                case DISCONNECTED: {
-                    return this.label + " is offline";
-                }
-            }
-        };
-        URLIndicator.prototype.getDescription = function () {
-            switch (this.state) {
-                case CONNECTED: {
-                    return this.label + " is online, checking status every " +
-                    this.interval + " milliseconds.";
-                }
-                case PENDING: {
-                    return "Checking status of " + this.label + " please stand by...";
-                }
-                case DISCONNECTED: {
-                    return this.label + " is offline, checking status every " +
-                    this.interval + " milliseconds";
-                }
-            }
-        };
-        return URLIndicator;
-    });
+        case PENDING: {
+            return "Checking status of " + this.label + " please stand by...";
+        }
+        case DISCONNECTED: {
+            return this.label + " is offline";
+        }
+    }
+};
+URLIndicator.prototype.getDescription = function () {
+    switch (this.state) {
+        case CONNECTED: {
+            return this.label + " is online, checking status every " +
+            this.interval + " milliseconds.";
+        }
+        case PENDING: {
+            return "Checking status of " + this.label + " please stand by...";
+        }
+        case DISCONNECTED: {
+            return this.label + " is offline, checking status every " +
+            this.interval + " milliseconds";
+        }
+    }
+};
+var bindingVariable = URLIndicator;
+export default bindingVariable;

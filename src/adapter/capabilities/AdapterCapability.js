@@ -1,3 +1,4 @@
+import objectUtils from "..\\..\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,17 +21,17 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['../../api/objects/object-utils'], function (objectUtils) {
-    function AdapterCapability(domainObject) {
-        this.domainObject = domainObject;
-    }
+;
+function AdapterCapability(domainObject) {
+    this.domainObject = domainObject;
+}
 
-    AdapterCapability.prototype.invoke = function () {
-        return objectUtils.toNewFormat(
-            this.domainObject.getModel(),
-            this.domainObject.getId()
-        );
-    };
+AdapterCapability.prototype.invoke = function () {
+    return objectUtils.toNewFormat(
+        this.domainObject.getModel(),
+        this.domainObject.getId()
+    );
+};
 
-    return AdapterCapability;
-});
+var bindingVariable = AdapterCapability;
+export default bindingVariable;

@@ -1,3 +1,19 @@
+import MoveAction from ".\\src\\actions\\MoveAction.js";
+import CopyAction from ".\\src\\actions\\CopyAction.js";
+import LinkAction from ".\\src\\actions\\LinkAction.js";
+import GoToOriginalAction from ".\\src\\actions\\GoToOriginalAction.js";
+import SetPrimaryLocationAction from ".\\src\\actions\\SetPrimaryLocationAction.js";
+import LocatingCreationDecorator from ".\\src\\services\\LocatingCreationDecorator.js";
+import LocatingObjectDecorator from ".\\src\\services\\LocatingObjectDecorator.js";
+import CopyPolicy from ".\\src\\policies\\CopyPolicy.js";
+import CrossSpacePolicy from ".\\src\\policies\\CrossSpacePolicy.js";
+import MovePolicy from ".\\src\\policies\\MovePolicy.js";
+import LocationCapability from ".\\src\\capabilities\\LocationCapability.js";
+import MoveService from ".\\src\\services\\MoveService.js";
+import LinkService from ".\\src\\services\\LinkService.js";
+import CopyService from ".\\src\\services\\CopyService.js";
+import LocationService from ".\\src\\services\\LocationService.js";
+import legacyRegistry from "..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,192 +36,155 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/actions/MoveAction",
-    "./src/actions/CopyAction",
-    "./src/actions/LinkAction",
-    "./src/actions/GoToOriginalAction",
-    "./src/actions/SetPrimaryLocationAction",
-    "./src/services/LocatingCreationDecorator",
-    "./src/services/LocatingObjectDecorator",
-    "./src/policies/CopyPolicy",
-    "./src/policies/CrossSpacePolicy",
-    "./src/policies/MovePolicy",
-    "./src/capabilities/LocationCapability",
-    "./src/services/MoveService",
-    "./src/services/LinkService",
-    "./src/services/CopyService",
-    "./src/services/LocationService",
-    'legacyRegistry'
-], function (
-    MoveAction,
-    CopyAction,
-    LinkAction,
-    GoToOriginalAction,
-    SetPrimaryLocationAction,
-    LocatingCreationDecorator,
-    LocatingObjectDecorator,
-    CopyPolicy,
-    CrossSpacePolicy,
-    MovePolicy,
-    LocationCapability,
-    MoveService,
-    LinkService,
-    CopyService,
-    LocationService,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/entanglement", {
-        "name": "Entanglement",
-        "description": "Tools to assist you in entangling the world of WARP.",
-        "configuration": {},
-        "extensions": {
-            "actions": [
-                {
-                    "key": "move",
-                    "name": "Move",
-                    "description": "Move object to another location.",
-                    "cssClass": "icon-move",
-                    "category": "contextual",
-                    "implementation": MoveAction,
-                    "depends": [
-                        "policyService",
-                        "locationService",
-                        "moveService"
-                    ]
-                },
-                {
-                    "key": "copy",
-                    "name": "Duplicate",
-                    "description": "Duplicate object to another location.",
-                    "cssClass": "icon-duplicate",
-                    "category": "contextual",
-                    "implementation": CopyAction,
-                    "depends": [
-                        "$log",
-                        "policyService",
-                        "locationService",
-                        "copyService",
-                        "dialogService",
-                        "notificationService"
-                    ]
-                },
-                {
-                    "key": "link",
-                    "name": "Create Link",
-                    "description": "Create Link to object in another location.",
-                    "cssClass": "icon-link",
-                    "category": "contextual",
-                    "implementation": LinkAction,
-                    "depends": [
-                        "policyService",
-                        "locationService",
-                        "linkService"
-                    ]
-                },
-                {
-                    "key": "follow",
-                    "name": "Go To Original",
-                    "description": "Go to the original, un-linked instance of this object.",
-                    "cssClass": "",
-                    "category": "contextual",
-                    "implementation": GoToOriginalAction
-                },
-                {
-                    "key": "locate",
-                    "name": "Set Primary Location",
-                    "description": "Set a domain object's primary location.",
-                    "cssClass": "",
-                    "category": "contextual",
-                    "implementation": SetPrimaryLocationAction
-                }
-            ],
-            "components": [
-                {
-                    "type": "decorator",
-                    "provides": "creationService",
-                    "implementation": LocatingCreationDecorator
-                },
-                {
-                    "type": "decorator",
-                    "provides": "objectService",
-                    "implementation": LocatingObjectDecorator,
-                    "depends": [
-                        "$q",
-                        "$log"
-                    ]
-                }
-            ],
-            "policies": [
-                {
-                    "category": "action",
-                    "implementation": CrossSpacePolicy
-                },
-                {
-                    "category": "action",
-                    "implementation": CopyPolicy
-                },
-                {
-                    "category": "action",
-                    "implementation": MovePolicy
-                }
-            ],
-            "capabilities": [
-                {
-                    "key": "location",
-                    "name": "Location Capability",
-                    "description": "Provides a capability for retrieving the location of an object based upon it's context.",
-                    "implementation": LocationCapability,
-                    "depends": [
-                        "$q",
-                        "$injector"
-                    ]
-                }
-            ],
-            "services": [
-                {
-                    "key": "moveService",
-                    "name": "Move Service",
-                    "description": "Provides a service for moving objects",
-                    "implementation": MoveService,
-                    "depends": [
-                        "policyService",
-                        "linkService",
-                        "$q"
-                    ]
-                },
-                {
-                    "key": "linkService",
-                    "name": "Link Service",
-                    "description": "Provides a service for linking objects",
-                    "implementation": LinkService,
-                    "depends": [
-                        "policyService"
-                    ]
-                },
-                {
-                    "key": "copyService",
-                    "name": "Copy Service",
-                    "description": "Provides a service for copying objects",
-                    "implementation": CopyService,
-                    "depends": [
-                        "$q",
-                        "policyService",
-                        "now"
-                    ]
-                },
-                {
-                    "key": "locationService",
-                    "name": "Location Service",
-                    "description": "Provides a service for prompting a user for locations.",
-                    "implementation": LocationService,
-                    "depends": [
-                        "dialogService"
-                    ]
-                }
-            ],
-            "licenses": []
-        }
-    });
+legacyRegistry.register("platform/entanglement", {
+    "name": "Entanglement",
+    "description": "Tools to assist you in entangling the world of WARP.",
+    "configuration": {},
+    "extensions": {
+        "actions": [
+            {
+                "key": "move",
+                "name": "Move",
+                "description": "Move object to another location.",
+                "cssClass": "icon-move",
+                "category": "contextual",
+                "implementation": MoveAction,
+                "depends": [
+                    "policyService",
+                    "locationService",
+                    "moveService"
+                ]
+            },
+            {
+                "key": "copy",
+                "name": "Duplicate",
+                "description": "Duplicate object to another location.",
+                "cssClass": "icon-duplicate",
+                "category": "contextual",
+                "implementation": CopyAction,
+                "depends": [
+                    "$log",
+                    "policyService",
+                    "locationService",
+                    "copyService",
+                    "dialogService",
+                    "notificationService"
+                ]
+            },
+            {
+                "key": "link",
+                "name": "Create Link",
+                "description": "Create Link to object in another location.",
+                "cssClass": "icon-link",
+                "category": "contextual",
+                "implementation": LinkAction,
+                "depends": [
+                    "policyService",
+                    "locationService",
+                    "linkService"
+                ]
+            },
+            {
+                "key": "follow",
+                "name": "Go To Original",
+                "description": "Go to the original, un-linked instance of this object.",
+                "cssClass": "",
+                "category": "contextual",
+                "implementation": GoToOriginalAction
+            },
+            {
+                "key": "locate",
+                "name": "Set Primary Location",
+                "description": "Set a domain object's primary location.",
+                "cssClass": "",
+                "category": "contextual",
+                "implementation": SetPrimaryLocationAction
+            }
+        ],
+        "components": [
+            {
+                "type": "decorator",
+                "provides": "creationService",
+                "implementation": LocatingCreationDecorator
+            },
+            {
+                "type": "decorator",
+                "provides": "objectService",
+                "implementation": LocatingObjectDecorator,
+                "depends": [
+                    "$q",
+                    "$log"
+                ]
+            }
+        ],
+        "policies": [
+            {
+                "category": "action",
+                "implementation": CrossSpacePolicy
+            },
+            {
+                "category": "action",
+                "implementation": CopyPolicy
+            },
+            {
+                "category": "action",
+                "implementation": MovePolicy
+            }
+        ],
+        "capabilities": [
+            {
+                "key": "location",
+                "name": "Location Capability",
+                "description": "Provides a capability for retrieving the location of an object based upon it's context.",
+                "implementation": LocationCapability,
+                "depends": [
+                    "$q",
+                    "$injector"
+                ]
+            }
+        ],
+        "services": [
+            {
+                "key": "moveService",
+                "name": "Move Service",
+                "description": "Provides a service for moving objects",
+                "implementation": MoveService,
+                "depends": [
+                    "policyService",
+                    "linkService",
+                    "$q"
+                ]
+            },
+            {
+                "key": "linkService",
+                "name": "Link Service",
+                "description": "Provides a service for linking objects",
+                "implementation": LinkService,
+                "depends": [
+                    "policyService"
+                ]
+            },
+            {
+                "key": "copyService",
+                "name": "Copy Service",
+                "description": "Provides a service for copying objects",
+                "implementation": CopyService,
+                "depends": [
+                    "$q",
+                    "policyService",
+                    "now"
+                ]
+            },
+            {
+                "key": "locationService",
+                "name": "Location Service",
+                "description": "Provides a service for prompting a user for locations.",
+                "implementation": LocationService,
+                "depends": [
+                    "dialogService"
+                ]
+            }
+        ],
+        "licenses": []
+    }
 });

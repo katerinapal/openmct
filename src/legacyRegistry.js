@@ -1,3 +1,4 @@
+import BundleRegistry from ".\\BundleRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,6 +21,5 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['src/BundleRegistry'], function (BundleRegistry) {
-    return new BundleRegistry();
-});
+var bindingVariable = new BundleRegistry();;
+export default bindingVariable;

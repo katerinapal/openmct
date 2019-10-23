@@ -20,51 +20,48 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Implements the "Restart at 0" action.
-         *
-         * Behaves the same as (and delegates functionality to)
-         * the "Start" action.
-         *
-         * @implements {Action}
-         * @memberof platform/features/clock
-         * @constructor
-         * @param {Function} now a function which returns the current
-         *        time (typically wrapping `Date.now`)
-         * @param {ActionContext} context the context for this action
-         */
-        function RestartTimerAction(now, context) {
-            this.domainObject = context.domainObject;
-            this.now = now;
-        }
+/**
+ * Implements the "Restart at 0" action.
+ *
+ * Behaves the same as (and delegates functionality to)
+ * the "Start" action.
+ *
+ * @implements {Action}
+ * @memberof platform/features/clock
+ * @constructor
+ * @param {Function} now a function which returns the current
+ *        time (typically wrapping `Date.now`)
+ * @param {ActionContext} context the context for this action
+ */
+function RestartTimerAction(now, context) {
+    this.domainObject = context.domainObject;
+    this.now = now;
+}
 
-        RestartTimerAction.appliesTo = function (context) {
-            var model =
-                (context.domainObject && context.domainObject.getModel()) ||
-                {};
+RestartTimerAction.appliesTo = function (context) {
+    var model =
+        (context.domainObject && context.domainObject.getModel()) ||
+        {};
 
-            // We show this variant for timers which already have a target time.
-            return model.type === 'timer' &&
-                model.timerState !== 'stopped';
-        };
+    // We show this variant for timers which already have a target time.
+    return model.type === 'timer' &&
+        model.timerState !== 'stopped';
+};
 
-        RestartTimerAction.prototype.perform = function () {
-            var domainObject = this.domainObject,
-                now = this.now;
+RestartTimerAction.prototype.perform = function () {
+    var domainObject = this.domainObject,
+        now = this.now;
 
-            function updateModel(model) {
-                model.timestamp = now();
-                model.timerState = 'started';
-                model.pausedTime = undefined;
-            }
-
-            return domainObject.useCapability('mutation', updateModel);
-        };
-
-        return RestartTimerAction;
+    function updateModel(model) {
+        model.timestamp = now();
+        model.timerState = 'started';
+        model.pausedTime = undefined;
     }
-);
+
+    return domainObject.useCapability('mutation', updateModel);
+};
+
+var bindingVariable = RestartTimerAction;
+export default bindingVariable;

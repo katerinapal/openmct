@@ -1,3 +1,4 @@
+import FormController from ".\\controllers\\FormController.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -25,56 +26,53 @@
  * user input.
  * @namespace platform/forms
  */
-define(
-    ["./controllers/FormController", "text!../res/templates/form.html"],
-    function (FormController, formTemplate) {
+;
 
-        /**
-         * The mct-form directive allows generation of displayable
-         * forms based on a declarative description of the form's
-         * structure.
-         *
-         * This directive accepts three attributes:
-         *
-         * * `ng-model`: The model for the form; where user input
-         *   where be stored.
-         * * `structure`: The declarative structure of the form.
-         *   Describes what controls should be shown and where
-         *   their values should be read/written in the model.
-         * * `name`: The name under which to expose the form's
-         *   dirty/valid state. This is similar to ng-form's use
-         *   of name, except this will be made available in the
-         *   parent scope.
-         *
-         * @memberof platform/forms
-         * @constructor
-         */
-        function MCTForm() {
-            return {
-                // Only show at the element level
-                restrict: "E",
+/**
+ * The mct-form directive allows generation of displayable
+ * forms based on a declarative description of the form's
+ * structure.
+ *
+ * This directive accepts three attributes:
+ *
+ * * `ng-model`: The model for the form; where user input
+ *   where be stored.
+ * * `structure`: The declarative structure of the form.
+ *   Describes what controls should be shown and where
+ *   their values should be read/written in the model.
+ * * `name`: The name under which to expose the form's
+ *   dirty/valid state. This is similar to ng-form's use
+ *   of name, except this will be made available in the
+ *   parent scope.
+ *
+ * @memberof platform/forms
+ * @constructor
+ */
+function MCTForm() {
+    return {
+        // Only show at the element level
+        restrict: "E",
 
-                // Load the forms template
-                template: formTemplate,
+        // Load the forms template
+        template: formTemplate,
 
-                // Use FormController to populate/respond to changes in scope
-                controller: ['$scope', FormController],
+        // Use FormController to populate/respond to changes in scope
+        controller: ['$scope', FormController],
 
-                // Initial an isolate scope
-                scope: {
+        // Initial an isolate scope
+        scope: {
 
-                    // The model: Where form input will actually go
-                    ngModel: "=",
+            // The model: Where form input will actually go
+            ngModel: "=",
 
-                    // Form structure; what sections/rows to show
-                    structure: "=",
+            // Form structure; what sections/rows to show
+            structure: "=",
 
-                    // Name under which to publish the form
-                    name: "@"
-                }
-            };
+            // Name under which to publish the form
+            name: "@"
         }
+    };
+}
 
-        return MCTForm;
-    }
-);
+var bindingVariable = MCTForm;
+export default bindingVariable;

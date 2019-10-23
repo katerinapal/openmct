@@ -1,3 +1,4 @@
+import plugin from ".\\plugin.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,31 +21,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './plugin'
-], function (plugin) {
-    describe("The buildInfo plugin", function () {
-        var mockmct;
-        var testInfo;
+describe("The buildInfo plugin", function () {
+    var mockmct;
+    var testInfo;
 
-        beforeEach(function () {
-            mockmct = jasmine.createSpyObj('openmct', ['legacyExtension']);
-            testInfo = { foo: 123, bar: "baz" };
-            plugin(testInfo)(mockmct);
-        });
+    beforeEach(function () {
+        mockmct = jasmine.createSpyObj('openmct', ['legacyExtension']);
+        testInfo = { foo: 123, bar: "baz" };
+        plugin(testInfo)(mockmct);
+    });
 
-        it("registers versions extensions", function () {
-            Object.keys(testInfo).forEach(function (key) {
-                expect(mockmct.legacyExtension).toHaveBeenCalledWith(
-                    "versions",
-                    {
-                        key: key,
-                        name: jasmine.any(String),
-                        value: testInfo[key],
-                        description: undefined
-                    }
-                );
-            });
+    it("registers versions extensions", function () {
+        Object.keys(testInfo).forEach(function (key) {
+            expect(mockmct.legacyExtension).toHaveBeenCalledWith(
+                "versions",
+                {
+                    key: key,
+                    name: jasmine.any(String),
+                    value: testInfo[key],
+                    description: undefined
+                }
+            );
         });
     });
 });

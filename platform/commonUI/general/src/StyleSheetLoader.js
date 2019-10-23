@@ -25,58 +25,55 @@
  * platform styling.
  * @namespace platform/commonUI/general
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The StyleSheetLoader adds links to style sheets exposed from
-         * various bundles as extensions of category `stylesheets`.
-         * @memberof platform/commonUI/general
-         * @constructor
-         * @param {object[]} stylesheets stylesheet extension definitions
-         * @param $document Angular's jqLite-wrapped document element
-         * @param {string} activeTheme the theme in use
-         * @param {string} [assetPath] the directory relative to which
-         *        stylesheets will be found
-         */
-        function StyleSheetLoader(stylesheets, $document, activeTheme, assetPath) {
-            var head = $document.find('head'),
-                document = $document[0];
+/**
+ * The StyleSheetLoader adds links to style sheets exposed from
+ * various bundles as extensions of category `stylesheets`.
+ * @memberof platform/commonUI/general
+ * @constructor
+ * @param {object[]} stylesheets stylesheet extension definitions
+ * @param $document Angular's jqLite-wrapped document element
+ * @param {string} activeTheme the theme in use
+ * @param {string} [assetPath] the directory relative to which
+ *        stylesheets will be found
+ */
+function StyleSheetLoader(stylesheets, $document, activeTheme, assetPath) {
+    var head = $document.find('head'),
+        document = $document[0];
 
-            // Procedure for adding a single stylesheet
-            function addStyleSheet(stylesheet) {
-                // Create a link element, and construct full path
-                var link = document.createElement('link'),
-                    path = [
-                        assetPath,
-                        stylesheet.bundle.path,
-                        stylesheet.bundle.resources,
-                        stylesheet.stylesheetUrl
-                    ].join("/");
+    // Procedure for adding a single stylesheet
+    function addStyleSheet(stylesheet) {
+        // Create a link element, and construct full path
+        var link = document.createElement('link'),
+            path = [
+                assetPath,
+                stylesheet.bundle.path,
+                stylesheet.bundle.resources,
+                stylesheet.stylesheetUrl
+            ].join("/");
 
-                // Initialize attributes on the link
-                link.setAttribute("rel", "stylesheet");
-                link.setAttribute("type", "text/css");
-                link.setAttribute("href", path);
+        // Initialize attributes on the link
+        link.setAttribute("rel", "stylesheet");
+        link.setAttribute("type", "text/css");
+        link.setAttribute("href", path);
 
-                // Append the link to the head element
-                head.append(link);
-            }
-
-            // Stylesheets which specify themes should only be applied
-            // when that theme has been declared.
-            function matchesTheme(stylesheet) {
-                return stylesheet.theme === undefined ||
-                    stylesheet.theme === activeTheme;
-            }
-
-            assetPath = assetPath || ".";
-
-            // Add all stylesheets from extensions
-            stylesheets.filter(matchesTheme).forEach(addStyleSheet);
-        }
-
-        return StyleSheetLoader;
+        // Append the link to the head element
+        head.append(link);
     }
-);
+
+    // Stylesheets which specify themes should only be applied
+    // when that theme has been declared.
+    function matchesTheme(stylesheet) {
+        return stylesheet.theme === undefined ||
+            stylesheet.theme === activeTheme;
+    }
+
+    assetPath = assetPath || ".";
+
+    // Add all stylesheets from extensions
+    stylesheets.filter(matchesTheme).forEach(addStyleSheet);
+}
+
+var bindingVariable = StyleSheetLoader;
+export default bindingVariable;

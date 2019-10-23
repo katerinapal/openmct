@@ -1,3 +1,5 @@
+import LocalTimeSystem from ".\\LocalTimeSystem.js";
+import LocalTimeFormat from ".\\LocalTimeFormat.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,21 +22,14 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./LocalTimeSystem",
-    "./LocalTimeFormat"
-], function (
-    LocalTimeSystem,
-    LocalTimeFormat
-) {
-    return function () {
-        return function (openmct) {
-            openmct.time.addTimeSystem(new LocalTimeSystem());
+var bindingVariable = function () {
+    return function (openmct) {
+        openmct.time.addTimeSystem(new LocalTimeSystem());
 
-            openmct.legacyExtension('formats', {
-                key: 'local-format',
-                implementation: LocalTimeFormat
-            });
-        };
+        openmct.legacyExtension('formats', {
+            key: 'local-format',
+            implementation: LocalTimeFormat
+        });
     };
-});
+};;
+export default bindingVariable;

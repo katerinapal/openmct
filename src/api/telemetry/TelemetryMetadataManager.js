@@ -21,110 +21,105 @@
  *****************************************************************************/
 /*global console*/
 
-define([
-    'lodash'
-], function (
-    _
+;
+
+function applyReasonableDefaults(valueMetadata, index) {
+    valueMetadata.source = valueMetadata.source || valueMetadata.key;
+    valueMetadata.hints = valueMetadata.hints || {};
+
+    if (valueMetadata.hints.hasOwnProperty('x')) {
+        console.warn(
+            'DEPRECATION WARNING: `x` hints should be replaced with ' +
+            '`domain` hints moving forward.  ' +
+            'https://github.com/nasa/openmct/issues/1546'
+        );
+        if (!valueMetadata.hints.hasOwnProperty('domain')) {
+            valueMetadata.hints.domain = valueMetadata.hints.x;
+        }
+        delete valueMetadata.hints.x;
+    }
+
+    if (valueMetadata.hints.hasOwnProperty('y')) {
+        console.warn(
+            'DEPRECATION WARNING: `y` hints should be replaced with ' +
+            '`range` hints moving forward.  ' +
+            'https://github.com/nasa/openmct/issues/1546'
+        );
+        if (!valueMetadata.hints.hasOwnProperty('range')) {
+            valueMetadata.hints.range = valueMetadata.hints.y;
+        }
+        delete valueMetadata.hints.y;
+    }
+
+    if (valueMetadata.format === 'enum') {
+        if (!valueMetadata.values) {
+            valueMetadata.values = _.pluck(valueMetadata.enumerations, 'value');
+        }
+        if (!valueMetadata.hasOwnProperty('max')) {
+            valueMetadata.max = _.max(valueMetadata.values) + 1;
+        }
+        if (!valueMetadata.hasOwnProperty('min')) {
+            valueMetadata.min = _.min(valueMetadata.values) - 1;
+        }
+    }
+
+    if (!valueMetadata.hints.hasOwnProperty('priority')) {
+        valueMetadata.hints.priority = index;
+    }
+    return valueMetadata;
+}
+
+/**
+ * Utility class for handling and inspecting telemetry metadata.  Applies
+ * reasonable defaults to simplify the task of providing metadata, while
+ * also providing methods for interrogating telemetry metadata.
+ */
+function TelemetryMetadataManager(metadata) {
+    this.metadata = metadata;
+
+    this.valueMetadatas = this.metadata.values.map(applyReasonableDefaults);
+}
+
+/**
+ * Get value metadata for a single key.
+ */
+TelemetryMetadataManager.prototype.value = function (key) {
+    return this.valueMetadatas.filter(function (metadata) {
+        return metadata.key === key;
+    })[0];
+};
+
+/**
+ * Returns all value metadatas, sorted by priority.
+ */
+TelemetryMetadataManager.prototype.values = function () {
+    return this.valuesForHints(['priority']);
+};
+
+/**
+ * Get an array of valueMetadatas that posess all hints requested.
+ * Array is sorted based on hint priority.
+ *
+ */
+TelemetryMetadataManager.prototype.valuesForHints = function (
+    hints
 ) {
-
-    function applyReasonableDefaults(valueMetadata, index) {
-        valueMetadata.source = valueMetadata.source || valueMetadata.key;
-        valueMetadata.hints = valueMetadata.hints || {};
-
-        if (valueMetadata.hints.hasOwnProperty('x')) {
-            console.warn(
-                'DEPRECATION WARNING: `x` hints should be replaced with ' +
-                '`domain` hints moving forward.  ' +
-                'https://github.com/nasa/openmct/issues/1546'
-            );
-            if (!valueMetadata.hints.hasOwnProperty('domain')) {
-                valueMetadata.hints.domain = valueMetadata.hints.x;
-            }
-            delete valueMetadata.hints.x;
-        }
-
-        if (valueMetadata.hints.hasOwnProperty('y')) {
-            console.warn(
-                'DEPRECATION WARNING: `y` hints should be replaced with ' +
-                '`range` hints moving forward.  ' +
-                'https://github.com/nasa/openmct/issues/1546'
-            );
-            if (!valueMetadata.hints.hasOwnProperty('range')) {
-                valueMetadata.hints.range = valueMetadata.hints.y;
-            }
-            delete valueMetadata.hints.y;
-        }
-
-        if (valueMetadata.format === 'enum') {
-            if (!valueMetadata.values) {
-                valueMetadata.values = _.pluck(valueMetadata.enumerations, 'value');
-            }
-            if (!valueMetadata.hasOwnProperty('max')) {
-                valueMetadata.max = _.max(valueMetadata.values) + 1;
-            }
-            if (!valueMetadata.hasOwnProperty('min')) {
-                valueMetadata.min = _.min(valueMetadata.values) - 1;
-            }
-        }
-
-        if (!valueMetadata.hints.hasOwnProperty('priority')) {
-            valueMetadata.hints.priority = index;
-        }
-        return valueMetadata;
+    function hasHint(hint) {
+        /*jshint validthis: true */
+        return this.hints.hasOwnProperty(hint);
     }
-
-    /**
-     * Utility class for handling and inspecting telemetry metadata.  Applies
-     * reasonable defaults to simplify the task of providing metadata, while
-     * also providing methods for interrogating telemetry metadata.
-     */
-    function TelemetryMetadataManager(metadata) {
-        this.metadata = metadata;
-
-        this.valueMetadatas = this.metadata.values.map(applyReasonableDefaults);
+    function hasHints(metadata) {
+        return hints.every(hasHint, metadata);
     }
-
-    /**
-     * Get value metadata for a single key.
-     */
-    TelemetryMetadataManager.prototype.value = function (key) {
-        return this.valueMetadatas.filter(function (metadata) {
-            return metadata.key === key;
-        })[0];
-    };
-
-    /**
-     * Returns all value metadatas, sorted by priority.
-     */
-    TelemetryMetadataManager.prototype.values = function () {
-        return this.valuesForHints(['priority']);
-    };
-
-    /**
-     * Get an array of valueMetadatas that posess all hints requested.
-     * Array is sorted based on hint priority.
-     *
-     */
-    TelemetryMetadataManager.prototype.valuesForHints = function (
-        hints
-    ) {
-        function hasHint(hint) {
-            /*jshint validthis: true */
-            return this.hints.hasOwnProperty(hint);
-        }
-        function hasHints(metadata) {
-            return hints.every(hasHint, metadata);
-        }
-        var matchingMetadata = this.valueMetadatas.filter(hasHints);
-        var sortedMetadata = _.sortBy(matchingMetadata, function (metadata) {
-            return hints.map(function (hint) {
-                return metadata.hints[hint];
-            });
+    var matchingMetadata = this.valueMetadatas.filter(hasHints);
+    var sortedMetadata = _.sortBy(matchingMetadata, function (metadata) {
+        return hints.map(function (hint) {
+            return metadata.hints[hint];
         });
-        return sortedMetadata;
-    };
+    });
+    return sortedMetadata;
+};
 
 
-    return TelemetryMetadataManager;
-
-});
+var bindingVariable = TelemetryMetadataManager;
+export default bindingVariable;

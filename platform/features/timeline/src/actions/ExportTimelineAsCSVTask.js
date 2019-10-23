@@ -1,3 +1,5 @@
+import TimelineTraverser from ".\\TimelineTraverser.js";
+import TimelineColumnizer from ".\\TimelineColumnizer.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -23,49 +25,46 @@
 /**
  * Module defining ExportTimelineAsCSVTask. Created by vwoeltje on 2/8/16.
  */
-define([
-    "./TimelineTraverser",
-    "./TimelineColumnizer"
-], function (TimelineTraverser, TimelineColumnizer) {
+;
 
-    /**
-     * Runs (and coordinates) the preparation and export of CSV data
-     * for the "Export Timeline as CSV" action.
-     *
-     * @constructor
-     * @memberof {platform/features/timeline}
-     * @param exportService the service used to export as CSV
-     * @param resources the `resources` extension category
-     * @param {DomainObject} domainObject the timeline being exported
-     */
-    function ExportTimelineAsCSVTask(exportService, resources, domainObject) {
-        this.domainObject = domainObject;
-        this.exportService = exportService;
-        this.resources = resources;
+/**
+ * Runs (and coordinates) the preparation and export of CSV data
+ * for the "Export Timeline as CSV" action.
+ *
+ * @constructor
+ * @memberof {platform/features/timeline}
+ * @param exportService the service used to export as CSV
+ * @param resources the `resources` extension category
+ * @param {DomainObject} domainObject the timeline being exported
+ */
+function ExportTimelineAsCSVTask(exportService, resources, domainObject) {
+    this.domainObject = domainObject;
+    this.exportService = exportService;
+    this.resources = resources;
+}
+
+/**
+ * Run this CSV export task.
+ *
+ * @returns {Promise} a promise that will be resolved when the
+ *          export has finished (or rejected if there are problems.)
+ */
+ExportTimelineAsCSVTask.prototype.run = function () {
+    var exportService = this.exportService;
+    var resources = this.resources;
+
+    function doExport(objects) {
+        var exporter = new TimelineColumnizer(objects, resources),
+            options = { headers: exporter.headers() };
+        return exporter.rows().then(function (rows) {
+            return exportService.exportCSV(rows, options);
+        });
     }
 
-    /**
-     * Run this CSV export task.
-     *
-     * @returns {Promise} a promise that will be resolved when the
-     *          export has finished (or rejected if there are problems.)
-     */
-    ExportTimelineAsCSVTask.prototype.run = function () {
-        var exportService = this.exportService;
-        var resources = this.resources;
+    return new TimelineTraverser(this.domainObject)
+        .buildObjectList()
+        .then(doExport);
+};
 
-        function doExport(objects) {
-            var exporter = new TimelineColumnizer(objects, resources),
-                options = { headers: exporter.headers() };
-            return exporter.rows().then(function (rows) {
-                return exportService.exportCSV(rows, options);
-            });
-        }
-
-        return new TimelineTraverser(this.domainObject)
-            .buildObjectList()
-            .then(doExport);
-    };
-
-    return ExportTimelineAsCSVTask;
-});
+var bindingVariable = ExportTimelineAsCSVTask;
+export default bindingVariable;

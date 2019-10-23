@@ -20,74 +20,70 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'lodash'
-], function (
-    _
-) {
-    var ANY_OBJECT_EVENT = "mutation";
+;
+var ANY_OBJECT_EVENT = "mutation";
 
-    /**
-     * The MutableObject wraps a DomainObject and provides getters and
-     * setters for
-     * @param eventEmitter
-     * @param object
-     * @interface MutableObject
-     */
-    function MutableObject(eventEmitter, object) {
-        this.eventEmitter = eventEmitter;
-        this.object = object;
-        this.unlisteners = [];
-    }
+/**
+ * The MutableObject wraps a DomainObject and provides getters and
+ * setters for
+ * @param eventEmitter
+ * @param object
+ * @interface MutableObject
+ */
+function MutableObject(eventEmitter, object) {
+    this.eventEmitter = eventEmitter;
+    this.object = object;
+    this.unlisteners = [];
+}
 
-    function qualifiedEventName(object, eventName) {
-        return [object.identifier.key, eventName].join(':');
-    }
+function qualifiedEventName(object, eventName) {
+    return [object.identifier.key, eventName].join(':');
+}
 
-    MutableObject.prototype.stopListening = function () {
-        this.unlisteners.forEach(function (unlisten) {
-            unlisten();
-        });
-        this.unlisteners = [];
-    };
+MutableObject.prototype.stopListening = function () {
+    this.unlisteners.forEach(function (unlisten) {
+        unlisten();
+    });
+    this.unlisteners = [];
+};
 
-    /**
-     * Observe changes to this domain object.
-     * @param {string} path the property to observe
-     * @param {Function} callback a callback to invoke when new values for
-     *        this property are observed
-     * @method on
-     * @memberof module:openmct.MutableObject#
-     */
-    MutableObject.prototype.on = function (path, callback) {
-        var fullPath = qualifiedEventName(this.object, path);
-        var eventOff =
-            this.eventEmitter.off.bind(this.eventEmitter, fullPath, callback);
+/**
+ * Observe changes to this domain object.
+ * @param {string} path the property to observe
+ * @param {Function} callback a callback to invoke when new values for
+ *        this property are observed
+ * @method on
+ * @memberof module:openmct.MutableObject#
+ */
+MutableObject.prototype.on = function (path, callback) {
+    var fullPath = qualifiedEventName(this.object, path);
+    var eventOff =
+        this.eventEmitter.off.bind(this.eventEmitter, fullPath, callback);
 
-        this.eventEmitter.on(fullPath, callback);
-        this.unlisteners.push(eventOff);
-    };
+    this.eventEmitter.on(fullPath, callback);
+    this.unlisteners.push(eventOff);
+};
 
-    /**
-     * Modify this domain object.
-     * @param {string} path the property to modify
-     * @param {*} value the new value for this property
-     * @method set
-     * @memberof module:openmct.MutableObject#
-     */
-    MutableObject.prototype.set = function (path, value) {
+/**
+ * Modify this domain object.
+ * @param {string} path the property to modify
+ * @param {*} value the new value for this property
+ * @method set
+ * @memberof module:openmct.MutableObject#
+ */
+MutableObject.prototype.set = function (path, value) {
 
-        _.set(this.object, path, value);
-        _.set(this.object, 'modified', Date.now());
+    _.set(this.object, path, value);
+    _.set(this.object, 'modified', Date.now());
 
-        //Emit event specific to property
-        this.eventEmitter.emit(qualifiedEventName(this.object, path), value);
-        //Emit wildcare event
-        this.eventEmitter.emit(qualifiedEventName(this.object, '*'), this.object);
+    //Emit event specific to property
+    this.eventEmitter.emit(qualifiedEventName(this.object, path), value);
+    //Emit wildcare event
+    this.eventEmitter.emit(qualifiedEventName(this.object, '*'), this.object);
 
-        //Emit a general "any object" event
-        this.eventEmitter.emit(ANY_OBJECT_EVENT, this.object);
-    };
+    //Emit a general "any object" event
+    this.eventEmitter.emit(ANY_OBJECT_EVENT, this.object);
+};
 
-    return MutableObject;
-});
+var bindingVariable = MutableObject;
+export default bindingVariable;

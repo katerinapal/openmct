@@ -20,96 +20,91 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The `info` gesture displays domain object metadata in a
-         * bubble on hover.
-         *
-         * @constructor
-         * @param $document Angular's `$document`
-         * @param {InfoService} infoService a service which shows info bubbles
-         * @param element jqLite-wrapped DOM element
-         * @param {DomainObject} domainObject the domain object for which to
-         *        show information
-         */
-        function InfoGestureButton($document, agentService, infoService, element, domainObject) {
-            var dismissBubble,
-                touchPosition,
-                body = $document.find('body');
+/**
+ * The `info` gesture displays domain object metadata in a
+ * bubble on hover.
+ *
+ * @constructor
+ * @param $document Angular's `$document`
+ * @param {InfoService} infoService a service which shows info bubbles
+ * @param element jqLite-wrapped DOM element
+ * @param {DomainObject} domainObject the domain object for which to
+ *        show information
+ */
+function InfoGestureButton($document, agentService, infoService, element, domainObject) {
+    var dismissBubble,
+        touchPosition,
+        body = $document.find('body');
 
-            function trackPosition(event) {
-                // Record touch position, so bubble can be shown at latest
-                // touch position, also offset by 22px to left (accounts for
-                // a finger-sized touch on the info button)
-                touchPosition = [event.clientX - 22, event.clientY];
-            }
-
-            // Hides the bubble and detaches the
-            // body hidebubble listener
-            function hideBubble() {
-                // If a bubble is showing, dismiss it
-                if (dismissBubble) {
-                    dismissBubble();
-                    dismissBubble = undefined;
-                }
-
-                // Detaches body touch listener
-                body.off('touchstart', hideBubble);
-            }
-
-            // Displays the bubble by tracking position of
-            // touch, using infoService to display the bubble,
-            // and then on any body touch the bubble is dismissed
-            function showBubble(event) {
-                trackPosition(event);
-                event.stopPropagation();
-                // Show the bubble, but on any touchstart on the
-                // body (anywhere) call hidebubble
-                dismissBubble = infoService.display(
-                    "info-table",
-                    domainObject.getModel().name,
-                    domainObject.useCapability('metadata'),
-                    touchPosition
-                );
-
-                // On any touch on the body, default body touches/events
-                // are prevented, the bubble is dismissed, and the touchstart
-                // body event is unbound, reallowing gestures
-                body.on('touchstart', function (evt) {
-                    evt.preventDefault();
-                    hideBubble();
-                    body.unbind('touchstart');
-                });
-            }
-
-            // Checks if you are on a mobile device, if the device is
-            // mobile (agentService.isMobile() = true), then
-            // the a click on something (info button) brings up
-            // the bubble
-            if (agentService.isMobile()) {
-                element.on('click', showBubble);
-            }
-
-            return {
-                /**
-                 * Detach any event handlers associated with this gesture.
-                 * @memberof InfoGesture
-                 * @method
-                 */
-                destroy: function () {
-                    // Dismiss any active bubble...
-                    hideBubble();
-                    // ...and detach listeners
-                    element.off('click', showBubble);
-                }
-            };
-        }
-
-        return InfoGestureButton;
-
+    function trackPosition(event) {
+        // Record touch position, so bubble can be shown at latest
+        // touch position, also offset by 22px to left (accounts for
+        // a finger-sized touch on the info button)
+        touchPosition = [event.clientX - 22, event.clientY];
     }
 
-);
+    // Hides the bubble and detaches the
+    // body hidebubble listener
+    function hideBubble() {
+        // If a bubble is showing, dismiss it
+        if (dismissBubble) {
+            dismissBubble();
+            dismissBubble = undefined;
+        }
+
+        // Detaches body touch listener
+        body.off('touchstart', hideBubble);
+    }
+
+    // Displays the bubble by tracking position of
+    // touch, using infoService to display the bubble,
+    // and then on any body touch the bubble is dismissed
+    function showBubble(event) {
+        trackPosition(event);
+        event.stopPropagation();
+        // Show the bubble, but on any touchstart on the
+        // body (anywhere) call hidebubble
+        dismissBubble = infoService.display(
+            "info-table",
+            domainObject.getModel().name,
+            domainObject.useCapability('metadata'),
+            touchPosition
+        );
+
+        // On any touch on the body, default body touches/events
+        // are prevented, the bubble is dismissed, and the touchstart
+        // body event is unbound, reallowing gestures
+        body.on('touchstart', function (evt) {
+            evt.preventDefault();
+            hideBubble();
+            body.unbind('touchstart');
+        });
+    }
+
+    // Checks if you are on a mobile device, if the device is
+    // mobile (agentService.isMobile() = true), then
+    // the a click on something (info button) brings up
+    // the bubble
+    if (agentService.isMobile()) {
+        element.on('click', showBubble);
+    }
+
+    return {
+        /**
+         * Detach any event handlers associated with this gesture.
+         * @memberof InfoGesture
+         * @method
+         */
+        destroy: function () {
+            // Dismiss any active bubble...
+            hideBubble();
+            // ...and detach listeners
+            element.off('click', showBubble);
+        }
+    };
+}
+
+var bindingVariable = InfoGestureButton;
+export default bindingVariable;

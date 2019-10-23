@@ -20,55 +20,52 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller for the `browse-object` representation of a domain
-         * object (the right-hand side of Browse mode.)
-         * @memberof platform/commonUI/browse
-         * @constructor
-         */
-        function BrowseObjectController($scope, $location, $route) {
-            var navigatedObject;
-            function setViewForDomainObject(domainObject) {
+/**
+ * Controller for the `browse-object` representation of a domain
+ * object (the right-hand side of Browse mode.)
+ * @memberof platform/commonUI/browse
+ * @constructor
+ */
+function BrowseObjectController($scope, $location, $route) {
+    var navigatedObject;
+    function setViewForDomainObject(domainObject) {
 
-                var locationViewKey = $location.search().view;
+        var locationViewKey = $location.search().view;
 
-                function selectViewIfMatching(view) {
-                    if (view.key === locationViewKey) {
-                        $scope.representation = $scope.representation || {};
-                        $scope.representation.selected = view;
-                    }
-                }
-
-                if (locationViewKey) {
-                    ((domainObject && domainObject.useCapability('view')) || [])
-                        .forEach(selectViewIfMatching);
-                }
-                navigatedObject = domainObject;
+        function selectViewIfMatching(view) {
+            if (view.key === locationViewKey) {
+                $scope.representation = $scope.representation || {};
+                $scope.representation.selected = view;
             }
-
-            function updateQueryParam(viewKey) {
-                if (viewKey && $location.search().view !== viewKey) {
-                    $location.search('view', viewKey);
-                }
-            }
-
-            $scope.$watch('domainObject', setViewForDomainObject);
-            $scope.$watch('representation.selected.key', updateQueryParam);
-            $scope.$on('$locationChangeSuccess', function () {
-                setViewForDomainObject($scope.domainObject);
-            });
-
-            $scope.doAction = function (action) {
-                return $scope[action] && $scope[action]();
-            };
-
         }
 
-        return BrowseObjectController;
+        if (locationViewKey) {
+            ((domainObject && domainObject.useCapability('view')) || [])
+                .forEach(selectViewIfMatching);
+        }
+        navigatedObject = domainObject;
     }
-);
+
+    function updateQueryParam(viewKey) {
+        if (viewKey && $location.search().view !== viewKey) {
+            $location.search('view', viewKey);
+        }
+    }
+
+    $scope.$watch('domainObject', setViewForDomainObject);
+    $scope.$watch('representation.selected.key', updateQueryParam);
+    $scope.$on('$locationChangeSuccess', function () {
+        setViewForDomainObject($scope.domainObject);
+    });
+
+    $scope.doAction = function (action) {
+        return $scope[action] && $scope[action]();
+    };
+
+}
+
+var bindingVariable = BrowseObjectController;
+export default bindingVariable;
 

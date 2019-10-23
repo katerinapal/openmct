@@ -19,7 +19,7 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
-define({
+export default {
     CSS_CLASS_PREFIX: 's-status-',
     TOPIC_PREFIX: 'status:'
-});
+};;

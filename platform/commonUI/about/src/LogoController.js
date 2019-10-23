@@ -20,30 +20,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The LogoController provides functionality to the application
-         * logo in the bottom-right of the user interface.
-         * @memberof platform/commonUI/about
-         * @constructor
-         * @param {OverlayService} overlayService the overlay service
-         */
-        function LogoController(overlayService) {
-            this.overlayService = overlayService;
-        }
+/**
+ * The LogoController provides functionality to the application
+ * logo in the bottom-right of the user interface.
+ * @memberof platform/commonUI/about
+ * @constructor
+ * @param {OverlayService} overlayService the overlay service
+ */
+function LogoController(overlayService) {
+    this.overlayService = overlayService;
+}
 
-        /**
-         * Display the About dialog.
-         * @memberof LogoController#
-         * @memberof platform/commonUI/about.LogoController#
-         */
-        LogoController.prototype.showAboutDialog = function () {
-            this.overlayService.createOverlay("overlay-about");
-        };
+/**
+ * Display the About dialog.
+ * @memberof LogoController#
+ * @memberof platform/commonUI/about.LogoController#
+ */
+LogoController.prototype.showAboutDialog = function () {
+    this.overlayService.createOverlay("overlay-about");
+};
 
-        return LogoController;
-    }
-);
+var bindingVariable = LogoController;
+export default bindingVariable;

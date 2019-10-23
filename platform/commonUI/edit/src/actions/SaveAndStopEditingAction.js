@@ -1,3 +1,4 @@
+import SaveAction from ".\\SaveAction.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,56 +21,53 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ["./SaveAction"],
-    function (SaveAction) {
+;
 
-        /**
-         * The "Save and Stop Editing" action performs a [Save action]{@link SaveAction}
-         * on the object under edit followed by exiting the edit user interface.
-         * @constructor
-         * @implements {Action}
-         * @memberof platform/commonUI/edit
-         */
-        function SaveAndStopEditingAction(
-            dialogService,
-            notificationService,
-            context
-        ) {
-            this.context = context;
-            this.domainObject = (context || {}).domainObject;
-            this.dialogService = dialogService;
-            this.notificationService = notificationService;
-        }
+/**
+ * The "Save and Stop Editing" action performs a [Save action]{@link SaveAction}
+ * on the object under edit followed by exiting the edit user interface.
+ * @constructor
+ * @implements {Action}
+ * @memberof platform/commonUI/edit
+ */
+function SaveAndStopEditingAction(
+    dialogService,
+    notificationService,
+    context
+) {
+    this.context = context;
+    this.domainObject = (context || {}).domainObject;
+    this.dialogService = dialogService;
+    this.notificationService = notificationService;
+}
 
-        /**
-         * Trigger a save operation and exit edit mode.
-         *
-         * @returns {Promise} a promise that will be fulfilled when
-         *          cancellation has completed
-         * @memberof platform/commonUI/edit.SaveAndStopEditingAction#
-         */
-        SaveAndStopEditingAction.prototype.perform = function () {
-            var domainObject = this.domainObject,
-                saveAction = new SaveAction(this.dialogService, this.notificationService, this.context);
+/**
+ * Trigger a save operation and exit edit mode.
+ *
+ * @returns {Promise} a promise that will be fulfilled when
+ *          cancellation has completed
+ * @memberof platform/commonUI/edit.SaveAndStopEditingAction#
+ */
+SaveAndStopEditingAction.prototype.perform = function () {
+    var domainObject = this.domainObject,
+        saveAction = new SaveAction(this.dialogService, this.notificationService, this.context);
 
-            function closeEditor() {
-                return domainObject.getCapability("editor").finish();
-            }
-
-            return saveAction.perform()
-                .then(closeEditor)
-                .catch(closeEditor);
-        };
-
-        /**
-         * Check if this action is applicable in a given context.
-         * This will ensure that a domain object is present in the context,
-         * and that this domain object is in Edit mode.
-         * @returns true if applicable
-         */
-        SaveAndStopEditingAction.appliesTo = SaveAction.appliesTo;
-
-        return SaveAndStopEditingAction;
+    function closeEditor() {
+        return domainObject.getCapability("editor").finish();
     }
-);
+
+    return saveAction.perform()
+        .then(closeEditor)
+        .catch(closeEditor);
+};
+
+/**
+ * Check if this action is applicable in a given context.
+ * This will ensure that a domain object is present in the context,
+ * and that this domain object is in Edit mode.
+ * @returns true if applicable
+ */
+SaveAndStopEditingAction.appliesTo = SaveAction.appliesTo;
+
+var bindingVariable = SaveAndStopEditingAction;
+export default bindingVariable;

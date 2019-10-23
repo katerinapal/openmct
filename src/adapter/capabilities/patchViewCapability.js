@@ -20,41 +20,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'lodash'
-], function (
-    _
-) {
+;
 
-    function patchViewCapability(viewConstructor) {
-        return function makeCapability(domainObject) {
-            var capability = viewConstructor(domainObject);
-            var oldInvoke = capability.invoke.bind(capability);
+function patchViewCapability(viewConstructor) {
+    return function makeCapability(domainObject) {
+        var capability = viewConstructor(domainObject);
+        var oldInvoke = capability.invoke.bind(capability);
 
-            capability.invoke = function () {
-                var availableViews = oldInvoke();
-                var newDomainObject = capability
-                    .domainObject
-                    .useCapability('adapter');
+        capability.invoke = function () {
+            var availableViews = oldInvoke();
+            var newDomainObject = capability
+                .domainObject
+                .useCapability('adapter');
 
-                return _(availableViews).map(function (v, i) {
-                    var vd = {
-                        view: v,
-                        priority: i + 100 // arbitrary to allow new views to
-                        // be defaults by returning priority less than 100.
-                    };
-                    if (v.provider && v.provider.priority) {
-                        vd.priority = v.provider.priority(newDomainObject);
-                    }
-                    return vd;
-                })
-                .sortBy('priority')
-                .map('view')
-                .value();
-            };
-            return capability;
+            return _(availableViews).map(function (v, i) {
+                var vd = {
+                    view: v,
+                    priority: i + 100 // arbitrary to allow new views to
+                    // be defaults by returning priority less than 100.
+                };
+                if (v.provider && v.provider.priority) {
+                    vd.priority = v.provider.priority(newDomainObject);
+                }
+                return vd;
+            })
+            .sortBy('priority')
+            .map('view')
+            .value();
         };
-    }
+        return capability;
+    };
+}
 
-    return patchViewCapability;
-});
+var bindingVariable = patchViewCapability;
+export default bindingVariable;

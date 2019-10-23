@@ -25,42 +25,39 @@
  *
  * The bootstrapper is responsible
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The application bootstrapper is responsible for issuing the
-         * bootstrap call to Angular. This would normally not be needed
-         * with an appropriately-placed ng-app directive, but the
-         * framework needs to wait until all extensions have been loaded
-         * and registered.
-         *
-         * @memberof platform/framework
-         * @constructor
-         */
-        function ApplicationBootstrapper(angular, document, $log) {
-            this.angular = angular;
-            this.document = document;
-            this.$log = $log;
-        }
+/**
+ * The application bootstrapper is responsible for issuing the
+ * bootstrap call to Angular. This would normally not be needed
+ * with an appropriately-placed ng-app directive, but the
+ * framework needs to wait until all extensions have been loaded
+ * and registered.
+ *
+ * @memberof platform/framework
+ * @constructor
+ */
+function ApplicationBootstrapper(angular, document, $log) {
+    this.angular = angular;
+    this.document = document;
+    this.$log = $log;
+}
 
-        /**
-         * Bootstrap the application.
-         *
-         * @param {angular.Module} app the Angular application to
-         *        bootstrap
-         */
-        ApplicationBootstrapper.prototype.bootstrap = function (app) {
-            var angular = this.angular,
-                document = this.document,
-                $log = this.$log;
-            $log.info("Bootstrapping application " + (app || {}).name);
-            angular.element(document).ready(function () {
-                angular.bootstrap(document, [app.name], { strictDi: true });
-            });
-        };
+/**
+ * Bootstrap the application.
+ *
+ * @param {angular.Module} app the Angular application to
+ *        bootstrap
+ */
+ApplicationBootstrapper.prototype.bootstrap = function (app) {
+    var angular = this.angular,
+        document = this.document,
+        $log = this.$log;
+    $log.info("Bootstrapping application " + (app || {}).name);
+    angular.element(document).ready(function () {
+        angular.bootstrap(document, [app.name], { strictDi: true });
+    });
+};
 
-        return ApplicationBootstrapper;
-    }
-);
+var bindingVariable = ApplicationBootstrapper;
+export default bindingVariable;

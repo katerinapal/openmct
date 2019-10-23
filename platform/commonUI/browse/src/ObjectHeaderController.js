@@ -20,73 +20,70 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller to provide the ability to inline edit an object name.
-         *
-         * @constructor
-         * @memberof platform/commonUI/browse
-         */
-        function ObjectHeaderController($scope) {
-            this.$scope = $scope;
-            this.domainObject = $scope.domainObject;
-            this.editable = this.allowEdit();
-        }
+/**
+ * Controller to provide the ability to inline edit an object name.
+ *
+ * @constructor
+ * @memberof platform/commonUI/browse
+ */
+function ObjectHeaderController($scope) {
+    this.$scope = $scope;
+    this.domainObject = $scope.domainObject;
+    this.editable = this.allowEdit();
+}
 
-        /**
-         * Updates the object name on blur and enter keypress events.
-         *
-         * @param event the mouse event
-         */
-        ObjectHeaderController.prototype.updateName = function (event) {
-            if (!event || !event.currentTarget) {
-                return;
-            }
-
-            if (event.type === 'blur') {
-                this.updateModel(event);
-            } else if (event.which === 13) {
-                this.updateModel(event);
-                event.currentTarget.blur();
-                window.getSelection().removeAllRanges();
-            }
-        };
-
-        /**
-         * Updates the model.
-         *
-         * @param event the mouse event
-         * @param private
-         */
-        ObjectHeaderController.prototype.updateModel = function (event) {
-            var name = event.currentTarget.textContent.replace(/\n/g, ' ');
-
-            if (name.length === 0) {
-                name = "Unnamed " + this.domainObject.getCapability("type").typeDef.name;
-                event.currentTarget.textContent = name;
-            }
-
-            if (name !== this.domainObject.getModel().name) {
-                this.domainObject.getCapability('mutation').mutate(function (model) {
-                    model.name = name;
-                });
-            }
-        };
-
-        /**
-         * Checks if the domain object is editable.
-         *
-         * @private
-         * @return true if object is editable
-         */
-        ObjectHeaderController.prototype.allowEdit = function () {
-            var type = this.domainObject && this.domainObject.getCapability('type');
-            return !!(type && type.hasFeature('creation'));
-        };
-
-        return ObjectHeaderController;
+/**
+ * Updates the object name on blur and enter keypress events.
+ *
+ * @param event the mouse event
+ */
+ObjectHeaderController.prototype.updateName = function (event) {
+    if (!event || !event.currentTarget) {
+        return;
     }
-);
+
+    if (event.type === 'blur') {
+        this.updateModel(event);
+    } else if (event.which === 13) {
+        this.updateModel(event);
+        event.currentTarget.blur();
+        window.getSelection().removeAllRanges();
+    }
+};
+
+/**
+ * Updates the model.
+ *
+ * @param event the mouse event
+ * @param private
+ */
+ObjectHeaderController.prototype.updateModel = function (event) {
+    var name = event.currentTarget.textContent.replace(/\n/g, ' ');
+
+    if (name.length === 0) {
+        name = "Unnamed " + this.domainObject.getCapability("type").typeDef.name;
+        event.currentTarget.textContent = name;
+    }
+
+    if (name !== this.domainObject.getModel().name) {
+        this.domainObject.getCapability('mutation').mutate(function (model) {
+            model.name = name;
+        });
+    }
+};
+
+/**
+ * Checks if the domain object is editable.
+ *
+ * @private
+ * @return true if object is editable
+ */
+ObjectHeaderController.prototype.allowEdit = function () {
+    var type = this.domainObject && this.domainObject.getCapability('type');
+    return !!(type && type.hasFeature('creation'));
+};
+
+var bindingVariable = ObjectHeaderController;
+export default bindingVariable;

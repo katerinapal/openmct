@@ -20,89 +20,86 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The ElementsController prepares the elements view for display
-         *
-         * @constructor
-         */
-        function ElementsController($scope, openmct) {
-            this.scope = $scope;
-            this.scope.composition = [];
-            var self = this;
+/**
+ * The ElementsController prepares the elements view for display
+ *
+ * @constructor
+ */
+function ElementsController($scope, openmct) {
+    this.scope = $scope;
+    this.scope.composition = [];
+    var self = this;
 
-            function filterBy(text) {
-                if (typeof text === 'undefined') {
-                    return $scope.searchText;
-                } else {
-                    $scope.searchText = text;
-                }
-            }
+    function filterBy(text) {
+        if (typeof text === 'undefined') {
+            return $scope.searchText;
+        } else {
+            $scope.searchText = text;
+        }
+    }
 
-            function searchElements(value) {
-                if ($scope.searchText) {
-                    return value.getModel().name.toLowerCase().search(
-                            $scope.searchText.toLowerCase()) !== -1;
-                } else {
-                    return true;
-                }
-            }
+    function searchElements(value) {
+        if ($scope.searchText) {
+            return value.getModel().name.toLowerCase().search(
+                    $scope.searchText.toLowerCase()) !== -1;
+        } else {
+            return true;
+        }
+    }
 
-            function setSelection(selection) {
-                if (!selection[0]) {
-                    return;
-                }
-
-                if (self.mutationListener) {
-                    self.mutationListener();
-                    delete self.mutationListener;
-                }
-
-                var domainObject = selection[0].context.oldItem;
-                self.refreshComposition(domainObject);
-
-                if (domainObject) {
-                    self.mutationListener = domainObject.getCapability('mutation')
-                        .listen(self.refreshComposition.bind(self, domainObject));
-                }
-            }
-
-            $scope.filterBy = filterBy;
-            $scope.searchElements = searchElements;
-
-            openmct.selection.on('change', setSelection);
-            setSelection(openmct.selection.get());
-
-            $scope.$on("$destroy", function () {
-                openmct.selection.off("change", setSelection);
-            });
+    function setSelection(selection) {
+        if (!selection[0]) {
+            return;
         }
 
-        /**
-         * Gets the composition for the selected object and populates the scope with it.
-         *
-         * @param domainObject the selected object
-         * @private
-         */
-        ElementsController.prototype.refreshComposition = function (domainObject) {
-            var refreshTracker = {};
-            this.currentRefresh = refreshTracker;
+        if (self.mutationListener) {
+            self.mutationListener();
+            delete self.mutationListener;
+        }
 
-            var selectedObjectComposition = domainObject && domainObject.useCapability('composition');
-            if (selectedObjectComposition) {
-                selectedObjectComposition.then(function (composition) {
-                    if (this.currentRefresh === refreshTracker) {
-                        this.scope.composition = composition;
-                    }
-                }.bind(this));
-            } else {
-                this.scope.composition = [];
-            }
-        };
+        var domainObject = selection[0].context.oldItem;
+        self.refreshComposition(domainObject);
 
-        return ElementsController;
+        if (domainObject) {
+            self.mutationListener = domainObject.getCapability('mutation')
+                .listen(self.refreshComposition.bind(self, domainObject));
+        }
     }
-);
+
+    $scope.filterBy = filterBy;
+    $scope.searchElements = searchElements;
+
+    openmct.selection.on('change', setSelection);
+    setSelection(openmct.selection.get());
+
+    $scope.$on("$destroy", function () {
+        openmct.selection.off("change", setSelection);
+    });
+}
+
+/**
+ * Gets the composition for the selected object and populates the scope with it.
+ *
+ * @param domainObject the selected object
+ * @private
+ */
+ElementsController.prototype.refreshComposition = function (domainObject) {
+    var refreshTracker = {};
+    this.currentRefresh = refreshTracker;
+
+    var selectedObjectComposition = domainObject && domainObject.useCapability('composition');
+    if (selectedObjectComposition) {
+        selectedObjectComposition.then(function (composition) {
+            if (this.currentRefresh === refreshTracker) {
+                this.scope.composition = composition;
+            }
+        }.bind(this));
+    } else {
+        this.scope.composition = [];
+    }
+};
+
+var bindingVariable = ElementsController;
+export default bindingVariable;

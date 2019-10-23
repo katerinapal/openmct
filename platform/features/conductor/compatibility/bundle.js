@@ -1,3 +1,5 @@
+import ConductorRepresenter from ".\\src\\ConductorRepresenter.js";
+import legacyRegistry from "..\\..\\..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,24 +22,15 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/ConductorRepresenter",
-    'legacyRegistry'
-], function (
-    ConductorRepresenter,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/features/conductor/compatibility", {
-        "extensions": {
-            "representers": [
-                {
-                    "implementation": ConductorRepresenter,
-                    "depends": [
-                        "openmct"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/features/conductor/compatibility", {
+    "extensions": {
+        "representers": [
+            {
+                "implementation": ConductorRepresenter,
+                "depends": [
+                    "openmct"
+                ]
+            }
+        ]
+    }
 });

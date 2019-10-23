@@ -1,3 +1,4 @@
+import Constants from ".\\PersistenceFailureConstants.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,36 +21,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['moment', './PersistenceFailureConstants'],
-    function (moment, Constants) {
+;
 
-        /**
-         * Controller to support the template to be shown in the
-         * dialog shown for persistence failures.
-         * @constructor
-         * @memberof platform/persistence/queue
-         */
-        function PersistenceFailureController() {
-        }
+/**
+ * Controller to support the template to be shown in the
+ * dialog shown for persistence failures.
+ * @constructor
+ * @memberof platform/persistence/queue
+ */
+function PersistenceFailureController() {
+}
 
-        /**
-         * Format a timestamp for display in the dialog.
-         * @memberof platform/persistence/queue.PersistenceFailureController#
-         */
-        PersistenceFailureController.prototype.formatTimestamp = function (timestamp) {
-            return moment.utc(timestamp)
-                .format(Constants.TIMESTAMP_FORMAT);
-        };
+/**
+ * Format a timestamp for display in the dialog.
+ * @memberof platform/persistence/queue.PersistenceFailureController#
+ */
+PersistenceFailureController.prototype.formatTimestamp = function (timestamp) {
+    return moment.utc(timestamp)
+        .format(Constants.TIMESTAMP_FORMAT);
+};
 
-        /**
-         * Format a user name for display in the dialog.
-         * @memberof platform/persistence/queue.PersistenceFailureController#
-         */
-        PersistenceFailureController.prototype.formatUsername = function (username) {
-            return username || Constants.UNKNOWN_USER;
-        };
+/**
+ * Format a user name for display in the dialog.
+ * @memberof platform/persistence/queue.PersistenceFailureController#
+ */
+PersistenceFailureController.prototype.formatUsername = function (username) {
+    return username || Constants.UNKNOWN_USER;
+};
 
-        return PersistenceFailureController;
-    }
-);
+var bindingVariable = PersistenceFailureController;
+export default bindingVariable;

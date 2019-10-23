@@ -21,157 +21,155 @@
  *****************************************************************************/
 
 
-define([
-
-], function () {
+;
 
 
-    /**
-     * A class for encapsulating structure and behaviour of the plot
-     * options form
-     * @memberOf platform/features/plot
-     * @param topic
-     * @constructor
+/**
+ * A class for encapsulating structure and behaviour of the plot
+ * options form
+ * @memberOf platform/features/plot
+ * @param topic
+ * @constructor
+ */
+function PlotOptionsForm() {
+
+    /*
+     Defined below are the form structures for the plot options.
      */
-    function PlotOptionsForm() {
-
-        /*
-         Defined below are the form structures for the plot options.
-         */
-        this.xAxisForm = {
+    this.xAxisForm = {
+        name: 'x-axis',
+        sections: [{
             name: 'x-axis',
-            sections: [{
-                name: 'x-axis',
-                rows: [
-                    {
-                        name: 'Domain',
-                        control: 'select',
-                        key: 'key',
-                        options: [
-                            {
-                                name: 'SCET',
-                                value: 'scet'
-                            },
-                            {
-                                name: 'ERT',
-                                value: 'ert'
-                            },
-                            {
-                                name: 'SCLK',
-                                value: 'sclk'
-                            },
-                            {
-                                name: 'LST',
-                                value: 'lst'
-                            }
-                        ]
-                    }
-                ]
-            }]};
-
-        this.yAxisForm = {
-            name: 'y-axis',
-            sections: [{
-                // Will need to be repeated for each y-axis, with a
-                // distinct name for each. Ideally the name of the axis
-                // itself.
-                name: 'y-axis',
-                rows: [
-                    {
-                        name: 'Range',
-                        control: 'select',
-                        key: 'key',
-                        options: [
-                            {
-                                name: 'Autoselect',
-                                value: 'auto'
-                            },
-                            {
-                                name: 'EU',
-                                value: 'eu'
-                            },
-                            {
-                                name: 'DN',
-                                value: 'dn'
-                            },
-                            {
-                                name: 'Status',
-                                value: 'enum'
-                            }
-                        ]
-                    },
-                    {
-                        name: 'Autoscale',
-                        control: 'checkbox',
-                        key: 'autoscale'
-                    },
-                    {
-                        name: 'Min',
-                        control: 'textfield',
-                        key: 'min',
-                        pattern: '[0-9]',
-                        inputsize: 'sm'
-                    },
-                    {
-                        name: 'Max',
-                        control: 'textfield',
-                        key: 'max',
-                        pattern: '[0-9]',
-                        inputsize: 'sm'
-                    }
-                ]
-            }]
-        };
-        this.plotSeriesForm = {
-            name: 'Series Options',
-            sections: [
+            rows: [
                 {
-                    rows: [
-                    {
-                        name: 'Color',
-                        control: 'color',
-                        key: 'color'
-                    }]
-                },
-                {
-                    rows: [
+                    name: 'Domain',
+                    control: 'select',
+                    key: 'key',
+                    options: [
                         {
-                            name: 'Markers',
-                            control: 'checkbox',
-                            key: 'markers',
-                            layout: 'control-first'
-                        }
-                    ]
-                },
-                {
-                    rows: [
-                        {
-                            name: 'No Line',
-                            control: 'radio',
-                            key: 'interpolate',
-                            value: 'none',
-                            layout: 'control-first'
+                            name: 'SCET',
+                            value: 'scet'
                         },
                         {
-                            name: 'Step Line',
-                            control: 'radio',
-                            key: 'interpolate',
-                            value: 'stepAfter',
-                            layout: 'control-first'
+                            name: 'ERT',
+                            value: 'ert'
                         },
                         {
-                            name: 'Linear Line',
-                            control: 'radio',
-                            key: 'interpolate',
-                            value: 'linear',
-                            layout: 'control-first'
+                            name: 'SCLK',
+                            value: 'sclk'
+                        },
+                        {
+                            name: 'LST',
+                            value: 'lst'
                         }
                     ]
                 }
             ]
-        };
-    }
+        }]};
 
-    return PlotOptionsForm;
-});
+    this.yAxisForm = {
+        name: 'y-axis',
+        sections: [{
+            // Will need to be repeated for each y-axis, with a
+            // distinct name for each. Ideally the name of the axis
+            // itself.
+            name: 'y-axis',
+            rows: [
+                {
+                    name: 'Range',
+                    control: 'select',
+                    key: 'key',
+                    options: [
+                        {
+                            name: 'Autoselect',
+                            value: 'auto'
+                        },
+                        {
+                            name: 'EU',
+                            value: 'eu'
+                        },
+                        {
+                            name: 'DN',
+                            value: 'dn'
+                        },
+                        {
+                            name: 'Status',
+                            value: 'enum'
+                        }
+                    ]
+                },
+                {
+                    name: 'Autoscale',
+                    control: 'checkbox',
+                    key: 'autoscale'
+                },
+                {
+                    name: 'Min',
+                    control: 'textfield',
+                    key: 'min',
+                    pattern: '[0-9]',
+                    inputsize: 'sm'
+                },
+                {
+                    name: 'Max',
+                    control: 'textfield',
+                    key: 'max',
+                    pattern: '[0-9]',
+                    inputsize: 'sm'
+                }
+            ]
+        }]
+    };
+    this.plotSeriesForm = {
+        name: 'Series Options',
+        sections: [
+            {
+                rows: [
+                {
+                    name: 'Color',
+                    control: 'color',
+                    key: 'color'
+                }]
+            },
+            {
+                rows: [
+                    {
+                        name: 'Markers',
+                        control: 'checkbox',
+                        key: 'markers',
+                        layout: 'control-first'
+                    }
+                ]
+            },
+            {
+                rows: [
+                    {
+                        name: 'No Line',
+                        control: 'radio',
+                        key: 'interpolate',
+                        value: 'none',
+                        layout: 'control-first'
+                    },
+                    {
+                        name: 'Step Line',
+                        control: 'radio',
+                        key: 'interpolate',
+                        value: 'stepAfter',
+                        layout: 'control-first'
+                    },
+                    {
+                        name: 'Linear Line',
+                        control: 'radio',
+                        key: 'interpolate',
+                        value: 'linear',
+                        layout: 'control-first'
+                    }
+                ]
+            }
+        ]
+    };
+}
+
+var bindingVariable = PlotOptionsForm;
+export default bindingVariable;
 

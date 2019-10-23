@@ -20,32 +20,29 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Updates the title of the current window to reflect the name
-         * of the currently navigated-to domain object.
-         * @memberof platform/commonUI/browse
-         * @constructor
-         */
-        function WindowTitler(navigationService, $rootScope, $document) {
-            // Look up name of the navigated domain object...
-            function getNavigatedObjectName() {
-                var navigatedObject = navigationService.getNavigation();
-                return navigatedObject && navigatedObject.getModel().name;
-            }
-
-            // Set the window title...
-            function setTitle(name) {
-                $document[0].title = name;
-            }
-
-            // Watch the former, and invoke the latter
-            $rootScope.$watch(getNavigatedObjectName, setTitle);
-        }
-
-        return WindowTitler;
+/**
+ * Updates the title of the current window to reflect the name
+ * of the currently navigated-to domain object.
+ * @memberof platform/commonUI/browse
+ * @constructor
+ */
+function WindowTitler(navigationService, $rootScope, $document) {
+    // Look up name of the navigated domain object...
+    function getNavigatedObjectName() {
+        var navigatedObject = navigationService.getNavigation();
+        return navigatedObject && navigatedObject.getModel().name;
     }
-);
+
+    // Set the window title...
+    function setTitle(name) {
+        $document[0].title = name;
+    }
+
+    // Watch the former, and invoke the latter
+    $rootScope.$watch(getNavigatedObjectName, setTitle);
+}
+
+var bindingVariable = WindowTitler;
+export default bindingVariable;

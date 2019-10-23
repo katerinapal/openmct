@@ -25,92 +25,89 @@
  *
  * @namespace platform/commonUI/mobile
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The query service handles calls for browser and userAgent
-         * info using a comparison between the userAgent and key
-         * device names
-         * @constructor
-         * @param $window Angular-injected instance of the window
-         * @memberof platform/commonUI/mobile
-         */
-        function AgentService($window) {
-            var userAgent = $window.navigator.userAgent,
-                matches = userAgent.match(/iPad|iPhone|Android/i) || [];
+/**
+ * The query service handles calls for browser and userAgent
+ * info using a comparison between the userAgent and key
+ * device names
+ * @constructor
+ * @param $window Angular-injected instance of the window
+ * @memberof platform/commonUI/mobile
+ */
+function AgentService($window) {
+    var userAgent = $window.navigator.userAgent,
+        matches = userAgent.match(/iPad|iPhone|Android/i) || [];
 
-            this.userAgent = userAgent;
-            this.mobileName = matches[0];
-            this.$window = $window;
-            this.touchEnabled = ($window.ontouchstart !== undefined);
-        }
+    this.userAgent = userAgent;
+    this.mobileName = matches[0];
+    this.$window = $window;
+    this.touchEnabled = ($window.ontouchstart !== undefined);
+}
 
-        /**
-         * Check if the user is on a mobile device.
-         * @returns {boolean} true on mobile
-         */
-        AgentService.prototype.isMobile = function () {
-            return !!this.mobileName;
-        };
+/**
+ * Check if the user is on a mobile device.
+ * @returns {boolean} true on mobile
+ */
+AgentService.prototype.isMobile = function () {
+    return !!this.mobileName;
+};
 
-        /**
-         * Check if the user is on a phone-sized mobile device.
-         * @returns {boolean} true on a phone
-         */
-        AgentService.prototype.isPhone = function () {
-            // iOS is test-to device for mobile, so only
-            // make this distinction for iPhones
-            return this.mobileName === 'iPhone';
-        };
+/**
+ * Check if the user is on a phone-sized mobile device.
+ * @returns {boolean} true on a phone
+ */
+AgentService.prototype.isPhone = function () {
+    // iOS is test-to device for mobile, so only
+    // make this distinction for iPhones
+    return this.mobileName === 'iPhone';
+};
 
-        /**
-         * Check if the user is on a tablet-sized mobile device.
-         * @returns {boolean} true on a tablet
-         */
-        AgentService.prototype.isTablet = function () {
-            return this.isMobile() && !this.isPhone();
-        };
+/**
+ * Check if the user is on a tablet-sized mobile device.
+ * @returns {boolean} true on a tablet
+ */
+AgentService.prototype.isTablet = function () {
+    return this.isMobile() && !this.isPhone();
+};
 
-        /**
-         * Check if the user's device is in a portrait-style
-         * orientation (display width is narrower than display height.)
-         * @returns {boolean} true in portrait mode
-         */
-        AgentService.prototype.isPortrait = function () {
-            return this.$window.innerWidth < this.$window.innerHeight;
-        };
+/**
+ * Check if the user's device is in a portrait-style
+ * orientation (display width is narrower than display height.)
+ * @returns {boolean} true in portrait mode
+ */
+AgentService.prototype.isPortrait = function () {
+    return this.$window.innerWidth < this.$window.innerHeight;
+};
 
-        /**
-         * Check if the user's device is in a landscape-style
-         * orientation (display width is greater than display height.)
-         * @returns {boolean} true in landscape mode
-         */
-        AgentService.prototype.isLandscape = function () {
-            return !this.isPortrait();
-        };
+/**
+ * Check if the user's device is in a landscape-style
+ * orientation (display width is greater than display height.)
+ * @returns {boolean} true in landscape mode
+ */
+AgentService.prototype.isLandscape = function () {
+    return !this.isPortrait();
+};
 
-        /**
-         * Check if the user's device supports a touch interface.
-         * @returns {boolean} true if touch is supported
-         */
-        AgentService.prototype.isTouch = function () {
-            return this.touchEnabled;
-        };
+/**
+ * Check if the user's device supports a touch interface.
+ * @returns {boolean} true if touch is supported
+ */
+AgentService.prototype.isTouch = function () {
+    return this.touchEnabled;
+};
 
-        /**
-         * Check if the user agent matches a certain named device,
-         * as indicated by checking for a case-insensitive substring
-         * match.
-         * @param {string} name the name to check for
-         * @returns {boolean} true if the user agent includes that name
-         */
-        AgentService.prototype.isBrowser = function (name) {
-            name = name.toLowerCase();
-            return this.userAgent.toLowerCase().indexOf(name) !== -1;
-        };
+/**
+ * Check if the user agent matches a certain named device,
+ * as indicated by checking for a case-insensitive substring
+ * match.
+ * @param {string} name the name to check for
+ * @returns {boolean} true if the user agent includes that name
+ */
+AgentService.prototype.isBrowser = function (name) {
+    name = name.toLowerCase();
+    return this.userAgent.toLowerCase().indexOf(name) !== -1;
+};
 
-        return AgentService;
-    }
-);
+var bindingVariable = AgentService;
+export default bindingVariable;

@@ -20,46 +20,46 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(function () {
-    function ListViewController($scope, formatService) {
-        this.$scope = $scope;
-        $scope.orderByField = 'title';
-        $scope.reverseSort = false;
+;
+function ListViewController($scope, formatService) {
+    this.$scope = $scope;
+    $scope.orderByField = 'title';
+    $scope.reverseSort = false;
 
-        this.updateView();
-        var unlisten = $scope.domainObject.getCapability('mutation')
-            .listen(this.updateView.bind(this));
+    this.updateView();
+    var unlisten = $scope.domainObject.getCapability('mutation')
+        .listen(this.updateView.bind(this));
 
-        this.utc = formatService.getFormat('utc');
+    this.utc = formatService.getFormat('utc');
 
-        $scope.$on('$destroy', function () {
-            unlisten();
-        });
+    $scope.$on('$destroy', function () {
+        unlisten();
+    });
 
-    }
-    ListViewController.prototype.updateView = function () {
-        this.$scope.domainObject.useCapability('composition')
-            .then(function (children) {
-                var formattedChildren = this.formatChildren(children);
-                this.$scope.children = formattedChildren;
-                this.$scope.data = {children: formattedChildren};
-            }.bind(this)
-        );
-    };
-    ListViewController.prototype.formatChildren = function (children) {
-        return children.map(function (child) {
-            return {
-                icon: child.getCapability('type').getCssClass(),
-                title: child.getModel().name,
-                type: child.getCapability('type').getName(),
-                persisted: this.utc.format(child.getModel().persisted),
-                modified: this.utc.format(child.getModel().modified),
-                asDomainObject: child,
-                location: child.getCapability('location'),
-                action: child.getCapability('action')
-            };
-        }, this);
-    };
+}
+ListViewController.prototype.updateView = function () {
+    this.$scope.domainObject.useCapability('composition')
+        .then(function (children) {
+            var formattedChildren = this.formatChildren(children);
+            this.$scope.children = formattedChildren;
+            this.$scope.data = {children: formattedChildren};
+        }.bind(this)
+    );
+};
+ListViewController.prototype.formatChildren = function (children) {
+    return children.map(function (child) {
+        return {
+            icon: child.getCapability('type').getCssClass(),
+            title: child.getModel().name,
+            type: child.getCapability('type').getName(),
+            persisted: this.utc.format(child.getModel().persisted),
+            modified: this.utc.format(child.getModel().modified),
+            asDomainObject: child,
+            location: child.getCapability('location'),
+            action: child.getCapability('action')
+        };
+    }, this);
+};
 
-    return ListViewController;
-});
+var bindingVariable = ListViewController;
+export default bindingVariable;

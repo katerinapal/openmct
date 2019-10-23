@@ -20,38 +20,35 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['moment'],
-    function (moment) {
-        var NO_TIMER = "No timer being followed";
+;
+var NO_TIMER = "No timer being followed";
 
-        /**
-         * Indicator that displays the active timer, as well as its
-         * current state.
-         * @implements {Indicator}
-         * @memberof platform/features/clock
-         */
-        function FollowIndicator(timerService) {
-            this.timerService = timerService;
-        }
+/**
+ * Indicator that displays the active timer, as well as its
+ * current state.
+ * @implements {Indicator}
+ * @memberof platform/features/clock
+ */
+function FollowIndicator(timerService) {
+    this.timerService = timerService;
+}
 
-        FollowIndicator.prototype.getGlyphClass = function () {
-            return "";
-        };
+FollowIndicator.prototype.getGlyphClass = function () {
+    return "";
+};
 
-        FollowIndicator.prototype.getCssClass = function () {
-            return (this.timerService.getTimer()) ? "icon-timer s-status-ok" : "icon-timer";
-        };
+FollowIndicator.prototype.getCssClass = function () {
+    return (this.timerService.getTimer()) ? "icon-timer s-status-ok" : "icon-timer";
+};
 
-        FollowIndicator.prototype.getText = function () {
-            var timer = this.timerService.getTimer();
-            return timer ? ('Following timer ' + timer.name) : NO_TIMER;
-        };
+FollowIndicator.prototype.getText = function () {
+    var timer = this.timerService.getTimer();
+    return timer ? ('Following timer ' + timer.name) : NO_TIMER;
+};
 
-        FollowIndicator.prototype.getDescription = function () {
-            return "";
-        };
+FollowIndicator.prototype.getDescription = function () {
+    return "";
+};
 
-        return FollowIndicator;
-    }
-);
+var bindingVariable = FollowIndicator;
+export default bindingVariable;

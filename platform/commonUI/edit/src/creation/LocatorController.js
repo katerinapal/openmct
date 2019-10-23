@@ -20,78 +20,75 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller for the "locator" control, which provides the
-         * user with the ability to select a domain object as the
-         * destination for a newly-created object in the Create menu.
-         * @memberof platform/commonUI/browse
-         * @constructor
-         */
-        function LocatorController($scope, $timeout, objectService) {
-            // Populate values needed by the locator control. These are:
-            // * rootObject: The top-level object, since we want to show
-            //               the full tree
-            // * treeModel: The model for the embedded tree representation,
-            //              used for bi-directional object selection.
-            function setLocatingObject(domainObject, priorObject) {
-                var context = domainObject &&
-                    domainObject.getCapability("context"),
-                    contextRoot = context && context.getRoot();
+/**
+ * Controller for the "locator" control, which provides the
+ * user with the ability to select a domain object as the
+ * destination for a newly-created object in the Create menu.
+ * @memberof platform/commonUI/browse
+ * @constructor
+ */
+function LocatorController($scope, $timeout, objectService) {
+    // Populate values needed by the locator control. These are:
+    // * rootObject: The top-level object, since we want to show
+    //               the full tree
+    // * treeModel: The model for the embedded tree representation,
+    //              used for bi-directional object selection.
+    function setLocatingObject(domainObject, priorObject) {
+        var context = domainObject &&
+            domainObject.getCapability("context"),
+            contextRoot = context && context.getRoot();
 
-                if (contextRoot && contextRoot !== $scope.rootObject) {
-                    $scope.rootObject = undefined;
-                    // Update the displayed tree on a timeout to avoid
-                    // an infinite digest exception.
+        if (contextRoot && contextRoot !== $scope.rootObject) {
+            $scope.rootObject = undefined;
+            // Update the displayed tree on a timeout to avoid
+            // an infinite digest exception.
+            $timeout(function () {
+                $scope.rootObject =
+                    (context && context.getRoot()) || $scope.rootObject;
+            }, 0);
+        } else if (!contextRoot && !$scope.rootObject) {
+            // Update the displayed tree on a timeout to avoid
+            // an infinite digest exception.
+            objectService.getObjects(['ROOT'])
+                .then(function (objects) {
                     $timeout(function () {
-                        $scope.rootObject =
-                            (context && context.getRoot()) || $scope.rootObject;
+                        $scope.rootObject = objects.ROOT;
                     }, 0);
-                } else if (!contextRoot && !$scope.rootObject) {
-                    // Update the displayed tree on a timeout to avoid
-                    // an infinite digest exception.
-                    objectService.getObjects(['ROOT'])
-                        .then(function (objects) {
-                            $timeout(function () {
-                                $scope.rootObject = objects.ROOT;
-                            }, 0);
-                        });
-                }
-
-                $scope.treeModel.selectedObject = domainObject;
-                $scope.ngModel[$scope.field] = domainObject;
-
-                // Restrict which locations can be selected
-                if (domainObject &&
-                        $scope.structure &&
-                            $scope.structure.validate) {
-                    if (!$scope.structure.validate(domainObject)) {
-                        setLocatingObject(priorObject, undefined);
-                        return;
-                    }
-                }
-
-                // Set validity
-                if ($scope.ngModelController) {
-                    $scope.ngModelController.$setValidity(
-                        'composition',
-                        !!$scope.treeModel.selectedObject
-                    );
-                }
-            }
-
-            // Initial state for the tree's model
-            $scope.treeModel =
-                { selectedObject: $scope.ngModel[$scope.field] };
-
-            // Watch for changes from the tree
-            $scope.$watch("treeModel.selectedObject", setLocatingObject);
+                });
         }
 
-        return LocatorController;
+        $scope.treeModel.selectedObject = domainObject;
+        $scope.ngModel[$scope.field] = domainObject;
+
+        // Restrict which locations can be selected
+        if (domainObject &&
+                $scope.structure &&
+                    $scope.structure.validate) {
+            if (!$scope.structure.validate(domainObject)) {
+                setLocatingObject(priorObject, undefined);
+                return;
+            }
+        }
+
+        // Set validity
+        if ($scope.ngModelController) {
+            $scope.ngModelController.$setValidity(
+                'composition',
+                !!$scope.treeModel.selectedObject
+            );
+        }
     }
-);
+
+    // Initial state for the tree's model
+    $scope.treeModel =
+        { selectedObject: $scope.ngModel[$scope.field] };
+
+    // Watch for changes from the tree
+    $scope.$watch("treeModel.selectedObject", setLocatingObject);
+}
+
+var bindingVariable = LocatorController;
+export default bindingVariable;
 

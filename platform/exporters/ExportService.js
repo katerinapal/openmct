@@ -1,3 +1,4 @@
+import CSV from "..\\features\\timeline\\src\\actions\\ExportTimelineAsCSVTask.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -23,71 +24,61 @@
 /**
  * @namespace platform/exporters
  */
-define(['csv'], function (CSV) {
+;
 
-    /**
-     * Callback used to initiate saving files from the export service;
-     * typical implementation is
-     * [FileSaver.js](https://github.com/eligrey/FileSaver.js/).
-     * @callback platform/exporters.ExportService~saveAs
-     * @param {Blob} blob the contents of the file to export
-     * @param {string} filename the name of the file to export
-     */
+/**
+ * Callback used to initiate saving files from the export service;
+ * typical implementation is
+ * [FileSaver.js](https://github.com/eligrey/FileSaver.js/).
+ * @callback platform/exporters.ExportService~saveAs
+ * @param {Blob} blob the contents of the file to export
+ * @param {string} filename the name of the file to export
+ */
 
 
-    /**
-     * The `exportService` provides a means to initiate downloads of
-     * structured data in the CSV format.
-     * @param {platform/exporters.ExportService~saveAs} saveAs function
-     *        used to initiate saving files
-     * @constructor
-     * @memberof platform/exporters
-     */
-    function ExportService(saveAs) {
-        this.saveAs = saveAs;
-    }
+/**
+ * The `exportService` provides a means to initiate downloads of
+ * structured data in the CSV format.
+ * @param {platform/exporters.ExportService~saveAs} saveAs function
+ *        used to initiate saving files
+ * @constructor
+ * @memberof platform/exporters
+ */
+function ExportService(saveAs) {
+    this.saveAs = saveAs;
+}
 
-    /**
-     * Export a set of data as comma-separated values. Triggers a download
-     * using the function provided when the ExportService was instantiated.
-     *
-     * @param {Object[]} rows an array of objects containing key-value pairs,
-     *        where keys are header names, and values are values
-     * @param {ExportOptions} [options] additional parameters for the file
-     *        export
-     */
-    ExportService.prototype.exportCSV = function (rows, options) {
-        var headers = (options && options.headers) ||
-                (Object.keys((rows[0] || {})).sort()),
-            filename = (options && options.filename) || "export.csv",
-            csvText = new CSV(rows, { header: headers }).encode(),
-            blob = new Blob([csvText], { type: "text/csv" });
-        this.saveAs(blob, filename);
-    };
+/**
+ * Export a set of data as comma-separated values. Triggers a download
+ * using the function provided when the ExportService was instantiated.
+ *
+ * @param {Object[]} rows an array of objects containing key-value pairs,
+ *        where keys are header names, and values are values
+ * @param {ExportOptions} [options] additional parameters for the file
+ *        export
+ */
+ExportService.prototype.exportCSV = function (rows, options) {
+    var headers = (options && options.headers) ||
+            (Object.keys((rows[0] || {})).sort()),
+        filename = (options && options.filename) || "export.csv",
+        csvText = new CSV(rows, { header: headers }).encode(),
+        blob = new Blob([csvText], { type: "text/csv" });
+    this.saveAs(blob, filename);
+};
 
-    /**
-     * Export an object as a JSON file. Triggers a download using the function
-     * provided when the ExportService was instantiated.
-     *
-     * @param {Object} obj an object to be exported as JSON
-     * @param {ExportOptions} [options] additional parameters for the file
-     *        export
-     */
-    ExportService.prototype.exportJSON = function (obj, options) {
-        var filename = (options && options.filename) || "test-export.json";
-        var jsonText = JSON.stringify(obj);
-        var blob = new Blob([jsonText], {type: "application/json"});
-        this.saveAs(blob, filename);
-    };
-    /**
-     * Additional parameters for file export.
-     * @typedef ExportOptions
-     * @property {string} filename the name of the file to write
-     * @property {string[]} headers column header names, both as they
-     *           should appear in the output and as they should be
-     *           used to look up values from the data set. Defaults
-     *           to the keys in the first object in the data set.
-     */
-
-    return ExportService;
-});
+/**
+ * Export an object as a JSON file. Triggers a download using the function
+ * provided when the ExportService was instantiated.
+ *
+ * @param {Object} obj an object to be exported as JSON
+ * @param {ExportOptions} [options] additional parameters for the file
+ *        export
+ */
+ExportService.prototype.exportJSON = function (obj, options) {
+    var filename = (options && options.filename) || "test-export.json";
+    var jsonText = JSON.stringify(obj);
+    var blob = new Blob([jsonText], {type: "application/json"});
+    this.saveAs(blob, filename);
+};
+var bindingVariable = ExportService;
+export default bindingVariable;

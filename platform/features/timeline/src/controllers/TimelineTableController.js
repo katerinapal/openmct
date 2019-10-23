@@ -1,3 +1,4 @@
+import TimelineFormatter from "..\\TimelineFormatter.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,32 +21,29 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ["../TimelineFormatter"],
-    function (TimelineFormatter) {
+;
 
-        var FORMATTER = new TimelineFormatter();
+var FORMATTER = new TimelineFormatter();
 
-        /**
-         * Provides tabular data for the Timeline's tabular view area.
-         */
-        function TimelineTableController() {
+/**
+ * Provides tabular data for the Timeline's tabular view area.
+ */
+function TimelineTableController() {
 
-            function getNiceTime(millis) {
-                return FORMATTER.format(millis);
-            }
-
-            return {
-                /**
-                 * Return human-readable time in the expected format,
-                 * currently SET.
-                 * @param {number} millis duration, in millisecond
-                 * @return {string} human-readable duration
-                 */
-                niceTime: getNiceTime
-            };
-        }
-
-        return TimelineTableController;
+    function getNiceTime(millis) {
+        return FORMATTER.format(millis);
     }
-);
+
+    return {
+        /**
+         * Return human-readable time in the expected format,
+         * currently SET.
+         * @param {number} millis duration, in millisecond
+         * @return {string} human-readable duration
+         */
+        niceTime: getNiceTime
+    };
+}
+
+var bindingVariable = TimelineTableController;
+export default bindingVariable;

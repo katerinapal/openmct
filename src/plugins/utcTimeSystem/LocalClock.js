@@ -1,3 +1,4 @@
+import EventEmitter from "..\\..\\api\\objects\\objectEventEmitter.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,98 +21,98 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['EventEmitter'], function (EventEmitter) {
-    /**
-     * A {@link openmct.TimeAPI.Clock} that updates the temporal bounds of the
-     * application based on UTC time values provided by a ticking local clock,
-     * with the periodicity specified.
-     * @param {number} period The periodicity with which the clock should tick
-     * @constructor
+;
+/**
+ * A {@link openmct.TimeAPI.Clock} that updates the temporal bounds of the
+ * application based on UTC time values provided by a ticking local clock,
+ * with the periodicity specified.
+ * @param {number} period The periodicity with which the clock should tick
+ * @constructor
+ */
+function LocalClock(period) {
+    EventEmitter.call(this);
+
+    /*
+    Metadata fields
      */
-    function LocalClock(period) {
-        EventEmitter.call(this);
+    this.key = 'local';
+    this.cssClass = 'icon-clock';
+    this.name = 'Local Clock';
+    this.description = "Provides UTC timestamps every second from the local system clock.";
 
-        /*
-        Metadata fields
-         */
-        this.key = 'local';
-        this.cssClass = 'icon-clock';
-        this.name = 'Local Clock';
-        this.description = "Provides UTC timestamps every second from the local system clock.";
+    this.period = period;
+    this.timeoutHandle = undefined;
+    this.lastTick = Date.now();
+}
 
-        this.period = period;
+LocalClock.prototype = Object.create(EventEmitter.prototype);
+
+/**
+ * @private
+ */
+LocalClock.prototype.start = function () {
+    this.timeoutHandle = setTimeout(this.tick.bind(this), this.period);
+};
+
+/**
+ * @private
+ */
+LocalClock.prototype.stop = function () {
+    if (this.timeoutHandle) {
+        clearTimeout(this.timeoutHandle);
         this.timeoutHandle = undefined;
-        this.lastTick = Date.now();
+    }
+};
+
+/**
+ * @private
+ */
+LocalClock.prototype.tick = function () {
+    var now = Date.now();
+    this.emit("tick", now);
+    this.lastTick = now;
+    this.timeoutHandle = setTimeout(this.tick.bind(this), this.period);
+};
+
+/**
+ * Register a listener for the local clock. When it ticks, the local
+ * clock will provide the current local system time
+ *
+ * @param listener
+ * @returns {function} a function for deregistering the provided listener
+ */
+LocalClock.prototype.on = function (event) {
+    var result = EventEmitter.prototype.on.apply(this, arguments);
+
+    if (this.listeners(event).length === 1) {
+        this.start();
+    }
+    return result;
+};
+
+/**
+ * Register a listener for the local clock. When it ticks, the local
+ * clock will provide the current local system time
+ *
+ * @param listener
+ * @returns {function} a function for deregistering the provided listener
+ */
+LocalClock.prototype.off = function (event) {
+    var result = EventEmitter.prototype.off.apply(this, arguments);
+
+    if (this.listeners(event).length === 0) {
+        this.stop();
     }
 
-    LocalClock.prototype = Object.create(EventEmitter.prototype);
+    return result;
+};
 
-    /**
-     * @private
-     */
-    LocalClock.prototype.start = function () {
-        this.timeoutHandle = setTimeout(this.tick.bind(this), this.period);
-    };
+/**
+ * @returns {number} The last value provided for a clock tick
+ */
+LocalClock.prototype.currentValue = function () {
+    return this.lastTick;
+};
 
-    /**
-     * @private
-     */
-    LocalClock.prototype.stop = function () {
-        if (this.timeoutHandle) {
-            clearTimeout(this.timeoutHandle);
-            this.timeoutHandle = undefined;
-        }
-    };
-
-    /**
-     * @private
-     */
-    LocalClock.prototype.tick = function () {
-        var now = Date.now();
-        this.emit("tick", now);
-        this.lastTick = now;
-        this.timeoutHandle = setTimeout(this.tick.bind(this), this.period);
-    };
-
-    /**
-     * Register a listener for the local clock. When it ticks, the local
-     * clock will provide the current local system time
-     *
-     * @param listener
-     * @returns {function} a function for deregistering the provided listener
-     */
-    LocalClock.prototype.on = function (event) {
-        var result = EventEmitter.prototype.on.apply(this, arguments);
-
-        if (this.listeners(event).length === 1) {
-            this.start();
-        }
-        return result;
-    };
-
-    /**
-     * Register a listener for the local clock. When it ticks, the local
-     * clock will provide the current local system time
-     *
-     * @param listener
-     * @returns {function} a function for deregistering the provided listener
-     */
-    LocalClock.prototype.off = function (event) {
-        var result = EventEmitter.prototype.off.apply(this, arguments);
-
-        if (this.listeners(event).length === 0) {
-            this.stop();
-        }
-
-        return result;
-    };
-
-    /**
-     * @returns {number} The last value provided for a clock tick
-     */
-    LocalClock.prototype.currentValue = function () {
-        return this.lastTick;
-    };
-
-    return LocalClock;
-});
+var bindingVariable = LocalClock;
+export default bindingVariable;

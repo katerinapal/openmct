@@ -20,50 +20,47 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Form validation for the TimeConductorController.
-         * @param conductor
-         * @constructor
-         */
-        function TimeConductorValidation(timeAPI) {
-            var self = this;
-            this.timeAPI = timeAPI;
+/**
+ * Form validation for the TimeConductorController.
+ * @param conductor
+ * @constructor
+ */
+function TimeConductorValidation(timeAPI) {
+    var self = this;
+    this.timeAPI = timeAPI;
 
-            /*
-             * Bind all class functions to 'this'
-             */
-            Object.keys(TimeConductorValidation.prototype).filter(function (key) {
-                return typeof TimeConductorValidation.prototype[key] === 'function';
-            }).forEach(function (key) {
-                self[key] = self[key].bind(self);
-            });
-        }
+    /*
+     * Bind all class functions to 'this'
+     */
+    Object.keys(TimeConductorValidation.prototype).filter(function (key) {
+        return typeof TimeConductorValidation.prototype[key] === 'function';
+    }).forEach(function (key) {
+        self[key] = self[key].bind(self);
+    });
+}
 
-        /**
-         * Validation methods below are invoked directly from controls in the TimeConductor form
-         */
-        TimeConductorValidation.prototype.validateStart = function (start) {
-            var bounds = this.timeAPI.bounds();
-            return this.timeAPI.validateBounds({start: start, end: bounds.end}) === true;
-        };
+/**
+ * Validation methods below are invoked directly from controls in the TimeConductor form
+ */
+TimeConductorValidation.prototype.validateStart = function (start) {
+    var bounds = this.timeAPI.bounds();
+    return this.timeAPI.validateBounds({start: start, end: bounds.end}) === true;
+};
 
-        TimeConductorValidation.prototype.validateEnd = function (end) {
-            var bounds = this.timeAPI.bounds();
-            return this.timeAPI.validateBounds({start: bounds.start, end: end}) === true;
-        };
+TimeConductorValidation.prototype.validateEnd = function (end) {
+    var bounds = this.timeAPI.bounds();
+    return this.timeAPI.validateBounds({start: bounds.start, end: end}) === true;
+};
 
-        TimeConductorValidation.prototype.validateStartOffset = function (startOffset) {
-            return !isNaN(startOffset) && startOffset > 0;
-        };
+TimeConductorValidation.prototype.validateStartOffset = function (startOffset) {
+    return !isNaN(startOffset) && startOffset > 0;
+};
 
-        TimeConductorValidation.prototype.validateEndOffset = function (endOffset) {
-            return !isNaN(endOffset) && endOffset >= 0;
-        };
+TimeConductorValidation.prototype.validateEndOffset = function (endOffset) {
+    return !isNaN(endOffset) && endOffset >= 0;
+};
 
-        return TimeConductorValidation;
-    }
-);
+var bindingVariable = TimeConductorValidation;
+export default bindingVariable;

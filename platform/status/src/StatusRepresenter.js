@@ -1,3 +1,4 @@
+import StatusConstants from ".\\StatusConstants.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,75 +21,71 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./StatusConstants'],
-    function (StatusConstants) {
+;
 
-        var STATUS_CLASS_PREFIX = StatusConstants.CSS_CLASS_PREFIX;
+var STATUS_CLASS_PREFIX = StatusConstants.CSS_CLASS_PREFIX;
 
-        /**
-         * Adds/removes CSS classes to `mct-representation`s to reflect the
-         * current status of represented domain objects, as reported by
-         * their `status` capability.
-         *
-         * Statuses are prefixed with `s-status-` to build CSS class names.
-         * As such, when a domain object has the status "pending", its
-         * representations will have the CSS class `s-status-pending`.
-         *
-         * @param {angular.Scope} scope the representation's scope object
-         * @param element the representation's jqLite-wrapped DOM element
-         * @implements {Representer}
-         * @constructor
-         * @memberof platform/status
-         */
-        function StatusRepresenter(scope, element) {
-            this.element = element;
-            this.lastClasses = [];
-        }
+/**
+ * Adds/removes CSS classes to `mct-representation`s to reflect the
+ * current status of represented domain objects, as reported by
+ * their `status` capability.
+ *
+ * Statuses are prefixed with `s-status-` to build CSS class names.
+ * As such, when a domain object has the status "pending", its
+ * representations will have the CSS class `s-status-pending`.
+ *
+ * @param {angular.Scope} scope the representation's scope object
+ * @param element the representation's jqLite-wrapped DOM element
+ * @implements {Representer}
+ * @constructor
+ * @memberof platform/status
+ */
+function StatusRepresenter(scope, element) {
+    this.element = element;
+    this.lastClasses = [];
+}
 
-        /**
-         * Remove any status-related classes from this representation.
-         * @private
-         */
-        StatusRepresenter.prototype.clearClasses = function () {
-            var element = this.element;
-            this.lastClasses.forEach(function (c) {
-                element.removeClass(c);
-            });
-        };
+/**
+ * Remove any status-related classes from this representation.
+ * @private
+ */
+StatusRepresenter.prototype.clearClasses = function () {
+    var element = this.element;
+    this.lastClasses.forEach(function (c) {
+        element.removeClass(c);
+    });
+};
 
-        StatusRepresenter.prototype.represent = function (representation, domainObject) {
-            var self = this,
-                statusCapability = domainObject.getCapability('status');
+StatusRepresenter.prototype.represent = function (representation, domainObject) {
+    var self = this,
+        statusCapability = domainObject.getCapability('status');
 
-            function updateStatus(flags) {
-                var newClasses = flags.map(function (flag) {
-                    return STATUS_CLASS_PREFIX + flag;
-                });
+    function updateStatus(flags) {
+        var newClasses = flags.map(function (flag) {
+            return STATUS_CLASS_PREFIX + flag;
+        });
 
-                self.clearClasses();
+        self.clearClasses();
 
-                newClasses.forEach(function (c) {
-                    self.element.addClass(c);
-                });
+        newClasses.forEach(function (c) {
+            self.element.addClass(c);
+        });
 
-                self.lastClasses = newClasses;
-            }
-
-            updateStatus(statusCapability.list());
-            this.unlisten = statusCapability.listen(updateStatus);
-        };
-
-        StatusRepresenter.prototype.destroy = function () {
-            this.clearClasses();
-            if (this.unlisten) {
-                this.unlisten();
-                this.unlisten = undefined;
-            }
-        };
-
-
-        return StatusRepresenter;
-
+        self.lastClasses = newClasses;
     }
-);
+
+    updateStatus(statusCapability.list());
+    this.unlisten = statusCapability.listen(updateStatus);
+};
+
+StatusRepresenter.prototype.destroy = function () {
+    this.clearClasses();
+    if (this.unlisten) {
+        this.unlisten();
+        this.unlisten = undefined;
+    }
+};
+
+
+var bindingVariable = StatusRepresenter;
+export default bindingVariable;

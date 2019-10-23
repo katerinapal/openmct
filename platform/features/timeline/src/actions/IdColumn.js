@@ -20,27 +20,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * A column showing identifying domain objects.
-     * @constructor
-     * @param idMap an object containing key value pairs, where keys
-     *        are domain object identifiers and values are whatever
-     *        should appear in CSV output in their place
-     * @implements {platform/features/timeline.TimelineCSVColumn}
-     */
-    function IdColumn(idMap) {
-        this.idMap = idMap;
-    }
+/**
+ * A column showing identifying domain objects.
+ * @constructor
+ * @param idMap an object containing key value pairs, where keys
+ *        are domain object identifiers and values are whatever
+ *        should appear in CSV output in their place
+ * @implements {platform/features/timeline.TimelineCSVColumn}
+ */
+function IdColumn(idMap) {
+    this.idMap = idMap;
+}
 
-    IdColumn.prototype.name = function () {
-        return "Index";
-    };
+IdColumn.prototype.name = function () {
+    return "Index";
+};
 
-    IdColumn.prototype.value = function (domainObject) {
-        return this.idMap[domainObject.getId()];
-    };
+IdColumn.prototype.value = function (domainObject) {
+    return this.idMap[domainObject.getId()];
+};
 
-    return IdColumn;
-});
+var bindingVariable = IdColumn;
+export default bindingVariable;

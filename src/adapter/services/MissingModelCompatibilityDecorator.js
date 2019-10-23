@@ -1,3 +1,4 @@
+import objectUtils from "..\\..\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,75 +21,71 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    '../../api/objects/object-utils'
-], function (
-    objectUtils
-) {
+;
 
-    /**
-     * Compatibility decorator for New API.
-     *
-     * When the model service returns no results, this attempts to load
-     * the model from the new Object API and returns that instead.  In order
-     * to prevent infinite recursion, this only tries to fetch from the API
-     * a single time.
-     *
-     */
-    function MissingModelCompatibilityDecorator(api, modelService) {
-        this.api = api;
-        this.modelService = modelService;
-        this.apiFetching = {}; // to prevent loops, if we have already
-    }
+/**
+ * Compatibility decorator for New API.
+ *
+ * When the model service returns no results, this attempts to load
+ * the model from the new Object API and returns that instead.  In order
+ * to prevent infinite recursion, this only tries to fetch from the API
+ * a single time.
+ *
+ */
+function MissingModelCompatibilityDecorator(api, modelService) {
+    this.api = api;
+    this.modelService = modelService;
+    this.apiFetching = {}; // to prevent loops, if we have already
+}
 
-    /**
-     * Fetch a set of ids from the public api and return a promise for their
-     * models.  If a model is requested twice, respond with a missing result.
-     */
-    MissingModelCompatibilityDecorator.prototype.apiFetch = function (ids) {
-        var results = {},
-            promises = ids.map(function (id) {
-                if (this.apiFetching[id]) {
-                    return Promise.resolve();
-                }
-                this.apiFetching[id] = true;
+/**
+ * Fetch a set of ids from the public api and return a promise for their
+ * models.  If a model is requested twice, respond with a missing result.
+ */
+MissingModelCompatibilityDecorator.prototype.apiFetch = function (ids) {
+    var results = {},
+        promises = ids.map(function (id) {
+            if (this.apiFetching[id]) {
+                return Promise.resolve();
+            }
+            this.apiFetching[id] = true;
 
-                return this.api.objects.get(objectUtils.parseKeyString(id))
-                    .then(function (newDO) {
-                        results[id] = objectUtils.toOldFormat(newDO);
+            return this.api.objects.get(objectUtils.parseKeyString(id))
+                .then(function (newDO) {
+                    results[id] = objectUtils.toOldFormat(newDO);
+                });
+        }, this);
+
+    return Promise.all(promises).then(function () {
+            return results;
+        });
+};
+
+/**
+ * Return a promise for model results based on provided ids.  Will attempt
+ * to fetch any missing results from the object api.
+ */
+MissingModelCompatibilityDecorator.prototype.getModels = function (ids) {
+    return this.modelService.getModels(ids)
+        .then(function (models) {
+            var missingIds = ids.filter(function (id) {
+                    return !models[id];
+                });
+
+            if (!missingIds.length) {
+                return models;
+            }
+
+            return this.apiFetch(missingIds)
+                .then(function (apiResults) {
+                    Object.keys(apiResults).forEach(function (k) {
+                        models[k] = apiResults[k];
                     });
-            }, this);
-
-        return Promise.all(promises).then(function () {
-                return results;
-            });
-    };
-
-    /**
-     * Return a promise for model results based on provided ids.  Will attempt
-     * to fetch any missing results from the object api.
-     */
-    MissingModelCompatibilityDecorator.prototype.getModels = function (ids) {
-        return this.modelService.getModels(ids)
-            .then(function (models) {
-                var missingIds = ids.filter(function (id) {
-                        return !models[id];
-                    });
-
-                if (!missingIds.length) {
                     return models;
-                }
+                });
+        }.bind(this));
+};
 
-                return this.apiFetch(missingIds)
-                    .then(function (apiResults) {
-                        Object.keys(apiResults).forEach(function (k) {
-                            models[k] = apiResults[k];
-                        });
-                        return models;
-                    });
-            }.bind(this));
-    };
-
-    return MissingModelCompatibilityDecorator;
-});
+var bindingVariable = MissingModelCompatibilityDecorator;
+export default bindingVariable;
 

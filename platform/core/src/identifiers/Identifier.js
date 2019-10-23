@@ -20,65 +20,62 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        var SEPARATOR = ":";
+var SEPARATOR = ":";
 
-        /**
-         * Provides an interface for interpreting domain object identifiers;
-         * in particular, parses out persistence space/key pairs associated
-         * with the domain object.
-         *
-         * @memberof platform/core
-         * @constructor
-         * @param {string} id the domain object identifier
-         * @param {string} defaultSpace the persistence space to use if
-         *        one is not encoded in the identifier
-         */
-        function Identifier(id, defaultSpace) {
-            var separatorIndex = id.indexOf(SEPARATOR);
+/**
+ * Provides an interface for interpreting domain object identifiers;
+ * in particular, parses out persistence space/key pairs associated
+ * with the domain object.
+ *
+ * @memberof platform/core
+ * @constructor
+ * @param {string} id the domain object identifier
+ * @param {string} defaultSpace the persistence space to use if
+ *        one is not encoded in the identifier
+ */
+function Identifier(id, defaultSpace) {
+    var separatorIndex = id.indexOf(SEPARATOR);
 
-            if (separatorIndex > -1) {
-                this.key = id.substring(separatorIndex + 1);
-                this.space = id.substring(0, separatorIndex);
-                this.definedSpace = this.space;
-            } else {
-                this.key = id;
-                this.space = defaultSpace;
-                this.definedSpace = undefined;
-            }
-        }
-
-        /**
-         * Get the key under which the identified domain object's model
-         * should be persisted, within its persistence space.
-         * @returns {string} the key within its persistence space
-         */
-        Identifier.prototype.getKey = function () {
-            return this.key;
-        };
-
-        /**
-         * Get the space in which the identified domain object's model should
-         * be persisted.
-         * @returns {string} the persistence space
-         */
-        Identifier.prototype.getSpace = function () {
-            return this.space;
-        };
-
-        /**
-         * Get the persistence space, if any, which has been explicitly
-         * encoded in this domain object's identifier. Returns undefined
-         * if no such space has been specified.
-         * @returns {string} the persistence space, or undefined
-         */
-        Identifier.prototype.getDefinedSpace = function () {
-            return this.definedSpace;
-        };
-
-        return Identifier;
+    if (separatorIndex > -1) {
+        this.key = id.substring(separatorIndex + 1);
+        this.space = id.substring(0, separatorIndex);
+        this.definedSpace = this.space;
+    } else {
+        this.key = id;
+        this.space = defaultSpace;
+        this.definedSpace = undefined;
     }
-);
+}
+
+/**
+ * Get the key under which the identified domain object's model
+ * should be persisted, within its persistence space.
+ * @returns {string} the key within its persistence space
+ */
+Identifier.prototype.getKey = function () {
+    return this.key;
+};
+
+/**
+ * Get the space in which the identified domain object's model should
+ * be persisted.
+ * @returns {string} the persistence space
+ */
+Identifier.prototype.getSpace = function () {
+    return this.space;
+};
+
+/**
+ * Get the persistence space, if any, which has been explicitly
+ * encoded in this domain object's identifier. Returns undefined
+ * if no such space has been specified.
+ * @returns {string} the persistence space, or undefined
+ */
+Identifier.prototype.getDefinedSpace = function () {
+    return this.definedSpace;
+};
+
+var bindingVariable = Identifier;
+export default bindingVariable;

@@ -20,72 +20,70 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    function () {
+;
 
-        /**
-         * Construct a new Properties dialog.
-         *
-         * @param {TypeImpl} type the type of domain object for which properties
-         *        will be specified
-         * @param {DomainObject} the object for which properties will be set
-         * @memberof platform/commonUI/edit
-         * @constructor
-         */
-        function PropertiesDialog(type, model) {
-            this.type = type;
-            this.model = model;
-            this.properties = type.getProperties();
-        }
+/**
+ * Construct a new Properties dialog.
+ *
+ * @param {TypeImpl} type the type of domain object for which properties
+ *        will be specified
+ * @param {DomainObject} the object for which properties will be set
+ * @memberof platform/commonUI/edit
+ * @constructor
+ */
+function PropertiesDialog(type, model) {
+    this.type = type;
+    this.model = model;
+    this.properties = type.getProperties();
+}
 
-        /**
-         * Get sections provided by this dialog.
-         * @return {FormStructure} the structure of this form
-         */
-        PropertiesDialog.prototype.getFormStructure = function () {
-            return {
-                name: "Edit " + this.model.name,
-                sections: [{
-                    name: "Properties",
-                    rows: this.properties.map(function (property, index) {
-                        // Property definition is same as form row definition
-                        var row = Object.create(property.getDefinition());
-                        row.key = index;
-                        return row;
-                    }).filter(function (row) {
-                        // Only show properties which are editable
-                        return row.control;
-                    })
-                }]
-            };
-        };
+/**
+ * Get sections provided by this dialog.
+ * @return {FormStructure} the structure of this form
+ */
+PropertiesDialog.prototype.getFormStructure = function () {
+    return {
+        name: "Edit " + this.model.name,
+        sections: [{
+            name: "Properties",
+            rows: this.properties.map(function (property, index) {
+                // Property definition is same as form row definition
+                var row = Object.create(property.getDefinition());
+                row.key = index;
+                return row;
+            }).filter(function (row) {
+                // Only show properties which are editable
+                return row.control;
+            })
+        }]
+    };
+};
 
-        /**
-         * Get the initial state of the form shown by this dialog
-         * (based on the object model)
-         * @returns {object} initial state of the form
-         */
-        PropertiesDialog.prototype.getInitialFormValue = function () {
-            var model = this.model;
+/**
+ * Get the initial state of the form shown by this dialog
+ * (based on the object model)
+ * @returns {object} initial state of the form
+ */
+PropertiesDialog.prototype.getInitialFormValue = function () {
+    var model = this.model;
 
-            // Start with initial values for properties
-            // Note that index needs to correlate to row.key
-            // from getFormStructure
-            return this.properties.map(function (property) {
-                return property.getValue(model);
-            });
-        };
+    // Start with initial values for properties
+    // Note that index needs to correlate to row.key
+    // from getFormStructure
+    return this.properties.map(function (property) {
+        return property.getValue(model);
+    });
+};
 
-        /**
-         * Update a domain object model based on the value of a form.
-         */
-        PropertiesDialog.prototype.updateModel = function (model, formValue) {
-            // Update all properties
-            this.properties.forEach(function (property, index) {
-                property.setValue(model, formValue[index]);
-            });
-        };
+/**
+ * Update a domain object model based on the value of a form.
+ */
+PropertiesDialog.prototype.updateModel = function (model, formValue) {
+    // Update all properties
+    this.properties.forEach(function (property, index) {
+        property.setValue(model, formValue[index]);
+    });
+};
 
-        return PropertiesDialog;
-    }
-);
+var bindingVariable = PropertiesDialog;
+export default bindingVariable;

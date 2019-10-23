@@ -20,71 +20,71 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(["zepto"], function ($) {
+;
 
-    /**
-     * The FileInputService provides an interface for triggering a file input.
-     *
-     * @constructor
-     * @memberof platform/forms
-     */
-    function FileInputService() {
+/**
+ * The FileInputService provides an interface for triggering a file input.
+ *
+ * @constructor
+ * @memberof platform/forms
+ */
+function FileInputService() {
 
-    }
+}
 
-    /**
-     * Creates, triggers, and destroys a file picker element and returns a
-     * promise for an object containing the chosen file's name and contents.
-     *
-     * @returns {Promise} promise for an object containing file meta-data
-     */
-    FileInputService.prototype.getInput = function () {
-        var input = this.newInput();
-        var read = this.readFile;
-        var fileInfo = {};
-        var file;
+/**
+ * Creates, triggers, and destroys a file picker element and returns a
+ * promise for an object containing the chosen file's name and contents.
+ *
+ * @returns {Promise} promise for an object containing file meta-data
+ */
+FileInputService.prototype.getInput = function () {
+    var input = this.newInput();
+    var read = this.readFile;
+    var fileInfo = {};
+    var file;
 
-        return new Promise(function (resolve, reject) {
-            input.trigger("click");
-            input.on('change', function (event) {
-                file = this.files[0];
-                input.remove();
-                if (file) {
-                    read(file)
-                        .then(function (contents) {
-                            fileInfo.name = file.name;
-                            fileInfo.body = contents;
-                            resolve(fileInfo);
-                        }, function () {
-                            reject("File read error");
-                        });
-                }
-            });
+    return new Promise(function (resolve, reject) {
+        input.trigger("click");
+        input.on('change', function (event) {
+            file = this.files[0];
+            input.remove();
+            if (file) {
+                read(file)
+                    .then(function (contents) {
+                        fileInfo.name = file.name;
+                        fileInfo.body = contents;
+                        resolve(fileInfo);
+                    }, function () {
+                        reject("File read error");
+                    });
+            }
         });
-    };
+    });
+};
 
-    FileInputService.prototype.readFile = function (file) {
-        var fileReader = new FileReader();
+FileInputService.prototype.readFile = function (file) {
+    var fileReader = new FileReader();
 
-        return new Promise(function (resolve, reject) {
-            fileReader.onload = function (event) {
-                resolve(event.target.result);
-            };
+    return new Promise(function (resolve, reject) {
+        fileReader.onload = function (event) {
+            resolve(event.target.result);
+        };
 
-            fileReader.onerror = function () {
-                return reject(event.target.result);
-            };
-            fileReader.readAsText(file);
-        });
-    };
+        fileReader.onerror = function () {
+            return reject(event.target.result);
+        };
+        fileReader.readAsText(file);
+    });
+};
 
-    FileInputService.prototype.newInput  = function () {
-        var input = $(document.createElement('input'));
-        input.attr("type", "file");
-        input.css("display", "none");
-        $('body').append(input);
-        return input;
-    };
+FileInputService.prototype.newInput  = function () {
+    var input = $(document.createElement('input'));
+    input.attr("type", "file");
+    input.css("display", "none");
+    $('body').append(input);
+    return input;
+};
 
-    return FileInputService;
-});
+var bindingVariable = FileInputService;
+export default bindingVariable;

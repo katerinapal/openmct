@@ -20,35 +20,32 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Continually refreshes the represented domain object.
-         *
-         * This is a short-term workaround to assure Timer views stay
-         * up-to-date; should be replaced by a global auto-refresh.
-         *
-         * @constructor
-         * @memberof platform/features/clock
-         * @param {angular.Scope} $scope the Angular scope
-         * @param {platform/features/clock.TickerService} tickerService
-         *        a service used to align behavior with clock ticks
-         */
-        function RefreshingController($scope, tickerService) {
-            var unlisten;
+/**
+ * Continually refreshes the represented domain object.
+ *
+ * This is a short-term workaround to assure Timer views stay
+ * up-to-date; should be replaced by a global auto-refresh.
+ *
+ * @constructor
+ * @memberof platform/features/clock
+ * @param {angular.Scope} $scope the Angular scope
+ * @param {platform/features/clock.TickerService} tickerService
+ *        a service used to align behavior with clock ticks
+ */
+function RefreshingController($scope, tickerService) {
+    var unlisten;
 
-            function triggerRefresh() {
-                var persistence = $scope.domainObject &&
-                    $scope.domainObject.getCapability('persistence');
-                return persistence && persistence.refresh();
-            }
-
-            unlisten = tickerService.listen(triggerRefresh);
-            $scope.$on('$destroy', unlisten);
-        }
-
-        return RefreshingController;
+    function triggerRefresh() {
+        var persistence = $scope.domainObject &&
+            $scope.domainObject.getCapability('persistence');
+        return persistence && persistence.refresh();
     }
-);
+
+    unlisten = tickerService.listen(triggerRefresh);
+    $scope.$on('$destroy', unlisten);
+}
+
+var bindingVariable = RefreshingController;
+export default bindingVariable;

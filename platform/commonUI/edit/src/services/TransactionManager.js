@@ -20,94 +20,94 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
-    /**
-     * Manages transactions to support the TransactionalPersistenceCapability.
-     * This assumes that all commit/cancel callbacks for a given domain
-     * object are equivalent, and only need to be added once to any active
-     * transaction. Violating this assumption may cause unexpected behavior.
-     * @constructor
-     * @memberof platform/commonUI/edit
-     */
-    function TransactionManager(transactionService) {
-        this.transactionService = transactionService;
-        this.clearTransactionFns = {};
+;
+/**
+ * Manages transactions to support the TransactionalPersistenceCapability.
+ * This assumes that all commit/cancel callbacks for a given domain
+ * object are equivalent, and only need to be added once to any active
+ * transaction. Violating this assumption may cause unexpected behavior.
+ * @constructor
+ * @memberof platform/commonUI/edit
+ */
+function TransactionManager(transactionService) {
+    this.transactionService = transactionService;
+    this.clearTransactionFns = {};
+}
+
+/**
+ * Check if a transaction is currently active.
+ * @returns {boolean} true if there is a transaction active
+ */
+TransactionManager.prototype.isActive = function () {
+    return this.transactionService.isActive();
+};
+
+/**
+ * Check if callbacks associated with this domain object have already
+ * been added to the active transaction.
+ * @private
+ * @param {string} id the identifier of the domain object to check
+ * @returns {boolean} true if callbacks have been added
+ */
+TransactionManager.prototype.isScheduled = function (id) {
+    return !!this.clearTransactionFns[id];
+};
+
+/**
+ * Add callbacks associated with this domain object to the active
+ * transaction. Both callbacks are expected to return promises that
+ * resolve when their associated behavior is complete.
+ *
+ * If callbacks associated with this domain object have already been
+ * added to the active transaction, this call will be ignored.
+ *
+ * @param {string} id the identifier of the associated domain object
+ * @param {Function} onCommit behavior to invoke when committing transaction
+ * @param {Function} onCancel behavior to invoke when cancelling transaction
+ */
+TransactionManager.prototype.addToTransaction = function (
+    id,
+    onCommit,
+    onCancel
+) {
+    var release = this.releaseClearFn.bind(this, id);
+
+    function chain(promiseFn, nextFn) {
+        return function () {
+            return promiseFn().then(nextFn);
+        };
     }
 
-    /**
-     * Check if a transaction is currently active.
-     * @returns {boolean} true if there is a transaction active
-     */
-    TransactionManager.prototype.isActive = function () {
-        return this.transactionService.isActive();
-    };
+    if (!this.isScheduled(id)) {
+        this.clearTransactionFns[id] =
+            this.transactionService.addToTransaction(
+                chain(onCommit, release),
+                chain(onCancel, release)
+            );
+    }
+};
 
-    /**
-     * Check if callbacks associated with this domain object have already
-     * been added to the active transaction.
-     * @private
-     * @param {string} id the identifier of the domain object to check
-     * @returns {boolean} true if callbacks have been added
-     */
-    TransactionManager.prototype.isScheduled = function (id) {
-        return !!this.clearTransactionFns[id];
-    };
+/**
+ * Remove any callbacks associated with this domain object from the
+ * active transaction.
+ * @param {string} id the identifier for the domain object
+ */
+TransactionManager.prototype.clearTransactionsFor = function (id) {
+    if (this.isScheduled(id)) {
+        this.clearTransactionFns[id]();
+        this.releaseClearFn(id);
+    }
+};
 
-    /**
-     * Add callbacks associated with this domain object to the active
-     * transaction. Both callbacks are expected to return promises that
-     * resolve when their associated behavior is complete.
-     *
-     * If callbacks associated with this domain object have already been
-     * added to the active transaction, this call will be ignored.
-     *
-     * @param {string} id the identifier of the associated domain object
-     * @param {Function} onCommit behavior to invoke when committing transaction
-     * @param {Function} onCancel behavior to invoke when cancelling transaction
-     */
-    TransactionManager.prototype.addToTransaction = function (
-        id,
-        onCommit,
-        onCancel
-    ) {
-        var release = this.releaseClearFn.bind(this, id);
+/**
+ * Release the cached "remove from transaction" function that has been
+ * stored in association with this domain object.
+ * @param {string} id the identifier for the domain object
+ * @private
+ */
+TransactionManager.prototype.releaseClearFn = function (id) {
+    delete this.clearTransactionFns[id];
+};
 
-        function chain(promiseFn, nextFn) {
-            return function () {
-                return promiseFn().then(nextFn);
-            };
-        }
-
-        if (!this.isScheduled(id)) {
-            this.clearTransactionFns[id] =
-                this.transactionService.addToTransaction(
-                    chain(onCommit, release),
-                    chain(onCancel, release)
-                );
-        }
-    };
-
-    /**
-     * Remove any callbacks associated with this domain object from the
-     * active transaction.
-     * @param {string} id the identifier for the domain object
-     */
-    TransactionManager.prototype.clearTransactionsFor = function (id) {
-        if (this.isScheduled(id)) {
-            this.clearTransactionFns[id]();
-            this.releaseClearFn(id);
-        }
-    };
-
-    /**
-     * Release the cached "remove from transaction" function that has been
-     * stored in association with this domain object.
-     * @param {string} id the identifier for the domain object
-     * @private
-     */
-    TransactionManager.prototype.releaseClearFn = function (id) {
-        delete this.clearTransactionFns[id];
-    };
-
-    return TransactionManager;
-});
+var bindingVariable = TransactionManager;
+export default bindingVariable;

@@ -20,38 +20,35 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Supports TelemetrySubscription. Provides a simple data structure
-         * (with a pool-like interface) that aggregates key-value pairs into
-         * one large object, overwriting new values as necessary. Stands
-         * in contrast to the TelemetryQueue, which will avoid overwriting
-         * values.
-         * @memberof platform/telemetry
-         * @constructor
-         * @implements {platform/telemetry.TelemetryPool}
-         */
-        function TelemetryTable() {
-        }
+/**
+ * Supports TelemetrySubscription. Provides a simple data structure
+ * (with a pool-like interface) that aggregates key-value pairs into
+ * one large object, overwriting new values as necessary. Stands
+ * in contrast to the TelemetryQueue, which will avoid overwriting
+ * values.
+ * @memberof platform/telemetry
+ * @constructor
+ * @implements {platform/telemetry.TelemetryPool}
+ */
+function TelemetryTable() {
+}
 
-        TelemetryTable.prototype.isEmpty = function () {
-            return !this.table;
-        };
+TelemetryTable.prototype.isEmpty = function () {
+    return !this.table;
+};
 
-        TelemetryTable.prototype.poll = function () {
-            var t = this.table;
-            this.table = undefined;
-            return t;
-        };
+TelemetryTable.prototype.poll = function () {
+    var t = this.table;
+    this.table = undefined;
+    return t;
+};
 
-        TelemetryTable.prototype.put = function (key, value) {
-            this.table = this.table || {};
-            this.table[key] = value;
-        };
+TelemetryTable.prototype.put = function (key, value) {
+    this.table = this.table || {};
+    this.table[key] = value;
+};
 
-        return TelemetryTable;
-    }
-);
+var bindingVariable = TelemetryTable;
+export default bindingVariable;

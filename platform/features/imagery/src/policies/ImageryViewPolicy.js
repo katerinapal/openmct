@@ -1,3 +1,4 @@
+import objectUtils from "..\\..\\..\\..\\..\\src\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,40 +21,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    '../../../../../src/api/objects/object-utils'
-], function (
-    objectUtils
-) {
-    /**
-     * Policy preventing the Imagery view from being made available for
-     * domain objects which do not have associated image telemetry.
-     * @implements {Policy.<View, DomainObject>}
-     * @constructor
-     */
-    function ImageryViewPolicy(openmct) {
-        this.openmct = openmct;
+;
+
+/**
+ * Policy preventing the Imagery view from being made available for
+ * domain objects which do not have associated image telemetry.
+ * @implements {Policy.<View, DomainObject>}
+ * @constructor
+ */
+function ImageryViewPolicy(openmct) {
+    this.openmct = openmct;
+}
+
+ImageryViewPolicy.prototype.hasImageTelemetry = function (domainObject) {
+    var newDO = objectUtils.toNewFormat(
+        domainObject.getModel(),
+        domainObject.getId()
+    );
+
+    var metadata = this.openmct.telemetry.getMetadata(newDO);
+    var values = metadata.valuesForHints(['image']);
+    return values.length >= 1;
+};
+
+ImageryViewPolicy.prototype.allow = function (view, domainObject) {
+    if (view.key === 'imagery' || view.key === 'historical-imagery') {
+        return this.hasImageTelemetry(domainObject);
     }
 
-    ImageryViewPolicy.prototype.hasImageTelemetry = function (domainObject) {
-        var newDO = objectUtils.toNewFormat(
-            domainObject.getModel(),
-            domainObject.getId()
-        );
+    return true;
+};
 
-        var metadata = this.openmct.telemetry.getMetadata(newDO);
-        var values = metadata.valuesForHints(['image']);
-        return values.length >= 1;
-    };
-
-    ImageryViewPolicy.prototype.allow = function (view, domainObject) {
-        if (view.key === 'imagery' || view.key === 'historical-imagery') {
-            return this.hasImageTelemetry(domainObject);
-        }
-
-        return true;
-    };
-
-    return ImageryViewPolicy;
-});
+var bindingVariable = ImageryViewPolicy;
+export default bindingVariable;
 

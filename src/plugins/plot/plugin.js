@@ -1,3 +1,13 @@
+import MCTChartDirective from ".\\src\\chart\\MCTChartDirective.js";
+import MCTPlotDirective from ".\\src\\plot\\MCTPlotDirective.js";
+import MCTTicksDirective from ".\\src\\plot\\MCTTicksDirective.js";
+import MCTOverlayPlot from ".\\src\\telemetry\\MCTOverlayPlot.js";
+import PlotController from ".\\src\\telemetry\\PlotController.js";
+import StackedPlotController from ".\\src\\telemetry\\StackedPlotController.js";
+import PlotOptionsController from ".\\src\\inspector\\PlotOptionsController.js";
+import HideElementPool from ".\\src\\inspector\\HideElementPoolDirective.js";
+import ExportImageService from ".\\src\\services\\ExportImageService.js";
+import PlotViewPolicy from ".\\src\\PlotViewPolicy.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -22,229 +32,195 @@
 
 /*global define*/
 
-define([
-    "./src/chart/MCTChartDirective",
-    "./src/plot/MCTPlotDirective",
-    './src/plot/MCTTicksDirective',
-    "./src/telemetry/MCTOverlayPlot",
-    "./src/telemetry/PlotController",
-    "./src/telemetry/StackedPlotController",
-    "./src/inspector/PlotInspector",
-    "./src/inspector/PlotOptionsController",
-    "./src/inspector/HideElementPoolDirective",
-    "./src/services/ExportImageService",
-    './src/PlotViewPolicy',
-    "text!./res/templates/plot-options.html",
-    "text!./res/templates/plot-options-browse.html",
-    "text!./res/templates/plot-options-edit.html",
-    "text!./res/templates/stacked-plot.html",
-    "text!./res/templates/plot.html"
-], function (
-    MCTChartDirective,
-    MCTPlotDirective,
-    MCTTicksDirective,
-    MCTOverlayPlot,
-    PlotController,
-    StackedPlotController,
-    PlotInspector,
-    PlotOptionsController,
-    HideElementPool,
-    ExportImageService,
-    PlotViewPolicy,
-    plotOptionsTemplate,
-    plotOptionsBrowseTemplate,
-    plotOptionsEditTemplate,
-    StackedPlotTemplate,
-    PlotTemplate
-) {
+;
 
-    var installed = false;
+var installed = false;
 
-    function PlotPlugin() {
-        return function install(openmct) {
-            if (installed) {
-                return;
+function PlotPlugin() {
+    return function install(openmct) {
+        if (installed) {
+            return;
+        }
+        installed = true;
+
+        openmct.legacyRegistry.register("openmct/plot", {
+            "name": "Plot view for telemetry, reborn",
+            "extensions": {
+                "policies": [
+                    {
+                        "category": "view",
+                        "implementation": PlotViewPolicy,
+                        "depends": [
+                            "openmct"
+                        ]
+                    }
+                ],
+                "views": [
+                    {
+                        "name": "Plot",
+                        "key": "plot-single",
+                        "cssClass": "icon-telemetry",
+                        "template": PlotTemplate,
+                        "needs": [
+                            "telemetry"
+                        ],
+                        "delegation": false,
+                        "priority": "mandatory"
+                    },
+                    {
+                        "name": "Overlay Plot",
+                        "key": "overlayPlot",
+                        "cssClass": "icon-plot-overlay",
+                        "type": "telemetry.plot.overlay",
+                        "template": PlotTemplate,
+                        "editable": true
+                    },
+                    {
+                        "name": "Stacked Plot",
+                        "key": "stackedPlot",
+                        "cssClass": "icon-plot-stacked",
+                        "type": "telemetry.plot.stacked",
+                        "template": StackedPlotTemplate,
+                        "editable": true
+                    }
+                ],
+                "directives": [
+                    {
+                        "key": "mctTicks",
+                        "implementation": MCTTicksDirective,
+                        "depends": []
+                    },
+                    {
+                        "key": "mctChart",
+                        "implementation": MCTChartDirective,
+                        "depends": [
+                            "$interval",
+                            "$log"
+                        ]
+                    },
+                    {
+                        "key": "mctPlot",
+                        "implementation": MCTPlotDirective,
+                        "depends": [],
+                        "templateUrl": "templates/mct-plot.html"
+                    },
+                    {
+                        "key": "mctOverlayPlot",
+                        "implementation": MCTOverlayPlot,
+                        "depends": []
+                    },
+                    {
+                        "key": "hideElementPool",
+                        "implementation": HideElementPool,
+                        "depends": []
+                    }
+                ],
+                "controllers": [
+                    {
+                        "key": "PlotController",
+                        "implementation": PlotController,
+                        "depends": [
+                            "$scope",
+                            "$element",
+                            "formatService",
+                            "openmct",
+                            "objectService",
+                            "exportImageService"
+                        ]
+                    },
+                    {
+                        "key": "StackedPlotController",
+                        "implementation": StackedPlotController,
+                        "depends": [
+                            "$scope",
+                            "openmct",
+                            "objectService",
+                            "$element",
+                            "exportImageService"
+                        ]
+                    },
+                    {
+                        "key": "PlotOptionsController",
+                        "implementation": PlotOptionsController,
+                        "depends": [
+                            "$scope",
+                            "openmct",
+                            "$timeout"
+                        ]
+                    }
+                ],
+                "services": [
+                    {
+                        "key": "exportImageService",
+                        "implementation": ExportImageService,
+                        "depends": [
+                            "$q",
+                            "$timeout",
+                            "$log"
+                        ]
+                    }
+                ],
+                "types": [
+                    {
+                        "key": "telemetry.plot.overlay",
+                        "name": "Overlay Plot",
+                        "cssClass": "icon-plot-overlay",
+                        "description": "Combine multiple telemetry elements and view them together as a plot with common X and Y axes. Can be added to Display Layouts.",
+                        "features": "creation",
+                        "contains": [
+                            {
+                                "has": "telemetry"
+                            }
+                        ],
+                        "model": {
+                            composition: [],
+                            configuration: {
+                                series: [],
+                                yAxis: {},
+                                xAxis: {}
+                            }
+                        },
+                        "properties": [],
+                        "inspector": "plot-options",
+                        "priority": 891
+                    },
+                    {
+                        "key": "telemetry.plot.stacked",
+                        "name": "Stacked Plot",
+                        "cssClass": "icon-plot-stacked",
+                        "description": "Combine multiple telemetry elements and view them together as a plot with a common X axis and individual Y axes. Can be added to Display Layouts.",
+                        "features": "creation",
+                        "contains": [
+                            "telemetry.plot.overlay",
+                            {"has": "telemetry"}
+                        ],
+                        "model": {
+                            "composition": []
+                        },
+                        "properties": [],
+                        "priority": 890
+                    }
+                ],
+                "representations": [
+                    {
+                        "key": "plot-options",
+                        "template": plotOptionsTemplate
+                    },
+                    {
+                        "key": "plot-options-browse",
+                        "template": plotOptionsBrowseTemplate
+                    },
+                    {
+                        "key": "plot-options-edit",
+                        "template": plotOptionsEditTemplate
+                    }
+                ]
             }
-            installed = true;
+        });
 
-            openmct.legacyRegistry.register("openmct/plot", {
-                "name": "Plot view for telemetry, reborn",
-                "extensions": {
-                    "policies": [
-                        {
-                            "category": "view",
-                            "implementation": PlotViewPolicy,
-                            "depends": [
-                                "openmct"
-                            ]
-                        }
-                    ],
-                    "views": [
-                        {
-                            "name": "Plot",
-                            "key": "plot-single",
-                            "cssClass": "icon-telemetry",
-                            "template": PlotTemplate,
-                            "needs": [
-                                "telemetry"
-                            ],
-                            "delegation": false,
-                            "priority": "mandatory"
-                        },
-                        {
-                            "name": "Overlay Plot",
-                            "key": "overlayPlot",
-                            "cssClass": "icon-plot-overlay",
-                            "type": "telemetry.plot.overlay",
-                            "template": PlotTemplate,
-                            "editable": true
-                        },
-                        {
-                            "name": "Stacked Plot",
-                            "key": "stackedPlot",
-                            "cssClass": "icon-plot-stacked",
-                            "type": "telemetry.plot.stacked",
-                            "template": StackedPlotTemplate,
-                            "editable": true
-                        }
-                    ],
-                    "directives": [
-                        {
-                            "key": "mctTicks",
-                            "implementation": MCTTicksDirective,
-                            "depends": []
-                        },
-                        {
-                            "key": "mctChart",
-                            "implementation": MCTChartDirective,
-                            "depends": [
-                                "$interval",
-                                "$log"
-                            ]
-                        },
-                        {
-                            "key": "mctPlot",
-                            "implementation": MCTPlotDirective,
-                            "depends": [],
-                            "templateUrl": "templates/mct-plot.html"
-                        },
-                        {
-                            "key": "mctOverlayPlot",
-                            "implementation": MCTOverlayPlot,
-                            "depends": []
-                        },
-                        {
-                            "key": "hideElementPool",
-                            "implementation": HideElementPool,
-                            "depends": []
-                        }
-                    ],
-                    "controllers": [
-                        {
-                            "key": "PlotController",
-                            "implementation": PlotController,
-                            "depends": [
-                                "$scope",
-                                "$element",
-                                "formatService",
-                                "openmct",
-                                "objectService",
-                                "exportImageService"
-                            ]
-                        },
-                        {
-                            "key": "StackedPlotController",
-                            "implementation": StackedPlotController,
-                            "depends": [
-                                "$scope",
-                                "openmct",
-                                "objectService",
-                                "$element",
-                                "exportImageService"
-                            ]
-                        },
-                        {
-                            "key": "PlotOptionsController",
-                            "implementation": PlotOptionsController,
-                            "depends": [
-                                "$scope",
-                                "openmct",
-                                "$timeout"
-                            ]
-                        }
-                    ],
-                    "services": [
-                        {
-                            "key": "exportImageService",
-                            "implementation": ExportImageService,
-                            "depends": [
-                                "$q",
-                                "$timeout",
-                                "$log"
-                            ]
-                        }
-                    ],
-                    "types": [
-                        {
-                            "key": "telemetry.plot.overlay",
-                            "name": "Overlay Plot",
-                            "cssClass": "icon-plot-overlay",
-                            "description": "Combine multiple telemetry elements and view them together as a plot with common X and Y axes. Can be added to Display Layouts.",
-                            "features": "creation",
-                            "contains": [
-                                {
-                                    "has": "telemetry"
-                                }
-                            ],
-                            "model": {
-                                composition: [],
-                                configuration: {
-                                    series: [],
-                                    yAxis: {},
-                                    xAxis: {}
-                                }
-                            },
-                            "properties": [],
-                            "inspector": "plot-options",
-                            "priority": 891
-                        },
-                        {
-                            "key": "telemetry.plot.stacked",
-                            "name": "Stacked Plot",
-                            "cssClass": "icon-plot-stacked",
-                            "description": "Combine multiple telemetry elements and view them together as a plot with a common X axis and individual Y axes. Can be added to Display Layouts.",
-                            "features": "creation",
-                            "contains": [
-                                "telemetry.plot.overlay",
-                                {"has": "telemetry"}
-                            ],
-                            "model": {
-                                "composition": []
-                            },
-                            "properties": [],
-                            "priority": 890
-                        }
-                    ],
-                    "representations": [
-                        {
-                            "key": "plot-options",
-                            "template": plotOptionsTemplate
-                        },
-                        {
-                            "key": "plot-options-browse",
-                            "template": plotOptionsBrowseTemplate
-                        },
-                        {
-                            "key": "plot-options-edit",
-                            "template": plotOptionsEditTemplate
-                        }
-                    ]
-                }
-            });
+        openmct.legacyRegistry.enable("openmct/plot");
+    };
+}
 
-            openmct.legacyRegistry.enable("openmct/plot");
-        };
-    }
-
-    return PlotPlugin;
-});
+var bindingVariable = PlotPlugin;
+export default bindingVariable;

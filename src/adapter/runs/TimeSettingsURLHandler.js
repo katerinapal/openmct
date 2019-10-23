@@ -20,131 +20,127 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'lodash'
-], function (
-    _
-) {
-    // Parameter names in query string
-    var SEARCH = {
-        MODE: 'tc.mode',
-        TIME_SYSTEM: 'tc.timeSystem',
-        START_BOUND: 'tc.startBound',
-        END_BOUND: 'tc.endBound',
-        START_DELTA: 'tc.startDelta',
-        END_DELTA: 'tc.endDelta'
-    };
-    var TIME_EVENTS = ['bounds', 'timeSystem', 'clock', 'clockOffsets'];
-    // Used to shorthand calls to $location, which clears null parameters
-    var NULL_PARAMETERS = { key: null, start: null, end: null };
+;
+// Parameter names in query string
+var SEARCH = {
+    MODE: 'tc.mode',
+    TIME_SYSTEM: 'tc.timeSystem',
+    START_BOUND: 'tc.startBound',
+    END_BOUND: 'tc.endBound',
+    START_DELTA: 'tc.startDelta',
+    END_DELTA: 'tc.endDelta'
+};
+var TIME_EVENTS = ['bounds', 'timeSystem', 'clock', 'clockOffsets'];
+// Used to shorthand calls to $location, which clears null parameters
+var NULL_PARAMETERS = { key: null, start: null, end: null };
 
-    /**
-     * Communicates settings from the URL to the time API,
-     * and vice versa.
-     */
-    function TimeSettingsURLHandler(time, $location, $rootScope) {
-        this.time = time;
-        this.$location = $location;
+/**
+ * Communicates settings from the URL to the time API,
+ * and vice versa.
+ */
+function TimeSettingsURLHandler(time, $location, $rootScope) {
+    this.time = time;
+    this.$location = $location;
 
-        $rootScope.$on('$locationChangeSuccess', this.updateTime.bind(this));
+    $rootScope.$on('$locationChangeSuccess', this.updateTime.bind(this));
 
-        TIME_EVENTS.forEach(function (event) {
-            this.time.on(event, this.updateQueryParams.bind(this));
-        }, this);
+    TIME_EVENTS.forEach(function (event) {
+        this.time.on(event, this.updateQueryParams.bind(this));
+    }, this);
 
-        this.updateTime(); // Initialize
+    this.updateTime(); // Initialize
+}
+
+TimeSettingsURLHandler.prototype.updateQueryParams = function () {
+    var clock = this.time.clock();
+    var fixed = !clock;
+    var mode = fixed ? 'fixed' : clock.key;
+    var timeSystem = this.time.timeSystem() || NULL_PARAMETERS;
+    var bounds = fixed ? this.time.bounds() : NULL_PARAMETERS;
+    var deltas = fixed ? NULL_PARAMETERS : this.time.clockOffsets();
+
+    bounds = bounds || NULL_PARAMETERS;
+    deltas = deltas || NULL_PARAMETERS;
+    if (deltas.start) {
+        deltas = { start: -deltas.start, end: deltas.end };
     }
 
-    TimeSettingsURLHandler.prototype.updateQueryParams = function () {
-        var clock = this.time.clock();
-        var fixed = !clock;
-        var mode = fixed ? 'fixed' : clock.key;
-        var timeSystem = this.time.timeSystem() || NULL_PARAMETERS;
-        var bounds = fixed ? this.time.bounds() : NULL_PARAMETERS;
-        var deltas = fixed ? NULL_PARAMETERS : this.time.clockOffsets();
+    this.$location.search(SEARCH.MODE, mode);
+    this.$location.search(SEARCH.TIME_SYSTEM, timeSystem.key);
+    this.$location.search(SEARCH.START_BOUND, bounds.start);
+    this.$location.search(SEARCH.END_BOUND, bounds.end);
+    this.$location.search(SEARCH.START_DELTA, deltas.start);
+    this.$location.search(SEARCH.END_DELTA, deltas.end);
+};
 
-        bounds = bounds || NULL_PARAMETERS;
-        deltas = deltas || NULL_PARAMETERS;
-        if (deltas.start) {
-            deltas = { start: -deltas.start, end: deltas.end };
-        }
-
-        this.$location.search(SEARCH.MODE, mode);
-        this.$location.search(SEARCH.TIME_SYSTEM, timeSystem.key);
-        this.$location.search(SEARCH.START_BOUND, bounds.start);
-        this.$location.search(SEARCH.END_BOUND, bounds.end);
-        this.$location.search(SEARCH.START_DELTA, deltas.start);
-        this.$location.search(SEARCH.END_DELTA, deltas.end);
+TimeSettingsURLHandler.prototype.parseQueryParams = function () {
+    var searchParams = _.pick(this.$location.search(), _.values(SEARCH));
+    var parsedParams = {
+        clock: searchParams[SEARCH.MODE],
+        timeSystem: searchParams[SEARCH.TIME_SYSTEM]
     };
-
-    TimeSettingsURLHandler.prototype.parseQueryParams = function () {
-        var searchParams = _.pick(this.$location.search(), _.values(SEARCH));
-        var parsedParams = {
-            clock: searchParams[SEARCH.MODE],
-            timeSystem: searchParams[SEARCH.TIME_SYSTEM]
+    if (!isNaN(parseInt(searchParams[SEARCH.START_DELTA], 0xA)) &&
+        !isNaN(parseInt(searchParams[SEARCH.END_DELTA], 0xA))) {
+        parsedParams.clockOffsets = {
+            start: -searchParams[SEARCH.START_DELTA],
+            end: +searchParams[SEARCH.END_DELTA]
         };
-        if (!isNaN(parseInt(searchParams[SEARCH.START_DELTA], 0xA)) &&
-            !isNaN(parseInt(searchParams[SEARCH.END_DELTA], 0xA))) {
-            parsedParams.clockOffsets = {
-                start: -searchParams[SEARCH.START_DELTA],
-                end: +searchParams[SEARCH.END_DELTA]
-            };
+    }
+    if (!isNaN(parseInt(searchParams[SEARCH.START_BOUND], 0xA)) &&
+        !isNaN(parseInt(searchParams[SEARCH.END_BOUND], 0xA))) {
+        parsedParams.bounds = {
+            start: +searchParams[SEARCH.START_BOUND],
+            end: +searchParams[SEARCH.END_BOUND]
+        };
+    }
+    return parsedParams;
+};
+
+TimeSettingsURLHandler.prototype.updateTime = function () {
+    var params = this.parseQueryParams();
+    if (_.isEqual(params, this.last)) {
+        return; // Do nothing;
+    }
+    this.last = params;
+
+    if (!params.timeSystem) {
+        this.updateQueryParams();
+    } else if (params.clock === 'fixed' && params.bounds) {
+        if (!this.time.timeSystem() ||
+            this.time.timeSystem().key !== params.timeSystem) {
+
+            this.time.timeSystem(
+                params.timeSystem,
+                params.bounds
+            );
+        } else if (!_.isEqual(this.time.bounds(), params.bounds)) {
+            this.time.bounds(params.bounds);
         }
-        if (!isNaN(parseInt(searchParams[SEARCH.START_BOUND], 0xA)) &&
-            !isNaN(parseInt(searchParams[SEARCH.END_BOUND], 0xA))) {
-            parsedParams.bounds = {
-                start: +searchParams[SEARCH.START_BOUND],
-                end: +searchParams[SEARCH.END_BOUND]
-            };
+        if (this.time.clock()) {
+            this.time.stopClock();
         }
-        return parsedParams;
-    };
-
-    TimeSettingsURLHandler.prototype.updateTime = function () {
-        var params = this.parseQueryParams();
-        if (_.isEqual(params, this.last)) {
-            return; // Do nothing;
+    } else if (params.clockOffsets) {
+        if (params.clock === 'fixed') {
+            this.time.stopClock();
+            return;
         }
-        this.last = params;
+        if (!this.time.clock() ||
+            this.time.clock().key !== params.clock) {
 
-        if (!params.timeSystem) {
-            this.updateQueryParams();
-        } else if (params.clock === 'fixed' && params.bounds) {
-            if (!this.time.timeSystem() ||
-                this.time.timeSystem().key !== params.timeSystem) {
-
-                this.time.timeSystem(
-                    params.timeSystem,
-                    params.bounds
-                );
-            } else if (!_.isEqual(this.time.bounds(), params.bounds)) {
-                this.time.bounds(params.bounds);
-            }
-            if (this.time.clock()) {
-                this.time.stopClock();
-            }
-        } else if (params.clockOffsets) {
-            if (params.clock === 'fixed') {
-                this.time.stopClock();
-                return;
-            }
-            if (!this.time.clock() ||
-                this.time.clock().key !== params.clock) {
-
-                this.time.clock(params.clock, params.clockOffsets);
-            } else if (!_.isEqual(this.time.clockOffsets(), params.clockOffsets)) {
-                this.time.clockOffsets(params.clockOffsets);
-            }
-            if (!this.time.timeSystem() ||
-                this.time.timeSystem().key !== params.timeSystem) {
-
-                this.time.timeSystem(params.timeSystem);
-            }
-        } else {
-            // Neither found, update from timeSystem.
-            this.updateQueryParams();
+            this.time.clock(params.clock, params.clockOffsets);
+        } else if (!_.isEqual(this.time.clockOffsets(), params.clockOffsets)) {
+            this.time.clockOffsets(params.clockOffsets);
         }
-    };
+        if (!this.time.timeSystem() ||
+            this.time.timeSystem().key !== params.timeSystem) {
 
-    return TimeSettingsURLHandler;
-});
+            this.time.timeSystem(params.timeSystem);
+        }
+    } else {
+        // Neither found, update from timeSystem.
+        this.updateQueryParams();
+    }
+};
+
+var bindingVariable = TimeSettingsURLHandler;
+export default bindingVariable;

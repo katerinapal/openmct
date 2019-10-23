@@ -20,53 +20,53 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
-    /**
-     * A column showing utilization costs associated with activities.
-     * @constructor
-     * @param {string} key the key for the particular cost
-     * @implements {platform/features/timeline.TimelineCSVColumn}
-     */
-    function UtilizationColumn(resource) {
-        this.resource = resource;
+;
+/**
+ * A column showing utilization costs associated with activities.
+ * @constructor
+ * @param {string} key the key for the particular cost
+ * @implements {platform/features/timeline.TimelineCSVColumn}
+ */
+function UtilizationColumn(resource) {
+    this.resource = resource;
+}
+
+UtilizationColumn.prototype.name = function () {
+    var units = {
+        "Kbps": "Kb",
+        "watts": "watt-seconds"
+    }[this.resource.units] || "unknown units";
+
+    return this.resource.name + " (" + units + ")";
+};
+
+UtilizationColumn.prototype.value = function (domainObject) {
+    var resource = this.resource;
+
+    function getCost(utilization) {
+        var seconds = (utilization.end - utilization.start) / 1000;
+        return seconds * utilization.value;
     }
 
-    UtilizationColumn.prototype.name = function () {
-        var units = {
-            "Kbps": "Kb",
-            "watts": "watt-seconds"
-        }[this.resource.units] || "unknown units";
+    function getUtilizationValue(utilizations) {
+        utilizations = utilizations.filter(function (utilization) {
+            return utilization.key === resource.key;
+        });
 
-        return this.resource.name + " (" + units + ")";
-    };
-
-    UtilizationColumn.prototype.value = function (domainObject) {
-        var resource = this.resource;
-
-        function getCost(utilization) {
-            var seconds = (utilization.end - utilization.start) / 1000;
-            return seconds * utilization.value;
+        if (utilizations.length === 0) {
+            return "";
         }
 
-        function getUtilizationValue(utilizations) {
-            utilizations = utilizations.filter(function (utilization) {
-                return utilization.key === resource.key;
-            });
+        return utilizations.map(getCost).reduce(function (a, b) {
+            return a + b;
+        }, 0);
+    }
 
-            if (utilizations.length === 0) {
-                return "";
-            }
+    return domainObject.hasCapability('utilization') ?
+        domainObject.getCapability('utilization').internal()
+            .then(getUtilizationValue) :
+        "";
+};
 
-            return utilizations.map(getCost).reduce(function (a, b) {
-                return a + b;
-            }, 0);
-        }
-
-        return domainObject.hasCapability('utilization') ?
-            domainObject.getCapability('utilization').internal()
-                .then(getUtilizationValue) :
-            "";
-    };
-
-    return UtilizationColumn;
-});
+var bindingVariable = UtilizationColumn;
+export default bindingVariable;

@@ -20,24 +20,21 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A policy for determining whether objects of a given type can be
-         * created.
-         * @constructor
-         * @implements {Policy}
-         * @memberof platform/commonUI/browse
-         */
-        function CreationPolicy() {
-        }
+/**
+ * A policy for determining whether objects of a given type can be
+ * created.
+ * @constructor
+ * @implements {Policy}
+ * @memberof platform/commonUI/browse
+ */
+function CreationPolicy() {
+}
 
-        CreationPolicy.prototype.allow = function (type) {
-            return type.hasFeature("creation");
-        };
+CreationPolicy.prototype.allow = function (type) {
+    return type.hasFeature("creation");
+};
 
-        return CreationPolicy;
-    }
-);
+var bindingVariable = CreationPolicy;
+export default bindingVariable;

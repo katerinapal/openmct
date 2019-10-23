@@ -1,3 +1,4 @@
+import LADClock from ".\\LADClock.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,14 +21,9 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./LADClock"
-], function (
-    LADClock
-) {
-    return function () {
-        return function (openmct) {
-            openmct.time.addClock(new LADClock());
-        };
+var bindingVariable = function () {
+    return function (openmct) {
+        openmct.time.addClock(new LADClock());
     };
-});
+};;
+export default bindingVariable;

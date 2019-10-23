@@ -20,39 +20,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    function () {
+;
 
-        /**
-         * Implements the "Set Primary Location" action, which sets a
-         * location property for objects to match their contextual
-         * location.
-         *
-         * @implements {Action}
-         * @constructor
-         * @private
-         * @memberof platform/entanglement
-         * @param {ActionContext} context the context in which the action
-         *        will be performed
-         */
-        function SetPrimaryLocationAction(context) {
-            this.domainObject = context.domainObject;
-        }
+/**
+ * Implements the "Set Primary Location" action, which sets a
+ * location property for objects to match their contextual
+ * location.
+ *
+ * @implements {Action}
+ * @constructor
+ * @private
+ * @memberof platform/entanglement
+ * @param {ActionContext} context the context in which the action
+ *        will be performed
+ */
+function SetPrimaryLocationAction(context) {
+    this.domainObject = context.domainObject;
+}
 
-        SetPrimaryLocationAction.prototype.perform = function () {
-            var location = this.domainObject.getCapability('location');
-            return location.setPrimaryLocation(
-                location.getContextualLocation()
-            );
-        };
+SetPrimaryLocationAction.prototype.perform = function () {
+    var location = this.domainObject.getCapability('location');
+    return location.setPrimaryLocation(
+        location.getContextualLocation()
+    );
+};
 
-        SetPrimaryLocationAction.appliesTo = function (context) {
-            var domainObject = context.domainObject;
-            return domainObject && domainObject.hasCapability("location") &&
-                (domainObject.getModel().location === undefined);
-        };
+SetPrimaryLocationAction.appliesTo = function (context) {
+    var domainObject = context.domainObject;
+    return domainObject && domainObject.hasCapability("location") &&
+        (domainObject.getModel().location === undefined);
+};
 
-        return SetPrimaryLocationAction;
-    }
-);
+var bindingVariable = SetPrimaryLocationAction;
+export default bindingVariable;
 

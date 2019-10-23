@@ -20,109 +20,106 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Relationship capability. Describes a domain objects relationship
-         * to other domain objects within the system, and provides a way to
-         * access related objects.
-         *
-         * For most cases, this is not the capability to use; the
-         * `composition` capability describes the more general relationship
-         * between objects typically seen (e.g. in the tree.) This capability
-         * is instead intended for the more unusual case of relationships
-         * which are not intended to appear in the tree, but are instead
-         * intended only for special, limited usage.
-         *
-         * @memberof platform/core
-         * @constructor
-         * @implements {Capability}
-         */
-        function RelationshipCapability($injector, domainObject) {
-            // Get a reference to the object service from $injector
-            this.injectObjectService = function () {
-                this.objectService = $injector.get("objectService");
-            };
+/**
+ * Relationship capability. Describes a domain objects relationship
+ * to other domain objects within the system, and provides a way to
+ * access related objects.
+ *
+ * For most cases, this is not the capability to use; the
+ * `composition` capability describes the more general relationship
+ * between objects typically seen (e.g. in the tree.) This capability
+ * is instead intended for the more unusual case of relationships
+ * which are not intended to appear in the tree, but are instead
+ * intended only for special, limited usage.
+ *
+ * @memberof platform/core
+ * @constructor
+ * @implements {Capability}
+ */
+function RelationshipCapability($injector, domainObject) {
+    // Get a reference to the object service from $injector
+    this.injectObjectService = function () {
+        this.objectService = $injector.get("objectService");
+    };
 
-            this.lastPromise = {};
-            this.domainObject = domainObject;
-        }
+    this.lastPromise = {};
+    this.domainObject = domainObject;
+}
 
-        /**
-         * List all types of relationships exposed by this
-         * object.
-         * @returns {string[]} a list of all relationship types
-         */
-        RelationshipCapability.prototype.listRelationships = function listRelationships() {
-            var relationships =
-                (this.domainObject.getModel() || {}).relationships || {};
+/**
+ * List all types of relationships exposed by this
+ * object.
+ * @returns {string[]} a list of all relationship types
+ */
+RelationshipCapability.prototype.listRelationships = function listRelationships() {
+    var relationships =
+        (this.domainObject.getModel() || {}).relationships || {};
 
-            // Check if this key really does expose an array of ids
-            // (to filter out malformed relationships)
-            function isArray(key) {
-                return Array.isArray(relationships[key]);
-            }
-
-            return Object.keys(relationships).filter(isArray).sort();
-        };
-
-        /**
-         * Request related objects, with a given relationship type.
-         * This will typically require asynchronous lookup, so this
-         * returns a promise.
-         * @param {string} key the type of relationship
-         * @returns {Promise.<DomainObject[]>} a promise for related
-         *          domain objects
-         */
-        RelationshipCapability.prototype.getRelatedObjects = function (key) {
-            var model = this.domainObject.getModel(),
-                ids;
-
-            // Package objects as an array
-            function packageObject(objects) {
-                return ids.map(function (id) {
-                    return objects[id];
-                }).filter(function (obj) {
-                    return obj;
-                });
-            }
-
-            // Clear cached promises if modification has occurred
-            if (this.lastModified !== model.modified) {
-                this.lastPromise = {};
-                this.lastModified = model.modified;
-            }
-
-            // Make a new request if needed
-            if (!this.lastPromise[key]) {
-                ids = (model.relationships || {})[key] || [];
-                this.lastModified = model.modified;
-                // Lazily initialize object service now that we need it
-                if (!this.objectService) {
-                    this.injectObjectService();
-                }
-                // Load from the underlying object service
-                this.lastPromise[key] = this.objectService.getObjects(ids)
-                    .then(packageObject);
-            }
-
-            return this.lastPromise[key];
-        };
-
-
-        /**
-         * Test to determine whether or not this capability should be exposed
-         * by a domain object based on its model. Checks for the presence of
-         * a `relationships` field, that must be an object.
-         * @param model the domain object model
-         * @returns {boolean} true if this object has relationships
-         */
-        RelationshipCapability.appliesTo = function (model) {
-            return !!(model || {}).relationships;
-        };
-
-        return RelationshipCapability;
+    // Check if this key really does expose an array of ids
+    // (to filter out malformed relationships)
+    function isArray(key) {
+        return Array.isArray(relationships[key]);
     }
-);
+
+    return Object.keys(relationships).filter(isArray).sort();
+};
+
+/**
+ * Request related objects, with a given relationship type.
+ * This will typically require asynchronous lookup, so this
+ * returns a promise.
+ * @param {string} key the type of relationship
+ * @returns {Promise.<DomainObject[]>} a promise for related
+ *          domain objects
+ */
+RelationshipCapability.prototype.getRelatedObjects = function (key) {
+    var model = this.domainObject.getModel(),
+        ids;
+
+    // Package objects as an array
+    function packageObject(objects) {
+        return ids.map(function (id) {
+            return objects[id];
+        }).filter(function (obj) {
+            return obj;
+        });
+    }
+
+    // Clear cached promises if modification has occurred
+    if (this.lastModified !== model.modified) {
+        this.lastPromise = {};
+        this.lastModified = model.modified;
+    }
+
+    // Make a new request if needed
+    if (!this.lastPromise[key]) {
+        ids = (model.relationships || {})[key] || [];
+        this.lastModified = model.modified;
+        // Lazily initialize object service now that we need it
+        if (!this.objectService) {
+            this.injectObjectService();
+        }
+        // Load from the underlying object service
+        this.lastPromise[key] = this.objectService.getObjects(ids)
+            .then(packageObject);
+    }
+
+    return this.lastPromise[key];
+};
+
+
+/**
+ * Test to determine whether or not this capability should be exposed
+ * by a domain object based on its model. Checks for the presence of
+ * a `relationships` field, that must be an object.
+ * @param model the domain object model
+ * @returns {boolean} true if this object has relationships
+ */
+RelationshipCapability.appliesTo = function (model) {
+    return !!(model || {}).relationships;
+};
+
+var bindingVariable = RelationshipCapability;
+export default bindingVariable;

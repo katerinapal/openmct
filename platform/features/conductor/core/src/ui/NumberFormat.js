@@ -20,35 +20,35 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Formatter for basic numbers. Provides basic support for non-UTC
-     * numbering systems
-     *
-     * @implements {Format}
-     * @constructor
-     * @memberof platform/commonUI/formats
-     */
-    function NumberFormat() {
-        this.key = 'number';
+/**
+ * Formatter for basic numbers. Provides basic support for non-UTC
+ * numbering systems
+ *
+ * @implements {Format}
+ * @constructor
+ * @memberof platform/commonUI/formats
+ */
+function NumberFormat() {
+    this.key = 'number';
+}
+
+NumberFormat.prototype.format = function (value) {
+    if (isNaN(value)) {
+        return '';
+    } else {
+        return '' + value;
     }
+};
 
-    NumberFormat.prototype.format = function (value) {
-        if (isNaN(value)) {
-            return '';
-        } else {
-            return '' + value;
-        }
-    };
+NumberFormat.prototype.parse = function (text) {
+    return parseFloat(text);
+};
 
-    NumberFormat.prototype.parse = function (text) {
-        return parseFloat(text);
-    };
+NumberFormat.prototype.validate = function (text) {
+    return !isNaN(text);
+};
 
-    NumberFormat.prototype.validate = function (text) {
-        return !isNaN(text);
-    };
-
-    return NumberFormat;
-});
+var bindingVariable = NumberFormat;
+export default bindingVariable;

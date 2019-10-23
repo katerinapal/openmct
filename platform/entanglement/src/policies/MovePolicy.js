@@ -20,42 +20,42 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Disallow moves when either the parent or the child are not
-     * modifiable by users.
-     * @constructor
-     * @implements {Policy}
-     * @memberof platform/entanglement
-     */
-    function MovePolicy() {
+/**
+ * Disallow moves when either the parent or the child are not
+ * modifiable by users.
+ * @constructor
+ * @implements {Policy}
+ * @memberof platform/entanglement
+ */
+function MovePolicy() {
+}
+
+function parentOf(domainObject) {
+    var context = domainObject.getCapability('context');
+    return context && context.getParent();
+}
+
+function allowMutation(domainObject) {
+    var type = domainObject && domainObject.getCapability('type');
+    return !!(type && type.hasFeature('creation'));
+}
+
+function selectedObject(context) {
+    return context.selectedObject || context.domainObject;
+}
+
+MovePolicy.prototype.allow = function (action, context) {
+    var key = action.getMetadata().key;
+
+    if (key === 'move') {
+        return allowMutation(selectedObject(context)) &&
+            allowMutation(parentOf(selectedObject(context)));
     }
 
-    function parentOf(domainObject) {
-        var context = domainObject.getCapability('context');
-        return context && context.getParent();
-    }
+    return true;
+};
 
-    function allowMutation(domainObject) {
-        var type = domainObject && domainObject.getCapability('type');
-        return !!(type && type.hasFeature('creation'));
-    }
-
-    function selectedObject(context) {
-        return context.selectedObject || context.domainObject;
-    }
-
-    MovePolicy.prototype.allow = function (action, context) {
-        var key = action.getMetadata().key;
-
-        if (key === 'move') {
-            return allowMutation(selectedObject(context)) &&
-                allowMutation(parentOf(selectedObject(context)));
-        }
-
-        return true;
-    };
-
-    return MovePolicy;
-});
+var bindingVariable = MovePolicy;
+export default bindingVariable;

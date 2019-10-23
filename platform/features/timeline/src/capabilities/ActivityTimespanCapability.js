@@ -1,3 +1,4 @@
+import ActivityTimespan from ".\\ActivityTimespan.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,42 +21,38 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./ActivityTimespan'],
-    function (ActivityTimespan) {
+;
 
-        /**
-         * Implements the `timespan` capability for Activity objects.
-         *
-         * @constructor
-         * @param $q Angular's $q, for promise-handling
-         * @param {DomainObject} domainObject the Activity
-         */
-        function ActivityTimespanCapability($q, domainObject) {
-            // Promise time span
-            function promiseTimeSpan() {
-                return $q.when(new ActivityTimespan(
-                    domainObject.getModel(),
-                    domainObject.getCapability('mutation')
-                ));
-            }
-
-            return {
-                /**
-                 * Get the time span (start, end, duration) of this activity.
-                 * @returns {Promise.<ActivityTimespan>} the time span of
-                 *          this activity
-                 */
-                invoke: promiseTimeSpan
-            };
-        }
-
-        // Only applies to timeline objects
-        ActivityTimespanCapability.appliesTo = function (model) {
-            return model && (model.type === 'activity');
-        };
-
-        return ActivityTimespanCapability;
-
+/**
+ * Implements the `timespan` capability for Activity objects.
+ *
+ * @constructor
+ * @param $q Angular's $q, for promise-handling
+ * @param {DomainObject} domainObject the Activity
+ */
+function ActivityTimespanCapability($q, domainObject) {
+    // Promise time span
+    function promiseTimeSpan() {
+        return $q.when(new ActivityTimespan(
+            domainObject.getModel(),
+            domainObject.getCapability('mutation')
+        ));
     }
-);
+
+    return {
+        /**
+         * Get the time span (start, end, duration) of this activity.
+         * @returns {Promise.<ActivityTimespan>} the time span of
+         *          this activity
+         */
+        invoke: promiseTimeSpan
+    };
+}
+
+// Only applies to timeline objects
+ActivityTimespanCapability.appliesTo = function (model) {
+    return model && (model.type === 'activity');
+};
+
+var bindingVariable = ActivityTimespanCapability;
+export default bindingVariable;

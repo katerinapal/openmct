@@ -20,53 +20,50 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Policy controlling whether the context menu is visible when
-         * objects are being edited
-         * @param navigationService
-         * @param editModeBlacklist A blacklist of actions disallowed from
-         * context menu when navigated object is being edited
-         * @param nonEditContextBlacklist A blacklist of actions disallowed
-         * from context menu of non-editable objects, when navigated object
-         * is being edited
-         * @constructor
-         * @param editModeBlacklist A blacklist of actions disallowed from
-         * context menu when navigated object is being edited
-         * @param nonEditContextBlacklist A blacklist of actions disallowed
-         * from context menu of non-editable objects, when navigated object
-         * @implements {Policy.<Action, ActionContext>}
-         */
-        function EditContextualActionPolicy(navigationService, editModeBlacklist, nonEditContextBlacklist) {
-            this.navigationService = navigationService;
+/**
+ * Policy controlling whether the context menu is visible when
+ * objects are being edited
+ * @param navigationService
+ * @param editModeBlacklist A blacklist of actions disallowed from
+ * context menu when navigated object is being edited
+ * @param nonEditContextBlacklist A blacklist of actions disallowed
+ * from context menu of non-editable objects, when navigated object
+ * is being edited
+ * @constructor
+ * @param editModeBlacklist A blacklist of actions disallowed from
+ * context menu when navigated object is being edited
+ * @param nonEditContextBlacklist A blacklist of actions disallowed
+ * from context menu of non-editable objects, when navigated object
+ * @implements {Policy.<Action, ActionContext>}
+ */
+function EditContextualActionPolicy(navigationService, editModeBlacklist, nonEditContextBlacklist) {
+    this.navigationService = navigationService;
 
-            //The list of objects disallowed on target object when in edit mode
-            this.editModeBlacklist = editModeBlacklist;
-            //The list of objects disallowed on target object that is not in
-            // edit mode (ie. the context menu in the tree on the LHS).
-            this.nonEditContextBlacklist = nonEditContextBlacklist;
+    //The list of objects disallowed on target object when in edit mode
+    this.editModeBlacklist = editModeBlacklist;
+    //The list of objects disallowed on target object that is not in
+    // edit mode (ie. the context menu in the tree on the LHS).
+    this.nonEditContextBlacklist = nonEditContextBlacklist;
+}
+
+EditContextualActionPolicy.prototype.allow = function (action, context) {
+    var selectedObject = context.domainObject,
+        navigatedObject = this.navigationService.getNavigation(),
+        actionMetadata = action.getMetadata ? action.getMetadata() : {};
+
+    if (navigatedObject.hasCapability("editor") && navigatedObject.getCapability("editor").isEditContextRoot()) {
+        if (selectedObject.hasCapability("editor") && selectedObject.getCapability("editor").inEditContext()) {
+            return this.editModeBlacklist.indexOf(actionMetadata.key) === -1;
+        } else {
+            //Target is in the context menu
+            return this.nonEditContextBlacklist.indexOf(actionMetadata.key) === -1;
         }
-
-        EditContextualActionPolicy.prototype.allow = function (action, context) {
-            var selectedObject = context.domainObject,
-                navigatedObject = this.navigationService.getNavigation(),
-                actionMetadata = action.getMetadata ? action.getMetadata() : {};
-
-            if (navigatedObject.hasCapability("editor") && navigatedObject.getCapability("editor").isEditContextRoot()) {
-                if (selectedObject.hasCapability("editor") && selectedObject.getCapability("editor").inEditContext()) {
-                    return this.editModeBlacklist.indexOf(actionMetadata.key) === -1;
-                } else {
-                    //Target is in the context menu
-                    return this.nonEditContextBlacklist.indexOf(actionMetadata.key) === -1;
-                }
-            } else {
-                return true;
-            }
-        };
-
-        return EditContextualActionPolicy;
+    } else {
+        return true;
     }
-);
+};
+
+var bindingVariable = EditContextualActionPolicy;
+export default bindingVariable;

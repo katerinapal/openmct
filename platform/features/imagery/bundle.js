@@ -1,3 +1,7 @@
+import ImageryViewPolicy from ".\\src\\policies\\ImageryViewPolicy.js";
+import ImageryController from ".\\src\\controllers\\ImageryController.js";
+import MCTBackgroundImage from ".\\src\\directives\\MCTBackgroundImage.js";
+import legacyRegistry from "..\\..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,66 +24,51 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/policies/ImageryViewPolicy",
-    "./src/controllers/ImageryController",
-    "./src/directives/MCTBackgroundImage",
-    "text!./res/templates/imagery.html",
-    'legacyRegistry'
-], function (
-    ImageryViewPolicy,
-    ImageryController,
-    MCTBackgroundImage,
-    imageryTemplate,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/features/imagery", {
-        "name": "Plot view for telemetry",
-        "extensions": {
-            "views": [
-                {
-                    "name": "Imagery",
-                    "key": "imagery",
-                    "cssClass": "icon-image",
-                    "template": imageryTemplate,
-                    "priority": "preferred",
-                    "needs": [
-                        "telemetry"
-                    ],
-                    "editable": false
-                }
-            ],
-            "policies": [
-                {
-                    "category": "view",
-                    "implementation": ImageryViewPolicy,
-                    "depends": [
-                        "openmct"
-                    ]
-                }
-            ],
-            "controllers": [
-                {
-                    "key": "ImageryController",
-                    "implementation": ImageryController,
-                    "depends": [
-                        "$scope",
-                        "$window",
-                        "$element",
-                        "openmct"
-                    ]
-                }
-            ],
-            "directives": [
-                {
-                    "key": "mctBackgroundImage",
-                    "implementation": MCTBackgroundImage,
-                    "depends": [
-                        "$document"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/features/imagery", {
+    "name": "Plot view for telemetry",
+    "extensions": {
+        "views": [
+            {
+                "name": "Imagery",
+                "key": "imagery",
+                "cssClass": "icon-image",
+                "template": imageryTemplate,
+                "priority": "preferred",
+                "needs": [
+                    "telemetry"
+                ],
+                "editable": false
+            }
+        ],
+        "policies": [
+            {
+                "category": "view",
+                "implementation": ImageryViewPolicy,
+                "depends": [
+                    "openmct"
+                ]
+            }
+        ],
+        "controllers": [
+            {
+                "key": "ImageryController",
+                "implementation": ImageryController,
+                "depends": [
+                    "$scope",
+                    "$window",
+                    "$element",
+                    "openmct"
+                ]
+            }
+        ],
+        "directives": [
+            {
+                "key": "mctBackgroundImage",
+                "implementation": MCTBackgroundImage,
+                "depends": [
+                    "$document"
+                ]
+            }
+        ]
+    }
 });

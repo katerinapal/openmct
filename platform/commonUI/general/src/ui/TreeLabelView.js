@@ -20,68 +20,65 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'zepto',
-    'text!../../res/templates/tree/tree-label.html'
-], function ($, labelTemplate) {
+;
 
-    function TreeLabelView(gestureService) {
-        this.el = $(labelTemplate);
-        this.gestureService = gestureService;
+function TreeLabelView(gestureService) {
+    this.el = $(labelTemplate);
+    this.gestureService = gestureService;
+}
+
+function isLink(domainObject) {
+    var location = domainObject.getCapability('location');
+    return location.isLink();
+}
+
+function getClass(domainObject) {
+    var type = domainObject.getCapability('type');
+    return type.getCssClass();
+}
+
+TreeLabelView.prototype.updateView = function (domainObject) {
+    var titleEl = this.el.find('.t-title-label'),
+        iconEl = this.el.find('.t-item-icon');
+
+    titleEl.text(domainObject ? domainObject.getModel().name : "");
+    iconEl.addClass(domainObject ? getClass(domainObject) : "");
+
+    if (domainObject && isLink(domainObject)) {
+        iconEl.addClass('l-icon-link');
+    } else {
+        iconEl.removeClass('l-icon-link');
+    }
+};
+
+TreeLabelView.prototype.model = function (domainObject) {
+    if (this.unlisten) {
+        this.unlisten();
+        delete this.unlisten;
     }
 
-    function isLink(domainObject) {
-        var location = domainObject.getCapability('location');
-        return location.isLink();
+    if (this.activeGestures) {
+        this.activeGestures.destroy();
+        delete this.activeGestures;
     }
 
-    function getClass(domainObject) {
-        var type = domainObject.getCapability('type');
-        return type.getCssClass();
+    this.updateView(domainObject);
+
+    if (domainObject) {
+        this.unlisten = domainObject.getCapability('mutation')
+            .listen(this.updateView.bind(this, domainObject));
+
+        this.activeGestures = this.gestureService.attachGestures(
+            this.elements(),
+            domainObject,
+            ['info', 'menu', 'drag']
+        );
     }
+};
 
-    TreeLabelView.prototype.updateView = function (domainObject) {
-        var titleEl = this.el.find('.t-title-label'),
-            iconEl = this.el.find('.t-item-icon');
+TreeLabelView.prototype.elements = function () {
+    return this.el;
+};
 
-        titleEl.text(domainObject ? domainObject.getModel().name : "");
-        iconEl.addClass(domainObject ? getClass(domainObject) : "");
-
-        if (domainObject && isLink(domainObject)) {
-            iconEl.addClass('l-icon-link');
-        } else {
-            iconEl.removeClass('l-icon-link');
-        }
-    };
-
-    TreeLabelView.prototype.model = function (domainObject) {
-        if (this.unlisten) {
-            this.unlisten();
-            delete this.unlisten;
-        }
-
-        if (this.activeGestures) {
-            this.activeGestures.destroy();
-            delete this.activeGestures;
-        }
-
-        this.updateView(domainObject);
-
-        if (domainObject) {
-            this.unlisten = domainObject.getCapability('mutation')
-                .listen(this.updateView.bind(this, domainObject));
-
-            this.activeGestures = this.gestureService.attachGestures(
-                this.elements(),
-                domainObject,
-                ['info', 'menu', 'drag']
-            );
-        }
-    };
-
-    TreeLabelView.prototype.elements = function () {
-        return this.el;
-    };
-
-    return TreeLabelView;
-});
+var bindingVariable = TreeLabelView;
+export default bindingVariable;

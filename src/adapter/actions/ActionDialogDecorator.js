@@ -1,3 +1,4 @@
+import objectUtils from "..\\..\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,38 +21,36 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    '../../api/objects/object-utils'
-], function (objectUtils) {
-    function ActionDialogDecorator(mct, actionService) {
-        this.mct = mct;
-        this.actionService = actionService;
-    }
+;
+function ActionDialogDecorator(mct, actionService) {
+    this.mct = mct;
+    this.actionService = actionService;
+}
 
-    ActionDialogDecorator.prototype.getActions = function (context) {
-        var mct = this.mct;
+ActionDialogDecorator.prototype.getActions = function (context) {
+    var mct = this.mct;
 
-        return this.actionService.getActions(context).map(function (action) {
-            if (action.dialogService) {
-                var domainObject = objectUtils.toNewFormat(
-                    context.domainObject.getModel(),
-                    objectUtils.parseKeyString(context.domainObject.getId())
-                );
-                var providers = mct.propertyEditors.get(domainObject);
+    return this.actionService.getActions(context).map(function (action) {
+        if (action.dialogService) {
+            var domainObject = objectUtils.toNewFormat(
+                context.domainObject.getModel(),
+                objectUtils.parseKeyString(context.domainObject.getId())
+            );
+            var providers = mct.propertyEditors.get(domainObject);
 
-                if (providers.length > 0) {
-                    action.dialogService = Object.create(action.dialogService);
-                    action.dialogService.getUserInput = function (form) {
-                        return new mct.Dialog(
-                            providers[0].view(context.domainObject),
-                            form.title
-                        ).show();
-                    };
-                }
+            if (providers.length > 0) {
+                action.dialogService = Object.create(action.dialogService);
+                action.dialogService.getUserInput = function (form) {
+                    return new mct.Dialog(
+                        providers[0].view(context.domainObject),
+                        form.title
+                    ).show();
+                };
             }
-            return action;
-        });
-    };
+        }
+        return action;
+    });
+};
 
-    return ActionDialogDecorator;
-});
+var bindingVariable = ActionDialogDecorator;
+export default bindingVariable;

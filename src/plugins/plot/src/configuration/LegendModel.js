@@ -1,3 +1,4 @@
+import Model from ".\\Model.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -19,43 +20,39 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
-define([
-    './Model'
-], function (
-    Model
-) {
+;
 
-    /**
-     * TODO: doc strings.
-     */
-    var LegendModel = Model.extend({
-        listenToSeriesCollection: function (seriesCollection) {
-            this.seriesCollection = seriesCollection;
-            this.listenTo(this.seriesCollection, 'add', this.setHeight, this);
-            this.listenTo(this.seriesCollection, 'remove', this.setHeight, this);
-            this.listenTo(this, 'change:expanded', this.setHeight, this);
-            this.set('expanded', this.get('expandByDefault'));
-        },
-        setHeight: function () {
-            var expanded = this.get('expanded');
-            if (this.get('position') !== 'top') {
-                this.set('height', '0px');
-            } else {
-                this.set('height', expanded ? (20 * (this.seriesCollection.size() + 1) + 40) + 'px' : '21px');
-            }
-        },
-        defaults: function (options) {
-            return {
-                position: 'top',
-                expandByDefault: false,
-                valueToShowWhenCollapsed: 'nearestValue',
-                showTimestampWhenExpanded: true,
-                showValueWhenExpanded: true,
-                showMaximumWhenExpanded: true,
-                showMinimumWhenExpanded: true
-            };
+/**
+ * TODO: doc strings.
+ */
+var LegendModel = Model.extend({
+    listenToSeriesCollection: function (seriesCollection) {
+        this.seriesCollection = seriesCollection;
+        this.listenTo(this.seriesCollection, 'add', this.setHeight, this);
+        this.listenTo(this.seriesCollection, 'remove', this.setHeight, this);
+        this.listenTo(this, 'change:expanded', this.setHeight, this);
+        this.set('expanded', this.get('expandByDefault'));
+    },
+    setHeight: function () {
+        var expanded = this.get('expanded');
+        if (this.get('position') !== 'top') {
+            this.set('height', '0px');
+        } else {
+            this.set('height', expanded ? (20 * (this.seriesCollection.size() + 1) + 40) + 'px' : '21px');
         }
-    });
-
-    return LegendModel;
+    },
+    defaults: function (options) {
+        return {
+            position: 'top',
+            expandByDefault: false,
+            valueToShowWhenCollapsed: 'nearestValue',
+            showTimestampWhenExpanded: true,
+            showValueWhenExpanded: true,
+            showMaximumWhenExpanded: true,
+            showMinimumWhenExpanded: true
+        };
+    }
 });
+
+var bindingVariable = LegendModel;
+export default bindingVariable;

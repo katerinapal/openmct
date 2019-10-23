@@ -20,20 +20,20 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
-    function AdapterCompositionPolicy(openmct) {
-        this.openmct = openmct;
-    }
+;
+function AdapterCompositionPolicy(openmct) {
+    this.openmct = openmct;
+}
 
-    AdapterCompositionPolicy.prototype.allow = function (
+AdapterCompositionPolicy.prototype.allow = function (
+    parent,
+    child
+) {
+    return this.openmct.composition.checkPolicy(
         parent,
         child
-    ) {
-        return this.openmct.composition.checkPolicy(
-            parent,
-            child
-        );
-    };
+    );
+};
 
-    return AdapterCompositionPolicy;
-});
+var bindingVariable = AdapterCompositionPolicy;
+export default bindingVariable;

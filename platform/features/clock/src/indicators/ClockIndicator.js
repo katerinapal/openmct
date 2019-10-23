@@ -20,46 +20,43 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['moment'],
-    function (moment) {
+;
 
-        /**
-         * Indicator that displays the current UTC time in the status area.
-         * @implements {Indicator}
-         * @memberof platform/features/clock
-         * @param {platform/features/clock.TickerService} tickerService
-         *        a service used to align behavior with clock ticks
-         * @param {string} indicatorFormat format string for timestamps
-         *        shown in this indicator
-         */
-        function ClockIndicator(tickerService, indicatorFormat) {
-            var self = this;
+/**
+ * Indicator that displays the current UTC time in the status area.
+ * @implements {Indicator}
+ * @memberof platform/features/clock
+ * @param {platform/features/clock.TickerService} tickerService
+ *        a service used to align behavior with clock ticks
+ * @param {string} indicatorFormat format string for timestamps
+ *        shown in this indicator
+ */
+function ClockIndicator(tickerService, indicatorFormat) {
+    var self = this;
 
-            this.text = "";
+    this.text = "";
 
-            tickerService.listen(function (timestamp) {
-                self.text = moment.utc(timestamp)
-                    .format(indicatorFormat) + " UTC";
-            });
-        }
+    tickerService.listen(function (timestamp) {
+        self.text = moment.utc(timestamp)
+            .format(indicatorFormat) + " UTC";
+    });
+}
 
-        ClockIndicator.prototype.getGlyphClass = function () {
-            return "no-collapse float-right subdued";
-        };
+ClockIndicator.prototype.getGlyphClass = function () {
+    return "no-collapse float-right subdued";
+};
 
-        ClockIndicator.prototype.getCssClass = function () {
-            return "icon-clock";
-        };
+ClockIndicator.prototype.getCssClass = function () {
+    return "icon-clock";
+};
 
-        ClockIndicator.prototype.getText = function () {
-            return this.text;
-        };
+ClockIndicator.prototype.getText = function () {
+    return this.text;
+};
 
-        ClockIndicator.prototype.getDescription = function () {
-            return "";
-        };
+ClockIndicator.prototype.getDescription = function () {
+    return "";
+};
 
-        return ClockIndicator;
-    }
-);
+var bindingVariable = ClockIndicator;
+export default bindingVariable;

@@ -21,70 +21,67 @@
  *****************************************************************************/
 /*global define*/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Wraps persistence capability to enable transactions. Transactions
-         * will cause persist calls not to be invoked immediately, but
-         * rather queued until [EditorCapability.save()]{@link EditorCapability#save}
-         * or [EditorCapability.cancel()]{@link EditorCapability#cancel} are
-         * called.
-         * @memberof platform/commonUI/edit/capabilities
-         * @param $q
-         * @param transactionManager
-         * @param persistenceCapability
-         * @param domainObject
-         * @constructor
-         */
-        function TransactionalPersistenceCapability(
-            $q,
-            transactionManager,
-            persistenceCapability,
-            domainObject
-        ) {
-            this.transactionManager = transactionManager;
-            this.persistenceCapability = persistenceCapability;
-            this.domainObject = domainObject;
-            this.$q = $q;
-        }
+/**
+ * Wraps persistence capability to enable transactions. Transactions
+ * will cause persist calls not to be invoked immediately, but
+ * rather queued until [EditorCapability.save()]{@link EditorCapability#save}
+ * or [EditorCapability.cancel()]{@link EditorCapability#cancel} are
+ * called.
+ * @memberof platform/commonUI/edit/capabilities
+ * @param $q
+ * @param transactionManager
+ * @param persistenceCapability
+ * @param domainObject
+ * @constructor
+ */
+function TransactionalPersistenceCapability(
+    $q,
+    transactionManager,
+    persistenceCapability,
+    domainObject
+) {
+    this.transactionManager = transactionManager;
+    this.persistenceCapability = persistenceCapability;
+    this.domainObject = domainObject;
+    this.$q = $q;
+}
 
-        /**
-         * The wrapped persist function. If a transaction is active, persist
-         * will be queued until the transaction is committed or cancelled.
-         * @returns {*}
-         */
-        TransactionalPersistenceCapability.prototype.persist = function () {
-            var wrappedPersistence = this.persistenceCapability;
+/**
+ * The wrapped persist function. If a transaction is active, persist
+ * will be queued until the transaction is committed or cancelled.
+ * @returns {*}
+ */
+TransactionalPersistenceCapability.prototype.persist = function () {
+    var wrappedPersistence = this.persistenceCapability;
 
-            if (this.transactionManager.isActive()) {
-                this.transactionManager.addToTransaction(
-                    this.domainObject.getId(),
-                    wrappedPersistence.persist.bind(wrappedPersistence),
-                    wrappedPersistence.refresh.bind(wrappedPersistence)
-                );
-                //Need to return a promise from this function
-                return this.$q.when(true);
-            } else {
-                return this.persistenceCapability.persist();
-            }
-        };
-
-        TransactionalPersistenceCapability.prototype.refresh = function () {
-            this.transactionManager
-                .clearTransactionsFor(this.domainObject.getId());
-            return this.persistenceCapability.refresh();
-        };
-
-        TransactionalPersistenceCapability.prototype.getSpace = function () {
-            return this.persistenceCapability.getSpace();
-        };
-
-        TransactionalPersistenceCapability.prototype.persisted = function () {
-            return this.persistenceCapability.persisted();
-        };
-
-        return TransactionalPersistenceCapability;
+    if (this.transactionManager.isActive()) {
+        this.transactionManager.addToTransaction(
+            this.domainObject.getId(),
+            wrappedPersistence.persist.bind(wrappedPersistence),
+            wrappedPersistence.refresh.bind(wrappedPersistence)
+        );
+        //Need to return a promise from this function
+        return this.$q.when(true);
+    } else {
+        return this.persistenceCapability.persist();
     }
-);
+};
+
+TransactionalPersistenceCapability.prototype.refresh = function () {
+    this.transactionManager
+        .clearTransactionsFor(this.domainObject.getId());
+    return this.persistenceCapability.refresh();
+};
+
+TransactionalPersistenceCapability.prototype.getSpace = function () {
+    return this.persistenceCapability.getSpace();
+};
+
+TransactionalPersistenceCapability.prototype.persisted = function () {
+    return this.persistenceCapability.persisted();
+};
+
+var bindingVariable = TransactionalPersistenceCapability;
+export default bindingVariable;

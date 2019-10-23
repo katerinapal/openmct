@@ -1,3 +1,6 @@
+import CouchPersistenceProvider from ".\\src\\CouchPersistenceProvider.js";
+import CouchIndicator from ".\\src\\CouchIndicator.js";
+import legacyRegistry from "..\\..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,58 +23,47 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/CouchPersistenceProvider",
-    "./src/CouchIndicator",
-    'legacyRegistry'
-], function (
-    CouchPersistenceProvider,
-    CouchIndicator,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/persistence/couch", {
-        "name": "Couch Persistence",
-        "description": "Adapter to read and write objects using a CouchDB instance.",
-        "extensions": {
-            "components": [
-                {
-                    "provides": "persistenceService",
-                    "type": "provider",
-                    "implementation": CouchPersistenceProvider,
-                    "depends": [
-                        "$http",
-                        "$q",
-                        "PERSISTENCE_SPACE",
-                        "COUCHDB_PATH"
-                    ]
-                }
-            ],
-            "constants": [
-                {
-                    "key": "PERSISTENCE_SPACE",
-                    "value": "mct"
-                },
-                {
-                    "key": "COUCHDB_PATH",
-                    "value": "/couch/openmct"
-                },
-                {
-                    "key": "COUCHDB_INDICATOR_INTERVAL",
-                    "value": 15000
-                }
-            ],
-            "indicators": [
-                {
-                    "implementation": CouchIndicator,
-                    "depends": [
-                        "$http",
-                        "$interval",
-                        "COUCHDB_PATH",
-                        "COUCHDB_INDICATOR_INTERVAL"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/persistence/couch", {
+    "name": "Couch Persistence",
+    "description": "Adapter to read and write objects using a CouchDB instance.",
+    "extensions": {
+        "components": [
+            {
+                "provides": "persistenceService",
+                "type": "provider",
+                "implementation": CouchPersistenceProvider,
+                "depends": [
+                    "$http",
+                    "$q",
+                    "PERSISTENCE_SPACE",
+                    "COUCHDB_PATH"
+                ]
+            }
+        ],
+        "constants": [
+            {
+                "key": "PERSISTENCE_SPACE",
+                "value": "mct"
+            },
+            {
+                "key": "COUCHDB_PATH",
+                "value": "/couch/openmct"
+            },
+            {
+                "key": "COUCHDB_INDICATOR_INTERVAL",
+                "value": 15000
+            }
+        ],
+        "indicators": [
+            {
+                "implementation": CouchIndicator,
+                "depends": [
+                    "$http",
+                    "$interval",
+                    "COUCHDB_PATH",
+                    "COUCHDB_INDICATOR_INTERVAL"
+                ]
+            }
+        ]
+    }
 });

@@ -20,25 +20,25 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
- define(function () {
-    function MCTGesture(gestureService) {
-        return {
-            restrict : 'A',
-            scope: {
-                domainObject: '=mctObject'
-            },
-            link : function ($scope, $element, attrs) {
-                var activeGestures = gestureService.attachGestures(
-                    $element,
-                    $scope.domainObject,
-                    $scope.$eval(attrs.mctGesture)
-                );
-                $scope.$on('$destroy', function () {
-                    activeGestures.destroy();
-                    delete this.activeGestures;
-                });
-            }
-        };
-    }
-    return MCTGesture;
-});
+;
+function MCTGesture(gestureService) {
+    return {
+        restrict : 'A',
+        scope: {
+            domainObject: '=mctObject'
+        },
+        link : function ($scope, $element, attrs) {
+            var activeGestures = gestureService.attachGestures(
+                $element,
+                $scope.domainObject,
+                $scope.$eval(attrs.mctGesture)
+            );
+            $scope.$on('$destroy', function () {
+                activeGestures.destroy();
+                delete this.activeGestures;
+            });
+        }
+    };
+}
+var bindingVariable = MCTGesture;
+export default bindingVariable;

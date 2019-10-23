@@ -1,3 +1,4 @@
+import TelemetryHandle from ".\\TelemetryHandle.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,46 +21,42 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./TelemetryHandle'],
-    function (TelemetryHandle) {
+;
 
 
-        /**
-         * A TelemetryRequester provides an easy interface to request
-         * telemetry associated with a set of domain objects.
-         *
-         * @memberof platform/telemetry
-         * @constructor
-         * @param $q Angular's $q
-         */
-        function TelemetryHandler($q, telemetrySubscriber) {
-            this.$q = $q;
-            this.telemetrySubscriber = telemetrySubscriber;
-        }
+/**
+ * A TelemetryRequester provides an easy interface to request
+ * telemetry associated with a set of domain objects.
+ *
+ * @memberof platform/telemetry
+ * @constructor
+ * @param $q Angular's $q
+ */
+function TelemetryHandler($q, telemetrySubscriber) {
+    this.$q = $q;
+    this.telemetrySubscriber = telemetrySubscriber;
+}
 
-        /**
-         * Start receiving telemetry associated with this domain object
-         * (either directly, or via delegation.)
-         * @param {DomainObject} domainObject the domain object
-         * @param {Function} callback callback to invoke when new data is
-         *        available
-         * @param {boolean} lossless true if the callback should be invoked
-         *        one separate time for each new latest value
-         * @returns {TelemetryHandle} a handle to telemetry data
-         *          associated with this object
-         */
-        TelemetryHandler.prototype.handle = function (domainObject, callback, lossless) {
-            var subscription = this.telemetrySubscriber.subscribe(
-                domainObject,
-                callback,
-                lossless
-            );
+/**
+ * Start receiving telemetry associated with this domain object
+ * (either directly, or via delegation.)
+ * @param {DomainObject} domainObject the domain object
+ * @param {Function} callback callback to invoke when new data is
+ *        available
+ * @param {boolean} lossless true if the callback should be invoked
+ *        one separate time for each new latest value
+ * @returns {TelemetryHandle} a handle to telemetry data
+ *          associated with this object
+ */
+TelemetryHandler.prototype.handle = function (domainObject, callback, lossless) {
+    var subscription = this.telemetrySubscriber.subscribe(
+        domainObject,
+        callback,
+        lossless
+    );
 
-            return new TelemetryHandle(this.$q, subscription);
-        };
+    return new TelemetryHandle(this.$q, subscription);
+};
 
-        return TelemetryHandler;
-
-    }
-);
+var bindingVariable = TelemetryHandler;
+export default bindingVariable;

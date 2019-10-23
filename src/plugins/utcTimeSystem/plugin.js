@@ -1,3 +1,5 @@
+import UTCTimeSystem from ".\\UTCTimeSystem.js";
+import LocalClock from ".\\LocalClock.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,22 +22,11 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./UTCTimeSystem",
-    "./LocalClock"
-], function (
-    UTCTimeSystem,
-    LocalClock
-) {
-    /**
-     * Install a time system that supports UTC times. It also installs a local
-     * clock source that ticks every 100ms, providing UTC times.
-     */
-    return function () {
-        return function (openmct) {
-            var timeSystem = new UTCTimeSystem();
-            openmct.time.addTimeSystem(timeSystem);
-            openmct.time.addClock(new LocalClock(100));
-        };
+var bindingVariable = function () {
+    return function (openmct) {
+        var timeSystem = new UTCTimeSystem();
+        openmct.time.addTimeSystem(timeSystem);
+        openmct.time.addClock(new LocalClock(100));
     };
-});
+};;
+export default bindingVariable;

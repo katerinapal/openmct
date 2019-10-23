@@ -20,32 +20,29 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The QueuingPersistenceCapability places `persist` calls in a queue
-         * to be handled in batches.
-         * @param {PersistenceQueue} queue of persistence calls
-         * @param {PersistenceCapability} persistence the wrapped persistence
-         *        capability
-         * @param {DomainObject} domainObject the domain object which exposes
-         *        the capability
-         * @constructor
-         * @memberof platform/persistence/queue
-         */
-        function QueuingPersistenceCapability(queue, persistence, domainObject) {
-            var queuingPersistence = Object.create(persistence);
+/**
+ * The QueuingPersistenceCapability places `persist` calls in a queue
+ * to be handled in batches.
+ * @param {PersistenceQueue} queue of persistence calls
+ * @param {PersistenceCapability} persistence the wrapped persistence
+ *        capability
+ * @param {DomainObject} domainObject the domain object which exposes
+ *        the capability
+ * @constructor
+ * @memberof platform/persistence/queue
+ */
+function QueuingPersistenceCapability(queue, persistence, domainObject) {
+    var queuingPersistence = Object.create(persistence);
 
-            // Override persist calls to queue them instead
-            queuingPersistence.persist = function () {
-                return queue.put(domainObject, persistence);
-            };
+    // Override persist calls to queue them instead
+    queuingPersistence.persist = function () {
+        return queue.put(domainObject, persistence);
+    };
 
-            return queuingPersistence;
-        }
+    return queuingPersistence;
+}
 
-        return QueuingPersistenceCapability;
-    }
-);
+var bindingVariable = QueuingPersistenceCapability;
+export default bindingVariable;

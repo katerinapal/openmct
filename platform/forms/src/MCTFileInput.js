@@ -20,47 +20,44 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['zepto'],
-    function ($) {
+;
 
-        /**
-         * The mct-file-input handles behavior of the file input form control.
-         * @constructor
-         * @memberof platform/forms
-         */
-        function MCTFileInput(fileInputService) {
+/**
+ * The mct-file-input handles behavior of the file input form control.
+ * @constructor
+ * @memberof platform/forms
+ */
+function MCTFileInput(fileInputService) {
 
-            function link(scope, element, attrs, control) {
+    function link(scope, element, attrs, control) {
 
-                function setText(fileName) {
-                    scope.structure.text = fileName.length > 20 ?
-                    fileName.substr(0, 20) + "..." :
-                    fileName;
-                }
-
-                function handleClick() {
-                    fileInputService.getInput().then(function (result) {
-                        setText(result.name);
-                        scope.ngModel[scope.field] = result;
-                        control.$setValidity("file-input", true);
-                    }, function () {
-                        setText('Select File');
-                        control.$setValidity("file-input", false);
-                    });
-                }
-
-                control.$setValidity("file-input", false);
-                element.on('click', handleClick);
-            }
-
-            return {
-                restrict: "A",
-                require: "^form",
-                link: link
-            };
+        function setText(fileName) {
+            scope.structure.text = fileName.length > 20 ?
+            fileName.substr(0, 20) + "..." :
+            fileName;
         }
 
-        return MCTFileInput;
+        function handleClick() {
+            fileInputService.getInput().then(function (result) {
+                setText(result.name);
+                scope.ngModel[scope.field] = result;
+                control.$setValidity("file-input", true);
+            }, function () {
+                setText('Select File');
+                control.$setValidity("file-input", false);
+            });
+        }
+
+        control.$setValidity("file-input", false);
+        element.on('click', handleClick);
     }
-);
+
+    return {
+        restrict: "A",
+        require: "^form",
+        link: link
+    };
+}
+
+var bindingVariable = MCTFileInput;
+export default bindingVariable;

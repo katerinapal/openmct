@@ -1,3 +1,4 @@
+import Model from ".\\Model.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -19,71 +20,67 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
-define([
-    './Model'
-], function (
-    Model
-) {
+;
 
-    /**
-     * TODO: doc strings.
-     */
-    var XAxisModel = Model.extend({
-        initialize: function (options) {
-            this.plot = options.plot;
-            this.on('change:range', function (newValue, oldValue, model) {
-                if (!model.get('frozen')) {
-                    model.set('displayRange', newValue);
-                }
-            });
-
-            this.on('change:frozen', function (frozen, oldValue, model) {
-                if (!frozen) {
-                    model.set('range', this.get('range'));
-                }
-            });
-
-            if (this.get('range')) {
-                this.set('range', this.get('range'));
+/**
+ * TODO: doc strings.
+ */
+var XAxisModel = Model.extend({
+    initialize: function (options) {
+        this.plot = options.plot;
+        this.on('change:range', function (newValue, oldValue, model) {
+            if (!model.get('frozen')) {
+                model.set('displayRange', newValue);
             }
-            this.listenTo(this, 'change:key', this.changeKey, this);
-        },
-        changeKey: function (newKey) {
-            var series = this.plot.series.first();
-            if (series) {
-                var xMetadata = series.metadata.value(newKey);
-                var xFormat = series.formats[newKey];
-                this.set('label', xMetadata.name);
-                this.set('format', xFormat.format.bind(xFormat));
-            } else {
-                this.set('format', function (x) {
-                    return x;
-                });
-                this.set('label', newKey);
-            }
-            this.plot.series.forEach(function (plotSeries) {
-                plotSeries.set('xKey', newKey);
-                plotSeries.reset();
-            });
-        },
-        defaults: function (options) {
-            var bounds = options.openmct.time.bounds();
-            var timeSystem = options.openmct.time.timeSystem();
-            var format = options.openmct.$injector.get('formatService')
-                .getFormat(timeSystem.timeFormat);
+        });
 
-            return {
-                name: timeSystem.name,
-                key: timeSystem.key,
-                format: format.format.bind(format),
-                range: {
-                    min: bounds.start,
-                    max: bounds.end
-                },
-                frozen: false
-            };
+        this.on('change:frozen', function (frozen, oldValue, model) {
+            if (!frozen) {
+                model.set('range', this.get('range'));
+            }
+        });
+
+        if (this.get('range')) {
+            this.set('range', this.get('range'));
         }
-    });
+        this.listenTo(this, 'change:key', this.changeKey, this);
+    },
+    changeKey: function (newKey) {
+        var series = this.plot.series.first();
+        if (series) {
+            var xMetadata = series.metadata.value(newKey);
+            var xFormat = series.formats[newKey];
+            this.set('label', xMetadata.name);
+            this.set('format', xFormat.format.bind(xFormat));
+        } else {
+            this.set('format', function (x) {
+                return x;
+            });
+            this.set('label', newKey);
+        }
+        this.plot.series.forEach(function (plotSeries) {
+            plotSeries.set('xKey', newKey);
+            plotSeries.reset();
+        });
+    },
+    defaults: function (options) {
+        var bounds = options.openmct.time.bounds();
+        var timeSystem = options.openmct.time.timeSystem();
+        var format = options.openmct.$injector.get('formatService')
+            .getFormat(timeSystem.timeFormat);
 
-    return XAxisModel;
+        return {
+            name: timeSystem.name,
+            key: timeSystem.key,
+            format: format.format.bind(format),
+            range: {
+                min: bounds.start,
+                max: bounds.end
+            },
+            frozen: false
+        };
+    }
 });
+
+var bindingVariable = XAxisModel;
+export default bindingVariable;

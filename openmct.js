@@ -1,3 +1,7 @@
+import Main from ".\\platform\\framework\\src\\Main.js";
+import defaultRegistry from ".\\src\\defaultRegistry.js";
+import MCT from ".\\src\\MCT.js";
+import buildInfo from ".\\src\\plugins\\buildInfo\\plugin.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -92,24 +96,19 @@ requirejs.config({
     }
 });
 
-define([
-    './platform/framework/src/Main',
-    './src/defaultRegistry',
-    './src/MCT',
-    './src/plugins/buildInfo/plugin'
-], function (Main, defaultRegistry, MCT, buildInfo) {
-    var openmct = new MCT();
+;
+var openmct = new MCT();
 
-    openmct.legacyRegistry = defaultRegistry;
-    openmct.install(openmct.plugins.Plot());
+openmct.legacyRegistry = defaultRegistry;
+openmct.install(openmct.plugins.Plot());
 
-    if (typeof BUILD_CONSTANTS !== 'undefined') {
-        openmct.install(buildInfo(BUILD_CONSTANTS));
-    }
+if (typeof BUILD_CONSTANTS !== 'undefined') {
+    openmct.install(buildInfo(BUILD_CONSTANTS));
+}
 
-    openmct.on('start', function () {
-        return new Main().run(defaultRegistry);
-    });
-
-    return openmct;
+openmct.on('start', function () {
+    return new Main().run(defaultRegistry);
 });
+
+var bindingVariable = openmct;
+export default bindingVariable;

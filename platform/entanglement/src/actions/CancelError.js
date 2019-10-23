@@ -20,13 +20,13 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(function () {
-    function CancelError() {
-        Error.apply(this, arguments);
-        this.name = CancelError;
-    }
+;
+function CancelError() {
+    Error.apply(this, arguments);
+    this.name = CancelError;
+}
 
-    CancelError.prototype = Object.create(Error.prototype);
+CancelError.prototype = Object.create(Error.prototype);
 
-    return CancelError;
-});
+var bindingVariable = CancelError;
+export default bindingVariable;

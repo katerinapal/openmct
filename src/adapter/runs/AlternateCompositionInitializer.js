@@ -1,3 +1,5 @@
+import AlternateCompositionCapability from "..\\capabilities\\AlternateCompositionCapability.js";
+import objectUtils from "..\\..\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,22 +22,16 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    '../capabilities/AlternateCompositionCapability',
-    '../../api/objects/object-utils'
-], function (
-    AlternateCompositionCapability,
-    objectUtils
-) {
-    // Present to work around the need for openmct to be used
-    // from AlternateCompositionCapability.appliesTo, even though it
-    // cannot be injected.
-    function AlternateCompositionInitializer(openmct) {
-        AlternateCompositionCapability.appliesTo = function (model, id) {
-            model = objectUtils.toNewFormat(model, id || '');
-            return !!openmct.composition.get(model);
-        };
-    }
+;
+// Present to work around the need for openmct to be used
+// from AlternateCompositionCapability.appliesTo, even though it
+// cannot be injected.
+function AlternateCompositionInitializer(openmct) {
+    AlternateCompositionCapability.appliesTo = function (model, id) {
+        model = objectUtils.toNewFormat(model, id || '');
+        return !!openmct.composition.get(model);
+    };
+}
 
-    return AlternateCompositionInitializer;
-});
+var bindingVariable = AlternateCompositionInitializer;
+export default bindingVariable;

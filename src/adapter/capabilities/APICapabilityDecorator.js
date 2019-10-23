@@ -1,3 +1,6 @@
+import synchronizeMutationCapability from ".\\synchronizeMutationCapability.js";
+import AlternateCompositionCapability from ".\\AlternateCompositionCapability.js";
+import patchViewCapability from ".\\patchViewCapability.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,46 +23,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './synchronizeMutationCapability',
-    './AlternateCompositionCapability',
-    './patchViewCapability'
-], function (
-    synchronizeMutationCapability,
-    AlternateCompositionCapability,
-    patchViewCapability
-) {
+;
 
-    /**
-     * Overrides certain capabilities to keep consistency between old API
-     * and new API.
-     */
-    function APICapabilityDecorator($injector, capabilityService) {
-        this.$injector = $injector;
-        this.capabilityService = capabilityService;
+/**
+ * Overrides certain capabilities to keep consistency between old API
+ * and new API.
+ */
+function APICapabilityDecorator($injector, capabilityService) {
+    this.$injector = $injector;
+    this.capabilityService = capabilityService;
+}
+
+APICapabilityDecorator.prototype.getCapabilities = function (
+    model,
+    id
+) {
+    var capabilities = this.capabilityService.getCapabilities(model, id);
+    if (capabilities.mutation) {
+        capabilities.mutation =
+            synchronizeMutationCapability(capabilities.mutation);
+    }
+    if (capabilities.view) {
+        capabilities.view = patchViewCapability(capabilities.view);
+    }
+    if (AlternateCompositionCapability.appliesTo(model, id)) {
+        capabilities.composition = function (domainObject) {
+            return new AlternateCompositionCapability(this.$injector, domainObject);
+        }.bind(this);
     }
 
-    APICapabilityDecorator.prototype.getCapabilities = function (
-        model,
-        id
-    ) {
-        var capabilities = this.capabilityService.getCapabilities(model, id);
-        if (capabilities.mutation) {
-            capabilities.mutation =
-                synchronizeMutationCapability(capabilities.mutation);
-        }
-        if (capabilities.view) {
-            capabilities.view = patchViewCapability(capabilities.view);
-        }
-        if (AlternateCompositionCapability.appliesTo(model, id)) {
-            capabilities.composition = function (domainObject) {
-                return new AlternateCompositionCapability(this.$injector, domainObject);
-            }.bind(this);
-        }
+    return capabilities;
+};
 
-        return capabilities;
-    };
-
-    return APICapabilityDecorator;
-
-});
+var bindingVariable = APICapabilityDecorator;
+export default bindingVariable;

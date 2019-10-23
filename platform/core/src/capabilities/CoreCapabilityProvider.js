@@ -23,87 +23,84 @@
 /**
  * Module defining CoreCapabilityProvider. Created by vwoeltje on 11/7/14.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A capability provides an interface with dealing with some
-         * dynamic behavior associated with a domain object.
-         * @interface Capability
-         */
+/**
+ * A capability provides an interface with dealing with some
+ * dynamic behavior associated with a domain object.
+ * @interface Capability
+ */
 
-        /**
-         * Optional; if present, will be used by `DomainObject#useCapability`
-         * to simplify interaction with a specific capability. Parameters
-         * and return values vary depending on capability type.
-         * @method Capability#invoke
-         */
+/**
+ * Optional; if present, will be used by `DomainObject#useCapability`
+ * to simplify interaction with a specific capability. Parameters
+ * and return values vary depending on capability type.
+ * @method Capability#invoke
+ */
 
-        /**
-         * Provides capabilities based on extension definitions,
-         * matched to domain object models.
-         *
-         * @param {Array.<function(DomainObject) : Capability>} an array
-         *        of constructor functions for capabilities, as
-         *        exposed by extensions defined at the bundle level.
-         *
-         * @memberof platform/core
-         * @constructor
-         */
-        function CoreCapabilityProvider(capabilities, $log) {
-            // Filter by invoking the capability's appliesTo method
-            function filterCapabilities(model, id) {
-                return capabilities.filter(function (capability) {
-                    return capability.appliesTo ?
-                            capability.appliesTo(model, id) :
-                            true;
-                });
-            }
-
-            // Package capabilities as key-value pairs
-            function packageCapabilities(caps) {
-                var result = {};
-                caps.forEach(function (capability) {
-                    if (capability.key) {
-                        result[capability.key] =
-                            result[capability.key] || capability;
-                    } else {
-                        $log.warn("No key defined for capability; skipping.");
-                    }
-                });
-                return result;
-            }
-
-            function getCapabilities(model, id) {
-                return packageCapabilities(filterCapabilities(model, id));
-            }
-
-            return {
-                /**
-                 * Get all capabilities associated with a given domain
-                 * object.
-                 *
-                 * This returns a promise for an object containing key-value
-                 * pairs, where keys are capability names and values are
-                 * either:
-                 *
-                 * * Capability instances
-                 * * Capability constructors (which take a domain object
-                 *   as their argument.)
-                 *
-                 *
-                 * @param {*} model the object model
-                 * @returns {Object.<string,function|Capability>} all
-                 *     capabilities known to be valid for this model, as
-                 *     key-value pairs
-                 * @memberof platform/core.CoreCapabilityProvider#
-                 */
-                getCapabilities: getCapabilities
-            };
-        }
-
-        return CoreCapabilityProvider;
+/**
+ * Provides capabilities based on extension definitions,
+ * matched to domain object models.
+ *
+ * @param {Array.<function(DomainObject) : Capability>} an array
+ *        of constructor functions for capabilities, as
+ *        exposed by extensions defined at the bundle level.
+ *
+ * @memberof platform/core
+ * @constructor
+ */
+function CoreCapabilityProvider(capabilities, $log) {
+    // Filter by invoking the capability's appliesTo method
+    function filterCapabilities(model, id) {
+        return capabilities.filter(function (capability) {
+            return capability.appliesTo ?
+                    capability.appliesTo(model, id) :
+                    true;
+        });
     }
-);
+
+    // Package capabilities as key-value pairs
+    function packageCapabilities(caps) {
+        var result = {};
+        caps.forEach(function (capability) {
+            if (capability.key) {
+                result[capability.key] =
+                    result[capability.key] || capability;
+            } else {
+                $log.warn("No key defined for capability; skipping.");
+            }
+        });
+        return result;
+    }
+
+    function getCapabilities(model, id) {
+        return packageCapabilities(filterCapabilities(model, id));
+    }
+
+    return {
+        /**
+         * Get all capabilities associated with a given domain
+         * object.
+         *
+         * This returns a promise for an object containing key-value
+         * pairs, where keys are capability names and values are
+         * either:
+         *
+         * * Capability instances
+         * * Capability constructors (which take a domain object
+         *   as their argument.)
+         *
+         *
+         * @param {*} model the object model
+         * @returns {Object.<string,function|Capability>} all
+         *     capabilities known to be valid for this model, as
+         *     key-value pairs
+         * @memberof platform/core.CoreCapabilityProvider#
+         */
+        getCapabilities: getCapabilities
+    };
+}
+
+var bindingVariable = CoreCapabilityProvider;
+export default bindingVariable;
 

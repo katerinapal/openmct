@@ -23,41 +23,38 @@
 /**
  * Module defining ImplementationLoader. Created by vwoeltje on 11/3/14.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Responsible for loading extension implementations
-         * (AMD modules.) Acts as a wrapper around RequireJS to
-         * provide a promise-like API.
-         * @memberof platform/framework
-         * @constructor
-         * @param {*} require RequireJS, or an object with similar API
-         * @param {*} $log Angular's logging service
-         */
-        function ImplementationLoader(require) {
-            this.require = require;
-        }
+/**
+ * Responsible for loading extension implementations
+ * (AMD modules.) Acts as a wrapper around RequireJS to
+ * provide a promise-like API.
+ * @memberof platform/framework
+ * @constructor
+ * @param {*} require RequireJS, or an object with similar API
+ * @param {*} $log Angular's logging service
+ */
+function ImplementationLoader(require) {
+    this.require = require;
+}
 
-        /**
-         * Load an extension's implementation; or, equivalently,
-         * load an AMD module. This is fundamentally similar
-         * to a call to RequireJS, except that the result is
-         * wrapped in a promise. The promise will be fulfilled
-         * with the loaded module, or rejected with the error
-         * reported by Require.
-         *
-         * @param {string} path the path to the module to load
-         * @returns {Promise} a promise for the specified module.
-         */
-        ImplementationLoader.prototype.load = function loadModule(path) {
-            var require = this.require;
-            return new Promise(function (fulfill, reject) {
-                require([path], fulfill, reject);
-            });
-        };
+/**
+ * Load an extension's implementation; or, equivalently,
+ * load an AMD module. This is fundamentally similar
+ * to a call to RequireJS, except that the result is
+ * wrapped in a promise. The promise will be fulfilled
+ * with the loaded module, or rejected with the error
+ * reported by Require.
+ *
+ * @param {string} path the path to the module to load
+ * @returns {Promise} a promise for the specified module.
+ */
+ImplementationLoader.prototype.load = function loadModule(path) {
+    var require = this.require;
+    return new Promise(function (fulfill, reject) {
+        require([path], fulfill, reject);
+    });
+};
 
-        return ImplementationLoader;
-    }
-);
+var bindingVariable = ImplementationLoader;
+export default bindingVariable;

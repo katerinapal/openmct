@@ -1,3 +1,4 @@
+import EventEmitter from "..\\..\\..\\..\\..\\src\\api\\objects\\objectEventEmitter.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,94 +21,94 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['EventEmitter'], function (EventEmitter) {
+;
 
-    /**
-     * Tracks the currently-followed Timer object. Used by
-     * timelines et al to synchronize to a particular timer.
-     *
-     * The TimerService emits `change` events when the active timer
-     * is changed.
-     */
-    function TimerService(openmct) {
-        EventEmitter.apply(this);
-        this.time = openmct.time;
-        this.objects = openmct.objects;
+/**
+ * Tracks the currently-followed Timer object. Used by
+ * timelines et al to synchronize to a particular timer.
+ *
+ * The TimerService emits `change` events when the active timer
+ * is changed.
+ */
+function TimerService(openmct) {
+    EventEmitter.apply(this);
+    this.time = openmct.time;
+    this.objects = openmct.objects;
+}
+
+TimerService.prototype = Object.create(EventEmitter.prototype);
+
+/**
+ * Set (or clear, if `timer` is undefined) the currently active timer.
+ * @param {DomainObject} timer the new active timer
+ * @emits change
+ */
+TimerService.prototype.setTimer = function (timer) {
+    this.timer = timer;
+    this.emit('change');
+
+    if (this.stopObserving) {
+        this.stopObserving();
+        delete this.stopObserving;
     }
 
-    TimerService.prototype = Object.create(EventEmitter.prototype);
+    if (timer) {
+        this.stopObserving =
+            this.objects.observe(timer, '*', this.setTimer.bind(this));
+    }
+};
 
-    /**
-     * Set (or clear, if `timer` is undefined) the currently active timer.
-     * @param {DomainObject} timer the new active timer
-     * @emits change
-     */
-    TimerService.prototype.setTimer = function (timer) {
-        this.timer = timer;
-        this.emit('change');
-
-        if (this.stopObserving) {
-            this.stopObserving();
-            delete this.stopObserving;
-        }
-
-        if (timer) {
-            this.stopObserving =
-                this.objects.observe(timer, '*', this.setTimer.bind(this));
-        }
-    };
-
-    /**
-     * Get the currently active timer.
-     * @return {DomainObject} the active timer
-     * @emits change
-     */
-    TimerService.prototype.getTimer = function () {
-        return this.timer;
-    };
+/**
+ * Get the currently active timer.
+ * @return {DomainObject} the active timer
+ * @emits change
+ */
+TimerService.prototype.getTimer = function () {
+    return this.timer;
+};
 
 
-    /**
-     * Check if there is a currently active timer.
-     * @return {boolean} true if there is a timer
-     */
-    TimerService.prototype.hasTimer = function () {
-        return !!this.timer;
-    };
+/**
+ * Check if there is a currently active timer.
+ * @return {boolean} true if there is a timer
+ */
+TimerService.prototype.hasTimer = function () {
+    return !!this.timer;
+};
 
-    /**
-     * Convert the provided timestamp to milliseconds relative to
-     * the active timer.
-     * @return {number} milliseconds since timer start
-     */
-    TimerService.prototype.convert = function (timestamp) {
-        var clock = this.time.clock();
-        var canConvert = this.hasTimer() &&
-            !!clock &&
-            this.timer.timerState !== 'stopped';
+/**
+ * Convert the provided timestamp to milliseconds relative to
+ * the active timer.
+ * @return {number} milliseconds since timer start
+ */
+TimerService.prototype.convert = function (timestamp) {
+    var clock = this.time.clock();
+    var canConvert = this.hasTimer() &&
+        !!clock &&
+        this.timer.timerState !== 'stopped';
 
-        if (!canConvert) {
-            return undefined;
-        }
+    if (!canConvert) {
+        return undefined;
+    }
 
-        var now = clock.currentValue();
-        var delta = this.timer.timerState === 'paused' ?
-            now - this.timer.pausedTime : 0;
-        var epoch = this.timer.timestamp;
+    var now = clock.currentValue();
+    var delta = this.timer.timerState === 'paused' ?
+        now - this.timer.pausedTime : 0;
+    var epoch = this.timer.timestamp;
 
-        return timestamp - epoch - delta;
-    };
+    return timestamp - epoch - delta;
+};
 
-    /**
-     * Get the value of the active clock, adjusted to be relative to the active
-     * timer. If there is no clock or no active timer, this will return
-     * `undefined`.
-     * @return {number} milliseconds since the start of the active timer
-     */
-    TimerService.prototype.now = function () {
-        var clock = this.time.clock();
-        return clock && this.convert(clock.currentValue());
-    };
+/**
+ * Get the value of the active clock, adjusted to be relative to the active
+ * timer. If there is no clock or no active timer, this will return
+ * `undefined`.
+ * @return {number} milliseconds since the start of the active timer
+ */
+TimerService.prototype.now = function () {
+    var clock = this.time.clock();
+    return clock && this.convert(clock.currentValue());
+};
 
-    return TimerService;
-});
+var bindingVariable = TimerService;
+export default bindingVariable;

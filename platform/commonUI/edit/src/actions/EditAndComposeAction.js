@@ -20,40 +20,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
 
-        /**
-         * Add one domain object to another's composition.
-         * @constructor
-         * @memberof platform/commonUI/edit
-         * @implements {Action}
-         */
-        function EditAndComposeAction(context) {
-            this.domainObject = (context || {}).domainObject;
-            this.selectedObject = (context || {}).selectedObject;
-        }
+/**
+ * Add one domain object to another's composition.
+ * @constructor
+ * @memberof platform/commonUI/edit
+ * @implements {Action}
+ */
+function EditAndComposeAction(context) {
+    this.domainObject = (context || {}).domainObject;
+    this.selectedObject = (context || {}).selectedObject;
+}
 
-        EditAndComposeAction.prototype.perform = function () {
-            var self = this,
-                editAction = this.domainObject.getCapability('action').getActions("edit")[0];
+EditAndComposeAction.prototype.perform = function () {
+    var self = this,
+        editAction = this.domainObject.getCapability('action').getActions("edit")[0];
 
-            // Link these objects
-            function doLink() {
-                var composition = self.domainObject &&
-                        self.domainObject.getCapability('composition');
-                return composition && composition.add(self.selectedObject);
-            }
-
-            if (editAction) {
-                editAction.perform();
-            }
-
-            return this.selectedObject && doLink();
-        };
-
-        return EditAndComposeAction;
+    // Link these objects
+    function doLink() {
+        var composition = self.domainObject &&
+                self.domainObject.getCapability('composition');
+        return composition && composition.add(self.selectedObject);
     }
-);
+
+    if (editAction) {
+        editAction.perform();
+    }
+
+    return this.selectedObject && doLink();
+};
+
+var bindingVariable = EditAndComposeAction;
+export default bindingVariable;

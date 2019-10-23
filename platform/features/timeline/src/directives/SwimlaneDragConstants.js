@@ -20,7 +20,7 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define({
+export default {
     /**
      * The string identifier for the data type used for drag-and-drop
      * composition of domain objects. (e.g. in event.dataTransfer.setData
@@ -37,4 +37,4 @@ define({
      * String identifier for swimlanes being dragged.
      */
     TIMELINE_SWIMLANE_DRAG_TYPE: 'timeline-swimlane'
-});
+};;

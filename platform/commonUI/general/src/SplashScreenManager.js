@@ -21,24 +21,20 @@
  *****************************************************************************/
 
 
-define([
+;
 
-], function (
-
-) {
-
-    function SplashScreenManager($document) {
-        var splash;
-        $document = $document[0];
-        splash = $document.querySelectorAll('.l-splash-holder')[0];
-        if (!splash) {
-            return;
-        }
-        splash.className += ' fadeout';
-        splash.addEventListener('transitionend', function () {
-            splash.parentNode.removeChild(splash);
-        });
+function SplashScreenManager($document) {
+    var splash;
+    $document = $document[0];
+    splash = $document.querySelectorAll('.l-splash-holder')[0];
+    if (!splash) {
+        return;
     }
+    splash.className += ' fadeout';
+    splash.addEventListener('transitionend', function () {
+        splash.parentNode.removeChild(splash);
+    });
+}
 
-    return SplashScreenManager;
-});
+var bindingVariable = SplashScreenManager;
+export default bindingVariable;

@@ -1,3 +1,9 @@
+import IdColumn from ".\\IdColumn.js";
+import ModeColumn from ".\\ModeColumn.js";
+import CompositionColumn from ".\\CompositionColumn.js";
+import MetadataColumn from ".\\MetadataColumn.js";
+import TimespanColumn from ".\\TimespanColumn.js";
+import UtilizationColumn from ".\\UtilizationColumn.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,153 +26,139 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./IdColumn",
-    "./ModeColumn",
-    "./CompositionColumn",
-    "./MetadataColumn",
-    "./TimespanColumn",
-    "./UtilizationColumn"
-], function (
-    IdColumn,
-    ModeColumn,
-    CompositionColumn,
-    MetadataColumn,
-    TimespanColumn,
-    UtilizationColumn
-) {
+;
 
-    /**
-     * A description of how to populate a given column within a
-     * prepared table of domain object data, for CSV export.
-     * @interface platform/features/timeline.TimelineCSVColumn
-     */
+/**
+ * A description of how to populate a given column within a
+ * prepared table of domain object data, for CSV export.
+ * @interface platform/features/timeline.TimelineCSVColumn
+ */
 
-    /**
-     * Get the value that belongs in this column for a given
-     * domain object.
-     * @memberof {platform/features/timeline.TimelineCSVColumn#}
-     * @method value
-     * @param {DomainObject} domainObject the domain object
-     *        represented by this row
-     * @returns {string|Promise<string>} the value for this cell
-     */
+/**
+ * Get the value that belongs in this column for a given
+ * domain object.
+ * @memberof {platform/features/timeline.TimelineCSVColumn#}
+ * @method value
+ * @param {DomainObject} domainObject the domain object
+ *        represented by this row
+ * @returns {string|Promise<string>} the value for this cell
+ */
 
-    /**
-     * Get the name of this column, as belongs in a header.
-     * @memberof {platform/features/timeline.TimelineCSVColumn#}
-     * @method name
-     * @returns {string} the name of this column
-     */
+/**
+ * Get the name of this column, as belongs in a header.
+ * @memberof {platform/features/timeline.TimelineCSVColumn#}
+ * @method name
+ * @returns {string} the name of this column
+ */
 
-    /**
-     * Handles conversion of a list of domain objects to a table
-     * representation appropriate for CSV export.
-     *
-     * @param {DomainObject[]} domainObjects the objects to include
-     *        in the exported data
-     * @param {Array} resources an array of `resources` extensions
-     * @constructor
-     * @memberof {platform/features/timeline}
-     */
-    function TimelineColumnizer(domainObjects, resources) {
-        var maxComposition = 0,
-            maxRelationships = 0,
-            columnNames = {},
-            columns = [],
-            foundTimespan = false,
-            idMap,
-            i;
+/**
+ * Handles conversion of a list of domain objects to a table
+ * representation appropriate for CSV export.
+ *
+ * @param {DomainObject[]} domainObjects the objects to include
+ *        in the exported data
+ * @param {Array} resources an array of `resources` extensions
+ * @constructor
+ * @memberof {platform/features/timeline}
+ */
+function TimelineColumnizer(domainObjects, resources) {
+    var maxComposition = 0,
+        maxRelationships = 0,
+        columnNames = {},
+        columns = [],
+        foundTimespan = false,
+        idMap,
+        i;
 
-        function addMetadataProperty(property) {
-            var name = property.name;
-            if (!columnNames[name]) {
-                columnNames[name] = true;
-                columns.push(new MetadataColumn(name));
-            }
+    function addMetadataProperty(property) {
+        var name = property.name;
+        if (!columnNames[name]) {
+            columnNames[name] = true;
+            columns.push(new MetadataColumn(name));
         }
-
-        idMap = domainObjects.reduce(function (map, domainObject, index) {
-            map[domainObject.getId()] = index + 1;
-            return map;
-        }, {});
-
-        columns.push(new IdColumn(idMap));
-
-        domainObjects.forEach(function (domainObject) {
-            var model = domainObject.getModel(),
-                composition = model.composition,
-                relationships = model.relationships,
-                modes = relationships && relationships.modes,
-                metadataProperties = domainObject.useCapability('metadata');
-
-            if (composition) {
-                maxComposition = Math.max(maxComposition, composition.length);
-            }
-
-            if (modes) {
-                maxRelationships = Math.max(maxRelationships, modes.length);
-            }
-
-            if (domainObject.hasCapability('timespan')) {
-                foundTimespan = true;
-            }
-
-            if (metadataProperties) {
-                metadataProperties.forEach(addMetadataProperty);
-            }
-        });
-
-        if (foundTimespan) {
-            columns.push(new TimespanColumn(true));
-            columns.push(new TimespanColumn(false));
-        }
-
-        resources.forEach(function (resource) {
-            columns.push(new UtilizationColumn(resource));
-        });
-
-        for (i = 0; i < maxComposition; i += 1) {
-            columns.push(new CompositionColumn(i, idMap));
-        }
-
-        for (i = 0; i < maxRelationships; i += 1) {
-            columns.push(new ModeColumn(i, idMap));
-        }
-
-        this.domainObjects = domainObjects;
-        this.columns = columns;
     }
 
-    /**
-     * Get a tabular representation of domain object data.
-     * Each row corresponds to a single object; each element
-     * in each row corresponds to a property designated by
-     * the `headers`, correlated by index.
-     * @returns {Promise.<string[][]>} domain object data
-     */
-    TimelineColumnizer.prototype.rows = function () {
-        var columns = this.columns;
+    idMap = domainObjects.reduce(function (map, domainObject, index) {
+        map[domainObject.getId()] = index + 1;
+        return map;
+    }, {});
 
-        function toRow(domainObject) {
-            return Promise.all(columns.map(function (column) {
-                return column.value(domainObject);
-            }));
+    columns.push(new IdColumn(idMap));
+
+    domainObjects.forEach(function (domainObject) {
+        var model = domainObject.getModel(),
+            composition = model.composition,
+            relationships = model.relationships,
+            modes = relationships && relationships.modes,
+            metadataProperties = domainObject.useCapability('metadata');
+
+        if (composition) {
+            maxComposition = Math.max(maxComposition, composition.length);
         }
 
-        return Promise.all(this.domainObjects.map(toRow));
-    };
+        if (modes) {
+            maxRelationships = Math.max(maxRelationships, modes.length);
+        }
 
-    /**
-     * Get the column headers associated with this tabular
-     * representation of objects.
-     * @returns {string[]} column headers
-     */
-    TimelineColumnizer.prototype.headers = function () {
-        return this.columns.map(function (column) {
-            return column.name();
-        });
-    };
+        if (domainObject.hasCapability('timespan')) {
+            foundTimespan = true;
+        }
 
-    return TimelineColumnizer;
-});
+        if (metadataProperties) {
+            metadataProperties.forEach(addMetadataProperty);
+        }
+    });
+
+    if (foundTimespan) {
+        columns.push(new TimespanColumn(true));
+        columns.push(new TimespanColumn(false));
+    }
+
+    resources.forEach(function (resource) {
+        columns.push(new UtilizationColumn(resource));
+    });
+
+    for (i = 0; i < maxComposition; i += 1) {
+        columns.push(new CompositionColumn(i, idMap));
+    }
+
+    for (i = 0; i < maxRelationships; i += 1) {
+        columns.push(new ModeColumn(i, idMap));
+    }
+
+    this.domainObjects = domainObjects;
+    this.columns = columns;
+}
+
+/**
+ * Get a tabular representation of domain object data.
+ * Each row corresponds to a single object; each element
+ * in each row corresponds to a property designated by
+ * the `headers`, correlated by index.
+ * @returns {Promise.<string[][]>} domain object data
+ */
+TimelineColumnizer.prototype.rows = function () {
+    var columns = this.columns;
+
+    function toRow(domainObject) {
+        return Promise.all(columns.map(function (column) {
+            return column.value(domainObject);
+        }));
+    }
+
+    return Promise.all(this.domainObjects.map(toRow));
+};
+
+/**
+ * Get the column headers associated with this tabular
+ * representation of objects.
+ * @returns {string[]} column headers
+ */
+TimelineColumnizer.prototype.headers = function () {
+    return this.columns.map(function (column) {
+        return column.name();
+    });
+};
+
+var bindingVariable = TimelineColumnizer;
+export default bindingVariable;

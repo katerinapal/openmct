@@ -20,47 +20,44 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A ToggleController is used to activate/deactivate things.
-         * A common usage is for "twistie"
-         *
-         * @memberof platform/commonUI/general
-         * @constructor
-         */
-        function ToggleController() {
-            this.state = false;
+/**
+ * A ToggleController is used to activate/deactivate things.
+ * A common usage is for "twistie"
+ *
+ * @memberof platform/commonUI/general
+ * @constructor
+ */
+function ToggleController() {
+    this.state = false;
 
-            this.setState = this.setState.bind(this);
-        }
+    this.setState = this.setState.bind(this);
+}
 
-        /**
-         * Get the current state of the toggle.
-         * @return {boolean} true if active
-         */
-        ToggleController.prototype.isActive = function () {
-            return this.state;
-        };
+/**
+ * Get the current state of the toggle.
+ * @return {boolean} true if active
+ */
+ToggleController.prototype.isActive = function () {
+    return this.state;
+};
 
-        /**
-         * Set a new state for the toggle.
-         * @return {boolean} true to activate
-         */
-        ToggleController.prototype.setState = function (newState) {
-            this.state = newState;
-        };
+/**
+ * Set a new state for the toggle.
+ * @return {boolean} true to activate
+ */
+ToggleController.prototype.setState = function (newState) {
+    this.state = newState;
+};
 
-        /**
-         * Toggle the current state; activate if it is inactive,
-         * deactivate if it is active.
-         */
-        ToggleController.prototype.toggle = function () {
-            this.state = !this.state;
-        };
+/**
+ * Toggle the current state; activate if it is inactive,
+ * deactivate if it is active.
+ */
+ToggleController.prototype.toggle = function () {
+    this.state = !this.state;
+};
 
-        return ToggleController;
-    }
-);
+var bindingVariable = ToggleController;
+export default bindingVariable;

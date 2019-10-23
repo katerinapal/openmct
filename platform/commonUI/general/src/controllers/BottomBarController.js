@@ -20,40 +20,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller for the bottombar template. Exposes
-         * available indicators (of extension category "indicators")
-         * @memberof platform/commonUI/general
-         * @constructor
-         */
-        function BottomBarController(indicators) {
-            // Utility function used to make indicators presentable
-            // for display.
-            function present(Indicator) {
-                return {
-                    template: Indicator.template || "indicator",
-                    ngModel: typeof Indicator === 'function' ?
-                            new Indicator() : Indicator
-                };
-            }
-
-            this.indicators = indicators.map(present);
-        }
-
-        /**
-         * Get all indicators to display.
-         * @returns {Indicator[]} all indicators
-         *          to display in the bottom bar.
-         * @memberof platform/commonUI/general.BottomBarController#
-         */
-        BottomBarController.prototype.getIndicators = function () {
-            return this.indicators;
+/**
+ * Controller for the bottombar template. Exposes
+ * available indicators (of extension category "indicators")
+ * @memberof platform/commonUI/general
+ * @constructor
+ */
+function BottomBarController(indicators) {
+    // Utility function used to make indicators presentable
+    // for display.
+    function present(Indicator) {
+        return {
+            template: Indicator.template || "indicator",
+            ngModel: typeof Indicator === 'function' ?
+                    new Indicator() : Indicator
         };
-
-        return BottomBarController;
     }
-);
+
+    this.indicators = indicators.map(present);
+}
+
+/**
+ * Get all indicators to display.
+ * @returns {Indicator[]} all indicators
+ *          to display in the bottom bar.
+ * @memberof platform/commonUI/general.BottomBarController#
+ */
+BottomBarController.prototype.getIndicators = function () {
+    return this.indicators;
+};
+
+var bindingVariable = BottomBarController;
+export default bindingVariable;

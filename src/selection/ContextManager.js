@@ -20,59 +20,59 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['zepto'], function ($) {
-    /**
-     * @typedef Context
-     * @property {*} item
-     * @property {HTMLElement} element
-     * @property {Context} parent the containing context (may be undefined)
-     * @memberof module:openmct
-     */
+;
+/**
+ * @typedef Context
+ * @property {*} item
+ * @property {HTMLElement} element
+ * @property {Context} parent the containing context (may be undefined)
+ * @memberof module:openmct
+ */
 
 
-    function ContextManager() {
-        this.counter = 0;
-        this.contexts = {};
+function ContextManager() {
+    this.counter = 0;
+    this.contexts = {};
+}
+
+ContextManager.prototype.nextId = function () {
+    this.counter += 1;
+    return "context-" + this.counter;
+};
+
+ContextManager.prototype.context = function (item, htmlElement) {
+    var $element = $(htmlElement);
+    var id = $element.attr('data-context') || this.nextId();
+
+    $element.attr('data-context', id);
+
+    if (this.contexts[id] && this.contexts[id].item !== item) {
+        this.release(htmlElement);
     }
 
-    ContextManager.prototype.nextId = function () {
-        this.counter += 1;
-        return "context-" + this.counter;
-    };
+    if (!this.contexts[id]) {
+        var $parent = $element.closest('[data-context]');
+        var parentId = $parent.attr('data-context');
+        var parentContext = parentId ? this.contexts[parentId] : undefined;
+        this.contexts[id] = {
+            item: item,
+            element: htmlElement,
+            parent: parentContext
+        };
+    }
 
-    ContextManager.prototype.context = function (item, htmlElement) {
-        var $element = $(htmlElement);
-        var id = $element.attr('data-context') || this.nextId();
+    return this.contexts[id];
+};
 
-        $element.attr('data-context', id);
+ContextManager.prototype.release = function (htmlElement) {
+    var $element = $(htmlElement);
+    var id = $element.attr('data-context');
 
-        if (this.contexts[id] && this.contexts[id].item !== item) {
-            this.release(htmlElement);
-        }
+    if (id) {
+        delete this.contexts[id];
+        $element.removeAttr('data-context');
+    }
+};
 
-        if (!this.contexts[id]) {
-            var $parent = $element.closest('[data-context]');
-            var parentId = $parent.attr('data-context');
-            var parentContext = parentId ? this.contexts[parentId] : undefined;
-            this.contexts[id] = {
-                item: item,
-                element: htmlElement,
-                parent: parentContext
-            };
-        }
-
-        return this.contexts[id];
-    };
-
-    ContextManager.prototype.release = function (htmlElement) {
-        var $element = $(htmlElement);
-        var id = $element.attr('data-context');
-
-        if (id) {
-            delete this.contexts[id];
-            $element.removeAttr('data-context');
-        }
-    };
-
-    return ContextManager;
-});
+var bindingVariable = ContextManager;
+export default bindingVariable;

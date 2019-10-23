@@ -20,14 +20,11 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        function NotificationIndicator() {}
+function NotificationIndicator() {}
 
-        NotificationIndicator.template = 'notificationIndicatorTemplate';
+NotificationIndicator.template = 'notificationIndicatorTemplate';
 
-        return NotificationIndicator;
-    }
-);
+var bindingVariable = NotificationIndicator;
+export default bindingVariable;

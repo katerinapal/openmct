@@ -20,76 +20,73 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Representer that provides a compatibility layer between the new
-         * time conductor and existing representations / views. Listens to
-         * the v2 time conductor API and generates v1 style events using the
-         * Angular event bus. This is transitional code code and will be
-         * removed.
-         *
-         * Deprecated immediately as this is temporary code
-         *
-         * @deprecated
-         * @constructor
-         */
-        function ConductorRepresenter(
-            openmct,
-            scope,
-            element
-        ) {
-            this.timeAPI = openmct.time;
-            this.scope = scope;
-            this.element = element;
+/**
+ * Representer that provides a compatibility layer between the new
+ * time conductor and existing representations / views. Listens to
+ * the v2 time conductor API and generates v1 style events using the
+ * Angular event bus. This is transitional code code and will be
+ * removed.
+ *
+ * Deprecated immediately as this is temporary code
+ *
+ * @deprecated
+ * @constructor
+ */
+function ConductorRepresenter(
+    openmct,
+    scope,
+    element
+) {
+    this.timeAPI = openmct.time;
+    this.scope = scope;
+    this.element = element;
 
-            this.boundsListener = this.boundsListener.bind(this);
-            this.timeSystemListener = this.timeSystemListener.bind(this);
-            this.followListener = this.followListener.bind(this);
-        }
+    this.boundsListener = this.boundsListener.bind(this);
+    this.timeSystemListener = this.timeSystemListener.bind(this);
+    this.followListener = this.followListener.bind(this);
+}
 
-        ConductorRepresenter.prototype.boundsListener = function (bounds) {
-            var timeSystem = this.timeAPI.timeSystem();
-            this.scope.$broadcast('telemetry:display:bounds', {
-                start: bounds.start,
-                end: bounds.end,
-                domain: timeSystem.key
-            }, this.timeAPI.clock() !== undefined);
-        };
+ConductorRepresenter.prototype.boundsListener = function (bounds) {
+    var timeSystem = this.timeAPI.timeSystem();
+    this.scope.$broadcast('telemetry:display:bounds', {
+        start: bounds.start,
+        end: bounds.end,
+        domain: timeSystem.key
+    }, this.timeAPI.clock() !== undefined);
+};
 
-        ConductorRepresenter.prototype.timeSystemListener = function (timeSystem) {
-            var bounds = this.timeAPI.bounds();
-            this.scope.$broadcast('telemetry:display:bounds', {
-                start: bounds.start,
-                end: bounds.end,
-                domain: timeSystem.key
-            }, this.timeAPI.clock() !== undefined);
-        };
+ConductorRepresenter.prototype.timeSystemListener = function (timeSystem) {
+    var bounds = this.timeAPI.bounds();
+    this.scope.$broadcast('telemetry:display:bounds', {
+        start: bounds.start,
+        end: bounds.end,
+        domain: timeSystem.key
+    }, this.timeAPI.clock() !== undefined);
+};
 
-        ConductorRepresenter.prototype.followListener = function () {
-            this.boundsListener(this.timeAPI.bounds());
-        };
+ConductorRepresenter.prototype.followListener = function () {
+    this.boundsListener(this.timeAPI.bounds());
+};
 
-        // Handle a specific representation of a specific domain object
-        ConductorRepresenter.prototype.represent = function represent(representation) {
-            if (representation.key === 'browse-object') {
-                this.destroy();
+// Handle a specific representation of a specific domain object
+ConductorRepresenter.prototype.represent = function represent(representation) {
+    if (representation.key === 'browse-object') {
+        this.destroy();
 
-                this.timeAPI.on("bounds", this.boundsListener);
-                this.timeAPI.on("timeSystem", this.timeSystemListener);
-                this.timeAPI.on("follow", this.followListener);
-            }
-        };
-
-        ConductorRepresenter.prototype.destroy = function destroy() {
-            this.timeAPI.off("bounds", this.boundsListener);
-            this.timeAPI.off("timeSystem", this.timeSystemListener);
-            this.timeAPI.off("follow", this.followListener);
-        };
-
-        return ConductorRepresenter;
+        this.timeAPI.on("bounds", this.boundsListener);
+        this.timeAPI.on("timeSystem", this.timeSystemListener);
+        this.timeAPI.on("follow", this.followListener);
     }
-);
+};
+
+ConductorRepresenter.prototype.destroy = function destroy() {
+    this.timeAPI.off("bounds", this.boundsListener);
+    this.timeAPI.off("timeSystem", this.timeSystemListener);
+    this.timeAPI.off("follow", this.followListener);
+};
+
+var bindingVariable = ConductorRepresenter;
+export default bindingVariable;
 

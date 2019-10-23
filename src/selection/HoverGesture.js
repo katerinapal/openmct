@@ -20,39 +20,39 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['zepto'], function ($) {
-    function HoverGesture(hoverManager) {
-        this.hoverManager = hoverManager;
+;
+function HoverGesture(hoverManager) {
+    this.hoverManager = hoverManager;
+}
+
+HoverGesture.prototype.apply = function (htmlElement) {
+    var $element = $(htmlElement);
+    var hoverManager = this.hoverManager;
+
+    function update() {
+        $(hoverManager.all()).removeClass('hovering');
+        $(hoverManager.top()).addClass('hovering');
     }
 
-    HoverGesture.prototype.apply = function (htmlElement) {
-        var $element = $(htmlElement);
-        var hoverManager = this.hoverManager;
+    function enter() {
+        hoverManager.add(htmlElement);
+        update();
+    }
 
-        function update() {
-            $(hoverManager.all()).removeClass('hovering');
-            $(hoverManager.top()).addClass('hovering');
-        }
+    function leave() {
+        hoverManager.remove(htmlElement);
+        update();
+    }
 
-        function enter() {
-            hoverManager.add(htmlElement);
-            update();
-        }
+    $element.on('mouseenter', enter);
+    $element.on('mouseleave', leave);
 
-        function leave() {
-            hoverManager.remove(htmlElement);
-            update();
-        }
+    return function () {
+        leave();
+        $element.off('mouseenter', enter);
+        $element.off('mouseleave', leave);
+    }.bind(this);
+};
 
-        $element.on('mouseenter', enter);
-        $element.on('mouseleave', leave);
-
-        return function () {
-            leave();
-            $element.off('mouseenter', enter);
-            $element.off('mouseleave', leave);
-        }.bind(this);
-    };
-
-    return HoverGesture;
-});
+var bindingVariable = HoverGesture;
+export default bindingVariable;

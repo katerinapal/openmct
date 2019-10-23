@@ -1,3 +1,5 @@
+import legacyRegistry from ".\\legacyRegistry.js";
+import BundleRegistry from ".\\BundleRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,14 +22,8 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './legacyRegistry',
-    './BundleRegistry'
-], function (legacyRegistry, BundleRegistry) {
-
-    describe("legacyRegistry", function () {
-        it("is a BundleRegistry", function () {
-            expect(legacyRegistry instanceof BundleRegistry).toBe(true);
-        });
+describe("legacyRegistry", function () {
+    it("is a BundleRegistry", function () {
+        expect(legacyRegistry instanceof BundleRegistry).toBe(true);
     });
 });

@@ -23,104 +23,104 @@
 /**
  * Module defining SearchMenuController. Created by shale on 08/17/2015.
  */
-define(function () {
+;
 
-    function SearchMenuController($scope, types) {
+function SearchMenuController($scope, types) {
 
-        // Model variables are:
-        //   ngModel.filter, the function filter defined in SearchController
-        //   ngModel.types, an array of type objects
-        //   ngModel.checked, a dictionary of which type filter options are checked
-        //   ngModel.checkAll, a boolean of whether all of the types in ngModel.checked are checked
-        //   ngModel.filtersString, a string list of what filters on the results are active
-        $scope.ngModel.types = [];
-        $scope.ngModel.checked = {};
-        $scope.ngModel.checkAll = true;
-        $scope.ngModel.filtersString = '';
+    // Model variables are:
+    //   ngModel.filter, the function filter defined in SearchController
+    //   ngModel.types, an array of type objects
+    //   ngModel.checked, a dictionary of which type filter options are checked
+    //   ngModel.checkAll, a boolean of whether all of the types in ngModel.checked are checked
+    //   ngModel.filtersString, a string list of what filters on the results are active
+    $scope.ngModel.types = [];
+    $scope.ngModel.checked = {};
+    $scope.ngModel.checkAll = true;
+    $scope.ngModel.filtersString = '';
 
-        // On initialization, fill the model's types with type keys
-        types.forEach(function (type) {
-            // We only want some types, the ones that are probably human readable
-            // Manually remove 'root', but not 'unknown'
-            if (type.key && type.name && type.key !== 'root') {
-                $scope.ngModel.types.push(type);
-                $scope.ngModel.checked[type.key] = false;
-            }
-        });
+    // On initialization, fill the model's types with type keys
+    types.forEach(function (type) {
+        // We only want some types, the ones that are probably human readable
+        // Manually remove 'root', but not 'unknown'
+        if (type.key && type.name && type.key !== 'root') {
+            $scope.ngModel.types.push(type);
+            $scope.ngModel.checked[type.key] = false;
+        }
+    });
 
 
-        // For documentation, see updateOptions below
-        function updateOptions() {
-            var type,
-                i;
+    // For documentation, see updateOptions below
+    function updateOptions() {
+        var type,
+            i;
 
-            // Update all-checked status
-            if ($scope.ngModel.checkAll) {
-                for (type in $scope.ngModel.checked) {
-                    if ($scope.ngModel.checked[type]) {
-                        $scope.ngModel.checkAll = false;
-                    }
+        // Update all-checked status
+        if ($scope.ngModel.checkAll) {
+            for (type in $scope.ngModel.checked) {
+                if ($scope.ngModel.checked[type]) {
+                    $scope.ngModel.checkAll = false;
                 }
             }
-
-            // Update the current filters string
-            $scope.ngModel.filtersString = '';
-            if (!$scope.ngModel.checkAll) {
-                for (i = 0; i < $scope.ngModel.types.length; i += 1) {
-                    // If the type key corresponds to a checked option...
-                    if ($scope.ngModel.checked[$scope.ngModel.types[i].key]) {
-                        // ... add it to the string list of current filter options
-                        if ($scope.ngModel.filtersString === '') {
-                            $scope.ngModel.filtersString += $scope.ngModel.types[i].name;
-                        } else {
-                            $scope.ngModel.filtersString += ', ' + $scope.ngModel.types[i].name;
-                        }
-                    }
-                }
-                // If there's still nothing in the filters string, there are no
-                //   filters selected
-                if ($scope.ngModel.filtersString === '') {
-                    $scope.ngModel.checkAll = true;
-                }
-            }
-
-            // Re-filter results
-            $scope.ngModel.filter();
         }
 
-        // For documentation, see checkAll below
-        function checkAll() {
-            // Reset all the other options to original/default position
-            Object.keys($scope.ngModel.checked).forEach(function (type) {
-                $scope.ngModel.checked[type] = false;
-            });
-
-            // This setting will make the filters display hidden
-            $scope.ngModel.filtersString = '';
-            // Do not let checkAll become unchecked when it is the only checked filter
-            if (!$scope.ngModel.checkAll) {
+        // Update the current filters string
+        $scope.ngModel.filtersString = '';
+        if (!$scope.ngModel.checkAll) {
+            for (i = 0; i < $scope.ngModel.types.length; i += 1) {
+                // If the type key corresponds to a checked option...
+                if ($scope.ngModel.checked[$scope.ngModel.types[i].key]) {
+                    // ... add it to the string list of current filter options
+                    if ($scope.ngModel.filtersString === '') {
+                        $scope.ngModel.filtersString += $scope.ngModel.types[i].name;
+                    } else {
+                        $scope.ngModel.filtersString += ', ' + $scope.ngModel.types[i].name;
+                    }
+                }
+            }
+            // If there's still nothing in the filters string, there are no
+            //   filters selected
+            if ($scope.ngModel.filtersString === '') {
                 $scope.ngModel.checkAll = true;
             }
-
-            // Re-filter results
-            $scope.ngModel.filter();
         }
 
-        return {
-            /**
-             * Updates the status of the checked options. Updates the filtersString
-             *   with which options are checked. Re-filters the search results after.
-             *   Not intended to be called by checkAll when it is toggled.
-             */
-            updateOptions: updateOptions,
-
-            /**
-             * Handles the search and filter options for when checkAll has been
-             *   toggled. This is a special case, compared to the other search
-             *   menu options, so is intended to be called instead of updateOptions.
-             */
-            checkAll: checkAll
-        };
+        // Re-filter results
+        $scope.ngModel.filter();
     }
-    return SearchMenuController;
-});
+
+    // For documentation, see checkAll below
+    function checkAll() {
+        // Reset all the other options to original/default position
+        Object.keys($scope.ngModel.checked).forEach(function (type) {
+            $scope.ngModel.checked[type] = false;
+        });
+
+        // This setting will make the filters display hidden
+        $scope.ngModel.filtersString = '';
+        // Do not let checkAll become unchecked when it is the only checked filter
+        if (!$scope.ngModel.checkAll) {
+            $scope.ngModel.checkAll = true;
+        }
+
+        // Re-filter results
+        $scope.ngModel.filter();
+    }
+
+    return {
+        /**
+         * Updates the status of the checked options. Updates the filtersString
+         *   with which options are checked. Re-filters the search results after.
+         *   Not intended to be called by checkAll when it is toggled.
+         */
+        updateOptions: updateOptions,
+
+        /**
+         * Handles the search and filter options for when checkAll has been
+         *   toggled. This is a special case, compared to the other search
+         *   menu options, so is intended to be called instead of updateOptions.
+         */
+        checkAll: checkAll
+    };
+}
+var bindingVariable = SearchMenuController;
+export default bindingVariable;

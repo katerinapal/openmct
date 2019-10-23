@@ -1,3 +1,4 @@
+import DeviceMatchers from ".\\DeviceMatchers.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,67 +21,64 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./DeviceMatchers'],
-    function (DeviceMatchers) {
+;
 
-        /**
-         * The `mct-device` directive, when applied as an attribute,
-         * only includes the element when the device being used matches
-         * a set of characteristics required.
-         *
-         * Required characteristics are given as space-separated strings
-         * as the value to this attribute, e.g.:
-         *
-         *    <span mct-device="mobile portrait">Hello world!</span>
-         *
-         * ...will only show Hello world! when viewed on a mobile device
-         * in the portrait orientation.
-         *
-         * Valid device characteristics to detect are:
-         *
-         * * `mobile`: Phones or tablets.
-         * * `phone`: Phones specifically.
-         * * `tablet`: Tablets specifically.
-         * * `desktop`: Non-mobile devices.
-         * * `portrait`: Devices in a portrait-style orientation.
-         * * `landscape`: Devices in a landscape-style orientation.
-         * * `touch`: Device supports touch events.
-         *
-         * @param {AgentService} agentService used to detect device type
-         *        based on information about the user agent
-         */
-        function MCTDevice(agentService) {
+/**
+ * The `mct-device` directive, when applied as an attribute,
+ * only includes the element when the device being used matches
+ * a set of characteristics required.
+ *
+ * Required characteristics are given as space-separated strings
+ * as the value to this attribute, e.g.:
+ *
+ *    <span mct-device="mobile portrait">Hello world!</span>
+ *
+ * ...will only show Hello world! when viewed on a mobile device
+ * in the portrait orientation.
+ *
+ * Valid device characteristics to detect are:
+ *
+ * * `mobile`: Phones or tablets.
+ * * `phone`: Phones specifically.
+ * * `tablet`: Tablets specifically.
+ * * `desktop`: Non-mobile devices.
+ * * `portrait`: Devices in a portrait-style orientation.
+ * * `landscape`: Devices in a landscape-style orientation.
+ * * `touch`: Device supports touch events.
+ *
+ * @param {AgentService} agentService used to detect device type
+ *        based on information about the user agent
+ */
+function MCTDevice(agentService) {
 
-            function deviceMatches(tokens) {
-                tokens = tokens || "";
-                return tokens.split(" ").every(function (token) {
-                    var fn = DeviceMatchers[token];
-                    return fn && fn(agentService);
-                });
-            }
-
-            function link(scope, element, attrs, ctrl, transclude) {
-                if (deviceMatches(attrs.mctDevice)) {
-                    transclude(function (clone) {
-                        element.replaceWith(clone);
-                    });
-                }
-            }
-
-            return {
-                link: link,
-                // We are transcluding the whole element (like ng-if)
-                transclude: 'element',
-                // 1 more than ng-if
-                priority: 601,
-                // Also terminal, since element will be transcluded
-                terminal: true,
-                // Only apply as an attribute
-                restrict: "A"
-            };
-        }
-
-        return MCTDevice;
+    function deviceMatches(tokens) {
+        tokens = tokens || "";
+        return tokens.split(" ").every(function (token) {
+            var fn = DeviceMatchers[token];
+            return fn && fn(agentService);
+        });
     }
-);
+
+    function link(scope, element, attrs, ctrl, transclude) {
+        if (deviceMatches(attrs.mctDevice)) {
+            transclude(function (clone) {
+                element.replaceWith(clone);
+            });
+        }
+    }
+
+    return {
+        link: link,
+        // We are transcluding the whole element (like ng-if)
+        transclude: 'element',
+        // 1 more than ng-if
+        priority: 601,
+        // Also terminal, since element will be transcluded
+        terminal: true,
+        // Only apply as an attribute
+        restrict: "A"
+    };
+}
+
+var bindingVariable = MCTDevice;
+export default bindingVariable;

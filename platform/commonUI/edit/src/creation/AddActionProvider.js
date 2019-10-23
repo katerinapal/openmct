@@ -1,3 +1,4 @@
+import AddAction from ".\\AddAction.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -23,60 +24,57 @@
 /**
  * Module defining AddActionProvider.js. Created by ahenry on 01/21/16.
  */
-define(
-    ["./AddAction"],
-    function (AddAction) {
+;
 
-        /**
-         * The AddActionProvider is an ActionProvider which introduces
-         * an Add action for creating sub objects.
-         *
-         * @memberof platform/commonUI/browse
-         * @constructor
-         * @implements {ActionService}
-         *
-         * @param {TypeService} typeService the type service, used to discover
-         *        available types
-         * @param {DialogService} dialogService the dialog service, used by
-         *        specific Create actions to get user input to populate the
-         *        model of the newly-created domain object.
-         * @param {CreationService} creationService the creation service (also
-         *        introduced in this bundle), responsible for handling actual
-         *        object creation.
-         */
-        function AddActionProvider($q, typeService, dialogService, policyService) {
-            this.typeService = typeService;
-            this.dialogService = dialogService;
-            this.$q = $q;
-            this.policyService = policyService;
-        }
+/**
+ * The AddActionProvider is an ActionProvider which introduces
+ * an Add action for creating sub objects.
+ *
+ * @memberof platform/commonUI/browse
+ * @constructor
+ * @implements {ActionService}
+ *
+ * @param {TypeService} typeService the type service, used to discover
+ *        available types
+ * @param {DialogService} dialogService the dialog service, used by
+ *        specific Create actions to get user input to populate the
+ *        model of the newly-created domain object.
+ * @param {CreationService} creationService the creation service (also
+ *        introduced in this bundle), responsible for handling actual
+ *        object creation.
+ */
+function AddActionProvider($q, typeService, dialogService, policyService) {
+    this.typeService = typeService;
+    this.dialogService = dialogService;
+    this.$q = $q;
+    this.policyService = policyService;
+}
 
-        AddActionProvider.prototype.getActions = function (actionContext) {
-            var context = actionContext || {},
-                key = context.key,
-                destination = context.domainObject;
+AddActionProvider.prototype.getActions = function (actionContext) {
+    var context = actionContext || {},
+        key = context.key,
+        destination = context.domainObject;
 
-            // We only provide Add actions, and we need a
-            // domain object to serve as the container for the
-            // newly-created object (although the user may later
-            // make a different selection)
-            if (key !== 'add' || !destination) {
-                return [];
-            }
-
-            // Introduce one create action per type
-            return ['timeline', 'activity'].map(function (type) {
-                return new AddAction(
-                    this.typeService.getType(type),
-                    destination,
-                    context,
-                    this.$q,
-                    this.dialogService,
-                    this.policyService
-                );
-            }, this);
-        };
-
-        return AddActionProvider;
+    // We only provide Add actions, and we need a
+    // domain object to serve as the container for the
+    // newly-created object (although the user may later
+    // make a different selection)
+    if (key !== 'add' || !destination) {
+        return [];
     }
-);
+
+    // Introduce one create action per type
+    return ['timeline', 'activity'].map(function (type) {
+        return new AddAction(
+            this.typeService.getType(type),
+            destination,
+            context,
+            this.$q,
+            this.dialogService,
+            this.policyService
+        );
+    }, this);
+};
+
+var bindingVariable = AddActionProvider;
+export default bindingVariable;

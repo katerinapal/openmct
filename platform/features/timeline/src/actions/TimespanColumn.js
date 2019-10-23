@@ -1,3 +1,4 @@
+import TimelineFormatter from "..\\TimelineFormatter.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,34 +21,34 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['../TimelineFormatter'], function (TimelineFormatter) {
+;
 
-    var FORMATTER = new TimelineFormatter();
+var FORMATTER = new TimelineFormatter();
 
-    /**
-     * A column showing start or end times associated with a domain object.
-     * @constructor
-     * @param {boolean} isStart true if this column refers to the object's
-     *        start time; false if it refers to the object's end time
-     * @implements {platform/features/timeline.TimelineCSVColumn}
-     */
-    function TimespanColumn(isStart) {
-        this.isStart = isStart;
-    }
+/**
+ * A column showing start or end times associated with a domain object.
+ * @constructor
+ * @param {boolean} isStart true if this column refers to the object's
+ *        start time; false if it refers to the object's end time
+ * @implements {platform/features/timeline.TimelineCSVColumn}
+ */
+function TimespanColumn(isStart) {
+    this.isStart = isStart;
+}
 
-    TimespanColumn.prototype.name = function () {
-        return this.isStart ? "Start" : "End";
-    };
+TimespanColumn.prototype.name = function () {
+    return this.isStart ? "Start" : "End";
+};
 
-    TimespanColumn.prototype.value = function (domainObject) {
-        var isStart = this.isStart;
-        return domainObject.hasCapability('timespan') ?
-            domainObject.useCapability('timespan').then(function (timespan) {
-                return FORMATTER.format(
-                    isStart ? timespan.getStart() : timespan.getEnd()
-                );
-            }) : "";
-    };
+TimespanColumn.prototype.value = function (domainObject) {
+    var isStart = this.isStart;
+    return domainObject.hasCapability('timespan') ?
+        domainObject.useCapability('timespan').then(function (timespan) {
+            return FORMATTER.format(
+                isStart ? timespan.getStart() : timespan.getEnd()
+            );
+        }) : "";
+};
 
-    return TimespanColumn;
-});
+var bindingVariable = TimespanColumn;
+export default bindingVariable;

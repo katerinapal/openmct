@@ -1,3 +1,12 @@
+import UTCTimeSystem from ".\\utcTimeSystem\\plugin.js";
+import AutoflowPlugin from ".\\autoflow\\AutoflowTabularPlugin.js";
+import TimeConductorPlugin from ".\\timeConductor\\plugin.js";
+import ImportExport from "..\\..\\platform\\import-export\\bundle.js";
+import SummaryWidget from ".\\summaryWidget\\plugin.js";
+import URLIndicatorPlugin from ".\\URLIndicatorPlugin\\URLIndicatorPlugin.js";
+import TelemetryMean from ".\\telemetryMean\\plugin.js";
+import PlotPlugin from ".\\plot\\plugin.js";
+import StaticRootPlugin from ".\\staticRootPlugin\\plugin.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,123 +29,96 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'lodash',
-    './utcTimeSystem/plugin',
-    '../../example/generator/plugin',
-    './autoflow/AutoflowTabularPlugin',
-    './timeConductor/plugin',
-    '../../example/imagery/plugin',
-    '../../platform/import-export/bundle',
-    './summaryWidget/plugin',
-    './URLIndicatorPlugin/URLIndicatorPlugin',
-    './telemetryMean/plugin',
-    './plot/plugin',
-    './staticRootPlugin/plugin'
-], function (
-    _,
-    UTCTimeSystem,
-    GeneratorPlugin,
-    AutoflowPlugin,
-    TimeConductorPlugin,
-    ExampleImagery,
-    ImportExport,
-    SummaryWidget,
-    URLIndicatorPlugin,
-    TelemetryMean,
-    PlotPlugin,
-    StaticRootPlugin
-) {
-    var bundleMap = {
-        CouchDB: 'platform/persistence/couch',
-        Elasticsearch: 'platform/persistence/elastic',
-        Espresso: 'platform/commonUI/themes/espresso',
-        LocalStorage: 'platform/persistence/local',
-        MyItems: 'platform/features/my-items',
-        Snow: 'platform/commonUI/themes/snow'
-    };
+;
+var bundleMap = {
+    CouchDB: 'platform/persistence/couch',
+    Elasticsearch: 'platform/persistence/elastic',
+    Espresso: 'platform/commonUI/themes/espresso',
+    LocalStorage: 'platform/persistence/local',
+    MyItems: 'platform/features/my-items',
+    Snow: 'platform/commonUI/themes/snow'
+};
 
-    var plugins = _.mapValues(bundleMap, function (bundleName, pluginName) {
-        return function pluginConstructor() {
-            return function (openmct) {
-                openmct.legacyRegistry.enable(bundleName);
-            };
-        };
-    });
-
-    plugins.UTCTimeSystem = UTCTimeSystem;
-
-    plugins.ImportExport = ImportExport;
-
-    plugins.StaticRootPlugin = StaticRootPlugin;
-
-    /**
-     * A tabular view showing the latest values of multiple telemetry points at
-     * once. Formatted so that labels and values are aligned.
-     *
-     * @param {Object} [options] Optional settings to apply to the autoflow
-     * tabular view. Currently supports one option, 'type'.
-     * @param {string} [options.type] The key of an object type to apply this view
-     * to exclusively.
-     */
-    plugins.AutoflowView = AutoflowPlugin;
-
-    plugins.Conductor = TimeConductorPlugin;
-
-    plugins.CouchDB = function (url) {
+var plugins = _.mapValues(bundleMap, function (bundleName, pluginName) {
+    return function pluginConstructor() {
         return function (openmct) {
-            if (url) {
-                var bundleName = "config/couch";
-                openmct.legacyRegistry.register(bundleName, {
-                    "extensions": {
-                        "constants": [
-                            {
-                                "key": "COUCHDB_PATH",
-                                "value": url,
-                                "priority": "mandatory"
-                            }
-                        ]
-                    }
-                });
-                openmct.legacyRegistry.enable(bundleName);
-            }
-
-            openmct.legacyRegistry.enable(bundleMap.CouchDB);
+            openmct.legacyRegistry.enable(bundleName);
         };
     };
-
-    plugins.Elasticsearch = function (url) {
-        return function (openmct) {
-            if (url) {
-                var bundleName = "config/elastic";
-                openmct.legacyRegistry.register(bundleName, {
-                    "extensions": {
-                        "constants": [
-                            {
-                                "key": "ELASTIC_ROOT",
-                                "value": url,
-                                "priority": "mandatory"
-                            }
-                        ]
-                    }
-                });
-                openmct.legacyRegistry.enable(bundleName);
-            }
-
-            openmct.legacyRegistry.enable(bundleMap.Elasticsearch);
-        };
-    };
-
-    plugins.Generator = function () {
-        return GeneratorPlugin;
-    };
-
-    plugins.ExampleImagery = ExampleImagery;
-    plugins.Plot = PlotPlugin;
-
-    plugins.SummaryWidget = SummaryWidget;
-    plugins.TelemetryMean = TelemetryMean;
-    plugins.URLIndicatorPlugin = URLIndicatorPlugin;
-
-    return plugins;
 });
+
+export default plugins;
+
+plugins.UTCTimeSystem = UTCTimeSystem;
+
+plugins.ImportExport = ImportExport;
+
+plugins.StaticRootPlugin = StaticRootPlugin;
+
+/**
+ * A tabular view showing the latest values of multiple telemetry points at
+ * once. Formatted so that labels and values are aligned.
+ *
+ * @param {Object} [options] Optional settings to apply to the autoflow
+ * tabular view. Currently supports one option, 'type'.
+ * @param {string} [options.type] The key of an object type to apply this view
+ * to exclusively.
+ */
+plugins.AutoflowView = AutoflowPlugin;
+
+plugins.Conductor = TimeConductorPlugin;
+
+plugins.CouchDB = function (url) {
+    return function (openmct) {
+        if (url) {
+            var bundleName = "config/couch";
+            openmct.legacyRegistry.register(bundleName, {
+                "extensions": {
+                    "constants": [
+                        {
+                            "key": "COUCHDB_PATH",
+                            "value": url,
+                            "priority": "mandatory"
+                        }
+                    ]
+                }
+            });
+            openmct.legacyRegistry.enable(bundleName);
+        }
+
+        openmct.legacyRegistry.enable(bundleMap.CouchDB);
+    };
+};
+
+plugins.Elasticsearch = function (url) {
+    return function (openmct) {
+        if (url) {
+            var bundleName = "config/elastic";
+            openmct.legacyRegistry.register(bundleName, {
+                "extensions": {
+                    "constants": [
+                        {
+                            "key": "ELASTIC_ROOT",
+                            "value": url,
+                            "priority": "mandatory"
+                        }
+                    ]
+                }
+            });
+            openmct.legacyRegistry.enable(bundleName);
+        }
+
+        openmct.legacyRegistry.enable(bundleMap.Elasticsearch);
+    };
+};
+
+plugins.Generator = function () {
+    return GeneratorPlugin;
+};
+
+plugins.ExampleImagery = ExampleImagery;
+plugins.Plot = PlotPlugin;
+
+plugins.SummaryWidget = SummaryWidget;
+plugins.TelemetryMean = TelemetryMean;
+plugins.URLIndicatorPlugin = URLIndicatorPlugin;

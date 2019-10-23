@@ -20,21 +20,21 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
-    function AdaptedViewPolicy(openmct) {
-        this.openmct = openmct;
+;
+function AdaptedViewPolicy(openmct) {
+    this.openmct = openmct;
+}
+
+AdaptedViewPolicy.prototype.allow = function (
+    view,
+    legacyObject
+) {
+    if (view.hasOwnProperty('provider')) {
+        var domainObject = legacyObject.useCapability('adapter');
+        return view.provider.canView(domainObject);
     }
+    return true;
+};
 
-    AdaptedViewPolicy.prototype.allow = function (
-        view,
-        legacyObject
-    ) {
-        if (view.hasOwnProperty('provider')) {
-            var domainObject = legacyObject.useCapability('adapter');
-            return view.provider.canView(domainObject);
-        }
-        return true;
-    };
-
-    return AdaptedViewPolicy;
-});
+var bindingVariable = AdaptedViewPolicy;
+export default bindingVariable;

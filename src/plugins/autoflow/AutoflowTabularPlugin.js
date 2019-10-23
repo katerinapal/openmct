@@ -1,3 +1,4 @@
+import AutoflowTabularView from ".\\AutoflowTabularView.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,41 +21,28 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './AutoflowTabularView'
-], function (
-    AutoflowTabularView
-) {
-    /**
-     * This plugin provides an Autoflow Tabular View for domain objects
-     * in Open MCT.
-     *
-     * @param {Object} options
-     * @param {String} [options.type] the domain object type for which
-     *        this view should be available; if omitted, this view will
-     *        be available for all objects
-     */
-    return function (options) {
-        return function (openmct) {
-            var views = (openmct.mainViews || openmct.objectViews);
+var bindingVariable = function (options) {
+    return function (openmct) {
+        var views = (openmct.mainViews || openmct.objectViews);
 
-            views.addProvider({
-                name: "Autoflow Tabular",
-                key: "autoflow",
-                cssClass: "icon-packet",
-                description: "A tabular view of packet contents.",
-                canView: function (d) {
-                    return !options || (options.type === d.type);
-                },
-                view: function (domainObject) {
-                    return new AutoflowTabularView(
-                        domainObject,
-                        openmct,
-                        document
-                    );
-                }
-            });
-        };
+        views.addProvider({
+            name: "Autoflow Tabular",
+            key: "autoflow",
+            cssClass: "icon-packet",
+            description: "A tabular view of packet contents.",
+            canView: function (d) {
+                return !options || (options.type === d.type);
+            },
+            view: function (domainObject) {
+                return new AutoflowTabularView(
+                    domainObject,
+                    openmct,
+                    document
+                );
+            }
+        });
     };
-});
+};;
+
+export default bindingVariable;
 

@@ -1,3 +1,5 @@
+import { options } from ".\\gulpfile.js";
+import { fs } from ".\\gulpfile.js";
 /*global require,process,console*/
 
 /**

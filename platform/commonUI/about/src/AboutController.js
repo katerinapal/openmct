@@ -25,43 +25,40 @@
  * Implements Open MCT's About dialog.
  * @namespace platform/commonUI/about
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The AboutController provides information to populate the
-         * About dialog.
-         * @memberof platform/commonUI/about
-         * @constructor
-         * @param {object[]} versions an array of version extensions;
-         *        injected from `versions[]`
-         * @param $window Angular-injected window object
-         */
-        function AboutController(versions, $window) {
-            this.versionDefinitions = versions;
-            this.$window = $window;
-        }
+/**
+ * The AboutController provides information to populate the
+ * About dialog.
+ * @memberof platform/commonUI/about
+ * @constructor
+ * @param {object[]} versions an array of version extensions;
+ *        injected from `versions[]`
+ * @param $window Angular-injected window object
+ */
+function AboutController(versions, $window) {
+    this.versionDefinitions = versions;
+    this.$window = $window;
+}
 
-        /**
-         * Get version info. This is given as an array of
-         * objects, where each object is intended to appear
-         * as a line-item in the version information listing.
-         * @returns {object[]} version information
-         */
-        AboutController.prototype.versions = function () {
-            return this.versionDefinitions;
-        };
+/**
+ * Get version info. This is given as an array of
+ * objects, where each object is intended to appear
+ * as a line-item in the version information listing.
+ * @returns {object[]} version information
+ */
+AboutController.prototype.versions = function () {
+    return this.versionDefinitions;
+};
 
-        /**
-         * Open a new window (or tab, depending on browser
-         * configuration) containing open source licenses.
-         */
-        AboutController.prototype.openLicenses = function () {
-            // Open a new browser window at the licenses route
-            this.$window.open("#/licenses");
-        };
+/**
+ * Open a new window (or tab, depending on browser
+ * configuration) containing open source licenses.
+ */
+AboutController.prototype.openLicenses = function () {
+    // Open a new browser window at the licenses route
+    this.$window.open("#/licenses");
+};
 
-        return AboutController;
-    }
-);
+var bindingVariable = AboutController;
+export default bindingVariable;

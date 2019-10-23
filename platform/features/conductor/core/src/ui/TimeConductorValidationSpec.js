@@ -1,3 +1,4 @@
+import TimeConductorValidation from ".\\TimeConductorValidation.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,54 +21,52 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['./TimeConductorValidation'], function (TimeConductorValidation) {
-    describe("The Time Conductor Validation class", function () {
-        var timeConductorValidation,
-            mockTimeConductor;
+describe("The Time Conductor Validation class", function () {
+    var timeConductorValidation,
+        mockTimeConductor;
 
+    beforeEach(function () {
+        mockTimeConductor = jasmine.createSpyObj("timeConductor", [
+            "validateBounds",
+            "bounds"
+        ]);
+        timeConductorValidation = new TimeConductorValidation(mockTimeConductor);
+    });
+
+    describe("Validates start and end values using Time Conductor", function () {
         beforeEach(function () {
-            mockTimeConductor = jasmine.createSpyObj("timeConductor", [
-                "validateBounds",
-                "bounds"
-            ]);
-            timeConductorValidation = new TimeConductorValidation(mockTimeConductor);
+            var mockBounds = {
+                start: 10,
+                end: 20
+            };
+
+            mockTimeConductor.bounds.andReturn(mockBounds);
+
         });
-
-        describe("Validates start and end values using Time Conductor", function () {
-            beforeEach(function () {
-                var mockBounds = {
-                    start: 10,
-                    end: 20
-                };
-
-                mockTimeConductor.bounds.andReturn(mockBounds);
-
-            });
-            it("Validates start values using Time Conductor", function () {
-                var startValue = 30;
-                timeConductorValidation.validateStart(startValue);
-                expect(mockTimeConductor.validateBounds).toHaveBeenCalled();
-            });
-            it("Validates end values using Time Conductor", function () {
-                var endValue = 40;
-                timeConductorValidation.validateEnd(endValue);
-                expect(mockTimeConductor.validateBounds).toHaveBeenCalled();
-            });
+        it("Validates start values using Time Conductor", function () {
+            var startValue = 30;
+            timeConductorValidation.validateStart(startValue);
+            expect(mockTimeConductor.validateBounds).toHaveBeenCalled();
         });
-
-        it("Validates that start Offset is valid number > 0", function () {
-            expect(timeConductorValidation.validateStartOffset(-1)).toBe(false);
-            expect(timeConductorValidation.validateStartOffset("abc")).toBe(false);
-            expect(timeConductorValidation.validateStartOffset("1")).toBe(true);
-            expect(timeConductorValidation.validateStartOffset(1)).toBe(true);
+        it("Validates end values using Time Conductor", function () {
+            var endValue = 40;
+            timeConductorValidation.validateEnd(endValue);
+            expect(mockTimeConductor.validateBounds).toHaveBeenCalled();
         });
+    });
 
-        it("Validates that end Offset is valid number >= 0", function () {
-            expect(timeConductorValidation.validateEndOffset(-1)).toBe(false);
-            expect(timeConductorValidation.validateEndOffset("abc")).toBe(false);
-            expect(timeConductorValidation.validateEndOffset("1")).toBe(true);
-            expect(timeConductorValidation.validateEndOffset(0)).toBe(true);
-            expect(timeConductorValidation.validateEndOffset(1)).toBe(true);
-        });
+    it("Validates that start Offset is valid number > 0", function () {
+        expect(timeConductorValidation.validateStartOffset(-1)).toBe(false);
+        expect(timeConductorValidation.validateStartOffset("abc")).toBe(false);
+        expect(timeConductorValidation.validateStartOffset("1")).toBe(true);
+        expect(timeConductorValidation.validateStartOffset(1)).toBe(true);
+    });
+
+    it("Validates that end Offset is valid number >= 0", function () {
+        expect(timeConductorValidation.validateEndOffset(-1)).toBe(false);
+        expect(timeConductorValidation.validateEndOffset("abc")).toBe(false);
+        expect(timeConductorValidation.validateEndOffset("1")).toBe(true);
+        expect(timeConductorValidation.validateEndOffset(0)).toBe(true);
+        expect(timeConductorValidation.validateEndOffset(1)).toBe(true);
     });
 });

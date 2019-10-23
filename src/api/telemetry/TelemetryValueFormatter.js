@@ -20,72 +20,68 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'lodash'
-], function (
-    _
-) {
+;
 
-    // TODO: needs reference to formatService;
-    function TelemetryValueFormatter(valueMetadata, formatService) {
-        var numberFormatter = {
-            parse: function (x) {
-                return Number(x);
-            },
-            format: function (x) {
-                return x;
-            },
-            validate: function (x) {
-                return true;
-            }
-        };
-
-        this.valueMetadata = valueMetadata;
-        try {
-            this.formatter = formatService
-                .getFormat(valueMetadata.format, valueMetadata);
-        } catch (e) {
-            // TODO: Better formatting
-            this.formatter = numberFormatter;
+// TODO: needs reference to formatService;
+function TelemetryValueFormatter(valueMetadata, formatService) {
+    var numberFormatter = {
+        parse: function (x) {
+            return Number(x);
+        },
+        format: function (x) {
+            return x;
+        },
+        validate: function (x) {
+            return true;
         }
+    };
 
-        if (valueMetadata.format === 'enum') {
-            this.formatter = {};
-            this.enumerations = valueMetadata.enumerations.reduce(function (vm, e) {
-                vm.byValue[e.value] = e.string;
-                vm.byString[e.string] = e.value;
-                return vm;
-            }, {byValue: {}, byString: {}});
-            this.formatter.format = function (value) {
-                if (typeof value === "number") {
-                    return this.enumerations.byValue[value] || value;
-                }
-                return value;
-            }.bind(this);
-            this.formatter.parse = function (string) {
-                if (typeof string === "string") {
-                    if (this.enumerations.byString.hasOwnProperty(string)) {
-                        return this.enumerations.byString[string];
-                    }
-                }
-                return Number(string);
-            }.bind(this);
-        }
+    this.valueMetadata = valueMetadata;
+    try {
+        this.formatter = formatService
+            .getFormat(valueMetadata.format, valueMetadata);
+    } catch (e) {
+        // TODO: Better formatting
+        this.formatter = numberFormatter;
     }
 
-    TelemetryValueFormatter.prototype.parse = function (datum) {
-        if (_.isObject(datum)) {
-            return this.formatter.parse(datum[this.valueMetadata.source]);
-        }
-        return this.formatter.parse(datum);
-    };
+    if (valueMetadata.format === 'enum') {
+        this.formatter = {};
+        this.enumerations = valueMetadata.enumerations.reduce(function (vm, e) {
+            vm.byValue[e.value] = e.string;
+            vm.byString[e.string] = e.value;
+            return vm;
+        }, {byValue: {}, byString: {}});
+        this.formatter.format = function (value) {
+            if (typeof value === "number") {
+                return this.enumerations.byValue[value] || value;
+            }
+            return value;
+        }.bind(this);
+        this.formatter.parse = function (string) {
+            if (typeof string === "string") {
+                if (this.enumerations.byString.hasOwnProperty(string)) {
+                    return this.enumerations.byString[string];
+                }
+            }
+            return Number(string);
+        }.bind(this);
+    }
+}
 
-    TelemetryValueFormatter.prototype.format = function (datum) {
-        if (_.isObject(datum)) {
-            return this.formatter.format(datum[this.valueMetadata.source]);
-        }
-        return this.formatter.format(datum);
-    };
+TelemetryValueFormatter.prototype.parse = function (datum) {
+    if (_.isObject(datum)) {
+        return this.formatter.parse(datum[this.valueMetadata.source]);
+    }
+    return this.formatter.parse(datum);
+};
 
-    return TelemetryValueFormatter;
-});
+TelemetryValueFormatter.prototype.format = function (datum) {
+    if (_.isObject(datum)) {
+        return this.formatter.format(datum[this.valueMetadata.source]);
+    }
+    return this.formatter.format(datum);
+};
+
+var bindingVariable = TelemetryValueFormatter;
+export default bindingVariable;

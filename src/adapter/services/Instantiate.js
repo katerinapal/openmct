@@ -1,3 +1,4 @@
+import DomainObjectImpl from "..\\..\\..\\platform\\core\\src\\objects\\DomainObjectImpl.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,30 +21,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['../../../platform/core/src/objects/DomainObjectImpl'],
-    function (DomainObjectImpl) {
+;
 
-        /**
-         * Overrides platform version of instantiate, passes Id with model such
-         * that capability detection can utilize new format domain objects.
-         */
-        function Instantiate(
-            capabilityService,
-            identifierService,
-            cacheService
-        ) {
-            return function (model, id) {
-                id = id || identifierService.generate();
-                var old_id = model.id;
-                model.id = id;
-                var capabilities = capabilityService.getCapabilities(model, id);
-                model.id = old_id;
-                cacheService.put(id, model);
-                return new DomainObjectImpl(id, model, capabilities);
-            };
-        }
+/**
+ * Overrides platform version of instantiate, passes Id with model such
+ * that capability detection can utilize new format domain objects.
+ */
+function Instantiate(
+    capabilityService,
+    identifierService,
+    cacheService
+) {
+    return function (model, id) {
+        id = id || identifierService.generate();
+        var old_id = model.id;
+        model.id = id;
+        var capabilities = capabilityService.getCapabilities(model, id);
+        model.id = old_id;
+        cacheService.put(id, model);
+        return new DomainObjectImpl(id, model, capabilities);
+    };
+}
 
-        return Instantiate;
-    }
-);
+var bindingVariable = Instantiate;
+export default bindingVariable;

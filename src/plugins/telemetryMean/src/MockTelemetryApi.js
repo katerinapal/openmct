@@ -20,87 +20,87 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 /*global jasmine, spyOn */
-define([], function () {
+;
 
-    function MockTelemetryApi() {
-        this.createSpy('subscribe');
-        this.createSpy('getMetadata');
+function MockTelemetryApi() {
+    this.createSpy('subscribe');
+    this.createSpy('getMetadata');
 
-        this.metadata = this.createMockMetadata();
-        this.setDefaultRangeTo('defaultRange');
-        this.unsubscribe = jasmine.createSpy('unsubscribe');
-        this.mockReceiveTelemetry = this.mockReceiveTelemetry.bind(this);
-    }
+    this.metadata = this.createMockMetadata();
+    this.setDefaultRangeTo('defaultRange');
+    this.unsubscribe = jasmine.createSpy('unsubscribe');
+    this.mockReceiveTelemetry = this.mockReceiveTelemetry.bind(this);
+}
 
-    MockTelemetryApi.prototype.subscribe = function () {
-        return this.unsubscribe;
+MockTelemetryApi.prototype.subscribe = function () {
+    return this.unsubscribe;
+};
+
+MockTelemetryApi.prototype.getMetadata = function (object) {
+    return this.metadata;
+};
+
+MockTelemetryApi.prototype.request = jasmine.createSpy('request');
+
+MockTelemetryApi.prototype.getValueFormatter = function (valueMetadata) {
+    var mockValueFormatter = jasmine.createSpyObj("valueFormatter", [
+        "parse"
+    ]);
+
+    mockValueFormatter.parse.andCallFake(function (value) {
+        return value[valueMetadata.key];
+    });
+
+    return mockValueFormatter;
+};
+
+MockTelemetryApi.prototype.mockReceiveTelemetry = function (newTelemetryDatum) {
+    var subscriptionCallback = this.subscribe.mostRecentCall.args[1];
+    subscriptionCallback(newTelemetryDatum);
+};
+
+/**
+ * @private
+ */
+MockTelemetryApi.prototype.onRequestReturn = function (telemetryData) {
+    this.requestTelemetry = telemetryData;
+};
+
+/**
+ * @private
+ */
+MockTelemetryApi.prototype.setDefaultRangeTo = function (rangeKey) {
+    var mockMetadataValue = {
+        key: rangeKey
     };
+    this.metadata.valuesForHints.andReturn([mockMetadataValue]);
+};
 
-    MockTelemetryApi.prototype.getMetadata = function (object) {
-        return this.metadata;
-    };
+/**
+ * @private
+ */
+MockTelemetryApi.prototype.createMockMetadata = function () {
+    var mockMetadata = jasmine.createSpyObj("metadata", [
+        'value',
+        'valuesForHints'
+    ]);
 
-    MockTelemetryApi.prototype.request = jasmine.createSpy('request');
-
-    MockTelemetryApi.prototype.getValueFormatter = function (valueMetadata) {
-        var mockValueFormatter = jasmine.createSpyObj("valueFormatter", [
-            "parse"
-        ]);
-
-        mockValueFormatter.parse.andCallFake(function (value) {
-            return value[valueMetadata.key];
-        });
-
-        return mockValueFormatter;
-    };
-
-    MockTelemetryApi.prototype.mockReceiveTelemetry = function (newTelemetryDatum) {
-        var subscriptionCallback = this.subscribe.mostRecentCall.args[1];
-        subscriptionCallback(newTelemetryDatum);
-    };
-
-    /**
-     * @private
-     */
-    MockTelemetryApi.prototype.onRequestReturn = function (telemetryData) {
-        this.requestTelemetry = telemetryData;
-    };
-
-    /**
-     * @private
-     */
-    MockTelemetryApi.prototype.setDefaultRangeTo = function (rangeKey) {
-        var mockMetadataValue = {
-            key: rangeKey
+    mockMetadata.value.andCallFake(function (key) {
+        return {
+            key: key
         };
-        this.metadata.valuesForHints.andReturn([mockMetadataValue]);
-    };
+    });
+    return mockMetadata;
+};
 
-    /**
-     * @private
-     */
-    MockTelemetryApi.prototype.createMockMetadata = function () {
-        var mockMetadata = jasmine.createSpyObj("metadata", [
-            'value',
-            'valuesForHints'
-        ]);
+/**
+ * @private
+ */
+MockTelemetryApi.prototype.createSpy = function (functionName) {
+    this[functionName] = this[functionName].bind(this);
+    spyOn(this, functionName);
+    this[functionName].andCallThrough();
+};
 
-        mockMetadata.value.andCallFake(function (key) {
-            return {
-                key: key
-            };
-        });
-        return mockMetadata;
-    };
-
-    /**
-     * @private
-     */
-    MockTelemetryApi.prototype.createSpy = function (functionName) {
-        this[functionName] = this[functionName].bind(this);
-        spyOn(this, functionName);
-        this[functionName].andCallThrough();
-    };
-
-    return MockTelemetryApi;
-});
+var bindingVariable = MockTelemetryApi;
+export default bindingVariable;

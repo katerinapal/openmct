@@ -1,3 +1,4 @@
+import AbstractComposeAction from ".\\AbstractComposeAction.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,29 +21,26 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./AbstractComposeAction'],
-    function (AbstractComposeAction) {
+;
 
-        /**
-         * The MoveAction is available from context menus and allows a user to
-         * move an object to another location of their choosing.
-         *
-         * @implements {Action}
-         * @constructor
-         * @memberof platform/entanglement
-         */
-        function MoveAction(policyService, locationService, moveService, context) {
-            AbstractComposeAction.apply(
-                this,
-                [policyService, locationService, moveService, context, "Move"]
-            );
-        }
+/**
+ * The MoveAction is available from context menus and allows a user to
+ * move an object to another location of their choosing.
+ *
+ * @implements {Action}
+ * @constructor
+ * @memberof platform/entanglement
+ */
+function MoveAction(policyService, locationService, moveService, context) {
+    AbstractComposeAction.apply(
+        this,
+        [policyService, locationService, moveService, context, "Move"]
+    );
+}
 
-        MoveAction.prototype = Object.create(AbstractComposeAction.prototype);
-        MoveAction.appliesTo = AbstractComposeAction.appliesTo;
+MoveAction.prototype = Object.create(AbstractComposeAction.prototype);
+MoveAction.appliesTo = AbstractComposeAction.appliesTo;
 
-        return MoveAction;
-    }
-);
+var bindingVariable = MoveAction;
+export default bindingVariable;
 

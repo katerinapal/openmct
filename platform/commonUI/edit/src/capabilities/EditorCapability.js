@@ -20,106 +20,103 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A capability that implements an editing 'session' for a domain
-         * object. An editing session is initiated via a call to .edit().
-         * Once initiated, any persist operations will be queued pending a
-         * subsequent call to [.save()](@link #save) or [.finish()](@link
-         * #finish).
-         * @param transactionService
-         * @param domainObject
-         * @constructor
-         */
-        function EditorCapability(
-            transactionService,
-            domainObject
-        ) {
-            this.transactionService = transactionService;
-            this.domainObject = domainObject;
-        }
+/**
+ * A capability that implements an editing 'session' for a domain
+ * object. An editing session is initiated via a call to .edit().
+ * Once initiated, any persist operations will be queued pending a
+ * subsequent call to [.save()](@link #save) or [.finish()](@link
+ * #finish).
+ * @param transactionService
+ * @param domainObject
+ * @constructor
+ */
+function EditorCapability(
+    transactionService,
+    domainObject
+) {
+    this.transactionService = transactionService;
+    this.domainObject = domainObject;
+}
 
-        /**
-         * Initiate an editing session. This will start a transaction during
-         * which any persist operations will be deferred until either save()
-         * or finish() are called.
-         */
-        EditorCapability.prototype.edit = function () {
-            this.transactionService.startTransaction();
-            this.domainObject.getCapability('status').set('editing', true);
-        };
+/**
+ * Initiate an editing session. This will start a transaction during
+ * which any persist operations will be deferred until either save()
+ * or finish() are called.
+ */
+EditorCapability.prototype.edit = function () {
+    this.transactionService.startTransaction();
+    this.domainObject.getCapability('status').set('editing', true);
+};
 
-        function isEditContextRoot(domainObject) {
-            return domainObject.getCapability('status').get('editing');
-        }
+function isEditContextRoot(domainObject) {
+    return domainObject.getCapability('status').get('editing');
+}
 
-        function isEditing(domainObject) {
-            return isEditContextRoot(domainObject) ||
-                domainObject.hasCapability('context') &&
-                isEditing(domainObject.getCapability('context').getParent());
-        }
+function isEditing(domainObject) {
+    return isEditContextRoot(domainObject) ||
+        domainObject.hasCapability('context') &&
+        isEditing(domainObject.getCapability('context').getParent());
+}
 
-        /**
-         * Determines whether this object, or any of its ancestors are
-         * currently being edited.
-         * @returns boolean
-         */
-        EditorCapability.prototype.inEditContext = function () {
-            return isEditing(this.domainObject);
-        };
+/**
+ * Determines whether this object, or any of its ancestors are
+ * currently being edited.
+ * @returns boolean
+ */
+EditorCapability.prototype.inEditContext = function () {
+    return isEditing(this.domainObject);
+};
 
-        /**
-         * Is this the root editing object (ie. the object that the user
-         * clicked 'edit' on)?
-         * @returns {*}
-         */
-        EditorCapability.prototype.isEditContextRoot = function () {
-            return isEditContextRoot(this.domainObject);
-        };
+/**
+ * Is this the root editing object (ie. the object that the user
+ * clicked 'edit' on)?
+ * @returns {*}
+ */
+EditorCapability.prototype.isEditContextRoot = function () {
+    return isEditContextRoot(this.domainObject);
+};
 
-        /**
-         * Save any unsaved changes from this editing session. This will
-         * end the current transaction and continue with a new one.
-         * @returns {*}
-         */
-        EditorCapability.prototype.save = function () {
-            var transactionService = this.transactionService;
-            return transactionService.commit().then(function () {
-                transactionService.startTransaction();
-            });
-        };
+/**
+ * Save any unsaved changes from this editing session. This will
+ * end the current transaction and continue with a new one.
+ * @returns {*}
+ */
+EditorCapability.prototype.save = function () {
+    var transactionService = this.transactionService;
+    return transactionService.commit().then(function () {
+        transactionService.startTransaction();
+    });
+};
 
-        EditorCapability.prototype.invoke = EditorCapability.prototype.edit;
+EditorCapability.prototype.invoke = EditorCapability.prototype.edit;
 
-        /**
-         * Finish the current editing session. This will discard any pending
-         * persist operations
-         * @returns {*}
-         */
-        EditorCapability.prototype.finish = function () {
-            var domainObject = this.domainObject;
+/**
+ * Finish the current editing session. This will discard any pending
+ * persist operations
+ * @returns {*}
+ */
+EditorCapability.prototype.finish = function () {
+    var domainObject = this.domainObject;
 
-            if (this.transactionService.isActive()) {
-                return this.transactionService.cancel().then(function () {
-                    domainObject.getCapability("status").set("editing", false);
-                    return domainObject;
-                });
-            } else {
-                return Promise.resolve(domainObject);
-            }
-        };
-
-        /**
-         * @returns {boolean} true if there have been any domain model
-         * modifications since the last persist, false otherwise.
-         */
-        EditorCapability.prototype.dirty = function () {
-            return this.transactionService.size() > 0;
-        };
-
-        return EditorCapability;
+    if (this.transactionService.isActive()) {
+        return this.transactionService.cancel().then(function () {
+            domainObject.getCapability("status").set("editing", false);
+            return domainObject;
+        });
+    } else {
+        return Promise.resolve(domainObject);
     }
-);
+};
+
+/**
+ * @returns {boolean} true if there have been any domain model
+ * modifications since the last persist, false otherwise.
+ */
+EditorCapability.prototype.dirty = function () {
+    return this.transactionService.size() > 0;
+};
+
+var bindingVariable = EditorCapability;
+export default bindingVariable;

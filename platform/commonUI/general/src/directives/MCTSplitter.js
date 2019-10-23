@@ -20,71 +20,67 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        // Pixel width to allocate for the splitter itself
-        var SPLITTER_TEMPLATE = "<div class='abs'" +
-                "mct-drag-down=\"splitter.startMove()\" " +
-                "mct-drag=\"splitter.move(delta)\" " +
-                "mct-drag-up=\"splitter.endMove()\"></div>";
+// Pixel width to allocate for the splitter itself
+var SPLITTER_TEMPLATE = "<div class='abs'" +
+        "mct-drag-down=\"splitter.startMove()\" " +
+        "mct-drag=\"splitter.move(delta)\" " +
+        "mct-drag-up=\"splitter.endMove()\"></div>";
 
-        /**
-         * Implements `mct-splitter` directive.
-         * @memberof platform/commonUI/general
-         * @constructor
-         */
-        function MCTSplitter() {
-            function link(scope, element, attrs, mctSplitPane) {
-                var initialPosition,
-                    newPosition;
+/**
+ * Implements `mct-splitter` directive.
+ * @memberof platform/commonUI/general
+ * @constructor
+ */
+function MCTSplitter() {
+    function link(scope, element, attrs, mctSplitPane) {
+        var initialPosition,
+            newPosition;
 
-                element.addClass("splitter");
+        element.addClass("splitter");
 
-                scope.splitter = {
-                    // Begin moving this splitter
-                    startMove: function () {
-                        mctSplitPane.startResizing();
-                        initialPosition = mctSplitPane.position();
-                    },
-                    // Handle user changes to splitter position
-                    move: function (delta) {
-                        var anchor = mctSplitPane.anchor(),
-                            index = anchor.orientation === "vertical" ? 0 : 1,
-                            pixelDelta = delta[index] *
-                                (anchor.reversed ? -1 : 1);
+        scope.splitter = {
+            // Begin moving this splitter
+            startMove: function () {
+                mctSplitPane.startResizing();
+                initialPosition = mctSplitPane.position();
+            },
+            // Handle user changes to splitter position
+            move: function (delta) {
+                var anchor = mctSplitPane.anchor(),
+                    index = anchor.orientation === "vertical" ? 0 : 1,
+                    pixelDelta = delta[index] *
+                        (anchor.reversed ? -1 : 1);
 
-                        // Update the position of this splitter
-                        newPosition =  initialPosition + pixelDelta;
+                // Update the position of this splitter
+                newPosition =  initialPosition + pixelDelta;
 
-                        if (initialPosition !== newPosition) {
-                            mctSplitPane.position(newPosition);
-                        }
-                    },
-                    // Grab the event when the user is done moving
-                    // the splitter and pass it on
-                    endMove: function () {
-                        mctSplitPane.endResizing(newPosition);
-                    }
-                };
+                if (initialPosition !== newPosition) {
+                    mctSplitPane.position(newPosition);
+                }
+            },
+            // Grab the event when the user is done moving
+            // the splitter and pass it on
+            endMove: function () {
+                mctSplitPane.endResizing(newPosition);
             }
-
-            return {
-                // Restrict to attributes
-                restrict: "E",
-                // Utilize the mct-split-pane controller
-                require: "^mctSplitPane",
-                // Expose its controller
-                link: link,
-                // Use the template defined above
-                template: SPLITTER_TEMPLATE,
-                // Create a new scope to put the splitter into
-                scope: true
-            };
-        }
-
-        return MCTSplitter;
-
+        };
     }
-);
+
+    return {
+        // Restrict to attributes
+        restrict: "E",
+        // Utilize the mct-split-pane controller
+        require: "^mctSplitPane",
+        // Expose its controller
+        link: link,
+        // Use the template defined above
+        template: SPLITTER_TEMPLATE,
+        // Create a new scope to put the splitter into
+        scope: true
+    };
+}
+
+var bindingVariable = MCTSplitter;
+export default bindingVariable;

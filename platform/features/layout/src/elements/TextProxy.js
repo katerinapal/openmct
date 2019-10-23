@@ -1,3 +1,5 @@
+import BoxProxy from ".\\BoxProxy.js";
+import AccessorMutator from ".\\AccessorMutator.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,60 +22,57 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./BoxProxy', './AccessorMutator'],
-    function (BoxProxy, AccessorMutator) {
+;
 
-        /**
-         * Selection proxy for Text elements in a fixed position view.
-         *
-         * Note that arguments here are meant to match those expected
-         * by `Array.prototype.map`
-         *
-         * @memberof platform/features/layout
-         * @constructor
-         * @param element the fixed position element, as stored in its
-         *        configuration
-         * @param index the element's index within its array
-         * @param {Array} elements the full array of elements
-         * @param {number[]} gridSize the current layout grid size in [x,y] from
-         * @augments {platform/features/layout.ElementProxy}
-         */
-        function TextProxy(element, index, elements, gridSize) {
-            var proxy = new BoxProxy(element, index, elements, gridSize);
+/**
+ * Selection proxy for Text elements in a fixed position view.
+ *
+ * Note that arguments here are meant to match those expected
+ * by `Array.prototype.map`
+ *
+ * @memberof platform/features/layout
+ * @constructor
+ * @param element the fixed position element, as stored in its
+ *        configuration
+ * @param index the element's index within its array
+ * @param {Array} elements the full array of elements
+ * @param {number[]} gridSize the current layout grid size in [x,y] from
+ * @augments {platform/features/layout.ElementProxy}
+ */
+function TextProxy(element, index, elements, gridSize) {
+    var proxy = new BoxProxy(element, index, elements, gridSize);
 
-            /**
-             * Get and/or set the text color of this element.
-             * @param {string} [color] the new text color (if setting)
-             * @returns {string} the text color
-             * @memberof platform/features/layout.TextProxy#
-             */
-            proxy.color = new AccessorMutator(element, 'color');
+    /**
+     * Get and/or set the text color of this element.
+     * @param {string} [color] the new text color (if setting)
+     * @returns {string} the text color
+     * @memberof platform/features/layout.TextProxy#
+     */
+    proxy.color = new AccessorMutator(element, 'color');
 
-            /**
-             * Get and/or set the displayed text of this element.
-             * @param {string} [text] the new text (if setting)
-             * @returns {string} the text
-             * @memberof platform/features/layout.TextProxy#
-             */
-            proxy.text = new AccessorMutator(element, 'text');
+    /**
+     * Get and/or set the displayed text of this element.
+     * @param {string} [text] the new text (if setting)
+     * @returns {string} the text
+     * @memberof platform/features/layout.TextProxy#
+     */
+    proxy.text = new AccessorMutator(element, 'text');
 
-            /**
-             * Get and/or set the text size of this element.
-             *
-             * @param {string} [size] the new text size (if setting)
-             * @returns {string} the text size
-             * @memberof platform/features/layout.TextProxy#
-             */
-            proxy.size = new AccessorMutator(element, 'size');
+    /**
+     * Get and/or set the text size of this element.
+     *
+     * @param {string} [size] the new text size (if setting)
+     * @returns {string} the text size
+     * @memberof platform/features/layout.TextProxy#
+     */
+    proxy.size = new AccessorMutator(element, 'size');
 
-            if (proxy.size() === undefined) {
-                proxy.size("13px");
-            }
-
-            return proxy;
-        }
-
-        return TextProxy;
+    if (proxy.size() === undefined) {
+        proxy.size("13px");
     }
-);
+
+    return proxy;
+}
+
+var bindingVariable = TextProxy;
+export default bindingVariable;

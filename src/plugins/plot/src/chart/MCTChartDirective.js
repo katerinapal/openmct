@@ -1,3 +1,4 @@
+import MCTChartController from ".\\MCTChartController.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -24,44 +25,40 @@
 /**
  * Module defining MCTChart. Created by vwoeltje on 11/12/14.
  */
-define([
-    './MCTChartController'
-], function (
-    MCTChartController
-) {
+;
 
-    var TEMPLATE = "<canvas style='position: absolute; background: none; width: 100%; height: 100%;'></canvas>";
-    TEMPLATE += TEMPLATE;
+var TEMPLATE = "<canvas style='position: absolute; background: none; width: 100%; height: 100%;'></canvas>";
+TEMPLATE += TEMPLATE;
 
-    /**
-     * MCTChart draws charts utilizing a drawAPI.
-     *
-     * @constructor
-     */
-    function MCTChart() {
-        return {
-            restrict: "E",
-            template: TEMPLATE,
-            link: function ($scope, $element, attrs, ctrl) {
-                var mainCanvas = $element.find("canvas")[1];
-                var overlayCanvas = $element.find("canvas")[0];
+/**
+ * MCTChart draws charts utilizing a drawAPI.
+ *
+ * @constructor
+ */
+function MCTChart() {
+    return {
+        restrict: "E",
+        template: TEMPLATE,
+        link: function ($scope, $element, attrs, ctrl) {
+            var mainCanvas = $element.find("canvas")[1];
+            var overlayCanvas = $element.find("canvas")[0];
 
-                if (ctrl.initializeCanvas(mainCanvas, overlayCanvas)) {
-                    ctrl.draw();
-                }
-            },
-            controller: MCTChartController,
-            scope: {
-                config: "=",
-                draw: "=",
-                rectangles: "=",
-                series: "=",
-                xAxis: "=theXAxis",
-                yAxis: "=theYAxis",
-                highlights: "=?"
+            if (ctrl.initializeCanvas(mainCanvas, overlayCanvas)) {
+                ctrl.draw();
             }
-        };
-    }
+        },
+        controller: MCTChartController,
+        scope: {
+            config: "=",
+            draw: "=",
+            rectangles: "=",
+            series: "=",
+            xAxis: "=theXAxis",
+            yAxis: "=theYAxis",
+            highlights: "=?"
+        }
+    };
+}
 
-    return MCTChart;
-});
+var bindingVariable = MCTChart;
+export default bindingVariable;

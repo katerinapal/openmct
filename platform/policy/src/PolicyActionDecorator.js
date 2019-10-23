@@ -20,36 +20,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Filters out actions based on policy.
-         * @param {PolicyService} policyService the service which provides
-         *        policy decisions
-         * @param {ActionService} actionService the service to decorate
-         * @constructor
-         * @memberof platform/policy
-         * @implements {ActionService}
-         */
-        function PolicyActionDecorator(policyService, actionService) {
-            this.policyService = policyService;
-            this.actionService = actionService;
-        }
+/**
+ * Filters out actions based on policy.
+ * @param {PolicyService} policyService the service which provides
+ *        policy decisions
+ * @param {ActionService} actionService the service to decorate
+ * @constructor
+ * @memberof platform/policy
+ * @implements {ActionService}
+ */
+function PolicyActionDecorator(policyService, actionService) {
+    this.policyService = policyService;
+    this.actionService = actionService;
+}
 
-        PolicyActionDecorator.prototype.getActions = function (context) {
-            var policyService = this.policyService;
+PolicyActionDecorator.prototype.getActions = function (context) {
+    var policyService = this.policyService;
 
-            // Check if an action is allowed by policy.
-            function allow(action) {
-                return policyService.allow('action', action, context);
-            }
-
-            // Look up actions, filter out the disallowed ones.
-            return this.actionService.getActions(context).filter(allow);
-        };
-
-        return PolicyActionDecorator;
+    // Check if an action is allowed by policy.
+    function allow(action) {
+        return policyService.allow('action', action, context);
     }
-);
+
+    // Look up actions, filter out the disallowed ones.
+    return this.actionService.getActions(context).filter(allow);
+};
+
+var bindingVariable = PolicyActionDecorator;
+export default bindingVariable;

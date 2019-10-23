@@ -20,64 +20,63 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Builds a list of domain objects which should be included
-     * in the CSV export of a given timeline.
-     * @param {DomainObject} domainObject the object being exported
-     * @constructor
-     */
-    function TimelineTraverser(domainObject) {
-        this.domainObject = domainObject;
-    }
+/**
+ * Builds a list of domain objects which should be included
+ * in the CSV export of a given timeline.
+ * @param {DomainObject} domainObject the object being exported
+ * @constructor
+ */
+function TimelineTraverser(domainObject) {
+    this.domainObject = domainObject;
+}
 
-    /**
-     * Get a list of domain objects for CSV export.
-     * @returns {Promise.<DomainObject[]>} a list of domain objects
-     */
-    TimelineTraverser.prototype.buildObjectList = function () {
-        var idSet = {},
-            objects = [];
+/**
+ * Get a list of domain objects for CSV export.
+ * @returns {Promise.<DomainObject[]>} a list of domain objects
+ */
+TimelineTraverser.prototype.buildObjectList = function () {
+    var idSet = {},
+        objects = [];
 
-        function addObject(domainObject) {
-            var id = domainObject.getId(),
-                subtasks = [];
+    function addObject(domainObject) {
+        var id = domainObject.getId(),
+            subtasks = [];
 
-            function addCompositionObjects() {
-                return domainObject.useCapability('composition')
-                    .then(function (childObjects) {
-                        return Promise.all(childObjects.map(addObject));
-                    });
-            }
-
-            function addRelationships() {
-                var relationship = domainObject.getCapability('relationship');
-                relationship.getRelatedObjects('modes')
-                    .then(function (modeObjects) {
-                        return Promise.all(modeObjects.map(addObject));
-                    });
-            }
-
-            if (!idSet[id]) {
-                idSet[id] = true;
-                objects.push(domainObject);
-                if (domainObject.hasCapability('composition')) {
-                    subtasks.push(addCompositionObjects());
-                }
-                if (domainObject.hasCapability('relationship')) {
-                    subtasks.push(addRelationships());
-                }
-            }
-
-            return Promise.all(subtasks);
+        function addCompositionObjects() {
+            return domainObject.useCapability('composition')
+                .then(function (childObjects) {
+                    return Promise.all(childObjects.map(addObject));
+                });
         }
 
-        return addObject(this.domainObject).then(function () {
-            return objects;
-        });
-    };
+        function addRelationships() {
+            var relationship = domainObject.getCapability('relationship');
+            relationship.getRelatedObjects('modes')
+                .then(function (modeObjects) {
+                    return Promise.all(modeObjects.map(addObject));
+                });
+        }
 
-    return TimelineTraverser;
+        if (!idSet[id]) {
+            idSet[id] = true;
+            objects.push(domainObject);
+            if (domainObject.hasCapability('composition')) {
+                subtasks.push(addCompositionObjects());
+            }
+            if (domainObject.hasCapability('relationship')) {
+                subtasks.push(addRelationships());
+            }
+        }
 
-});
+        return Promise.all(subtasks);
+    }
+
+    return addObject(this.domainObject).then(function () {
+        return objects;
+    });
+};
+
+var bindingVariable = TimelineTraverser;
+export default bindingVariable;

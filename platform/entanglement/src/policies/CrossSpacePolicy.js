@@ -20,48 +20,44 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        var DISALLOWED_ACTIONS = ["move"];
+var DISALLOWED_ACTIONS = ["move"];
 
-        /**
-         * This policy prevents performing move/copy/link actions across
-         * different persistence spaces (e.g. linking to an object in
-         * a private space from an object in a public space.)
-         * @memberof {platform/entanglement}
-         * @constructor
-         * @implements {Policy}
-         */
-        function CrossSpacePolicy() {
-        }
+/**
+ * This policy prevents performing move/copy/link actions across
+ * different persistence spaces (e.g. linking to an object in
+ * a private space from an object in a public space.)
+ * @memberof {platform/entanglement}
+ * @constructor
+ * @implements {Policy}
+ */
+function CrossSpacePolicy() {
+}
 
-        function lookupSpace(domainObject) {
-            var persistence = domainObject &&
-                domainObject.getCapability("persistence");
-            return persistence && persistence.getSpace();
-        }
+function lookupSpace(domainObject) {
+    var persistence = domainObject &&
+        domainObject.getCapability("persistence");
+    return persistence && persistence.getSpace();
+}
 
-        function isCrossSpace(context) {
-            var domainObject = context.domainObject,
-                selectedObject = context.selectedObject;
-            return selectedObject !== undefined &&
-                domainObject !== undefined &&
-                lookupSpace(domainObject) !== lookupSpace(selectedObject);
-        }
+function isCrossSpace(context) {
+    var domainObject = context.domainObject,
+        selectedObject = context.selectedObject;
+    return selectedObject !== undefined &&
+        domainObject !== undefined &&
+        lookupSpace(domainObject) !== lookupSpace(selectedObject);
+}
 
-        CrossSpacePolicy.prototype.allow = function (action, context) {
-            var key = action.getMetadata().key;
+CrossSpacePolicy.prototype.allow = function (action, context) {
+    var key = action.getMetadata().key;
 
-            if (DISALLOWED_ACTIONS.indexOf(key) !== -1) {
-                return !isCrossSpace(context);
-            }
-
-            return true;
-        };
-
-        return CrossSpacePolicy;
-
+    if (DISALLOWED_ACTIONS.indexOf(key) !== -1) {
+        return !isCrossSpace(context);
     }
-);
+
+    return true;
+};
+
+var bindingVariable = CrossSpacePolicy;
+export default bindingVariable;

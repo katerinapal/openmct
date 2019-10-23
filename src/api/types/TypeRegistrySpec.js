@@ -1,3 +1,5 @@
+import TypeRegistry from ".\\TypeRegistry.js";
+import Type from ".\\Type.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,36 +22,34 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['./TypeRegistry', './Type'], function (TypeRegistry, Type) {
-    describe('The Type API', function () {
-        var typeRegistryInstance;
+describe('The Type API', function () {
+    var typeRegistryInstance;
 
-        beforeEach(function () {
-            typeRegistryInstance = new TypeRegistry ();
-            typeRegistryInstance.addType('testType', {
-                name: 'Test Type',
-                description: 'This is a test type.',
-                creatable: true
-            });
+    beforeEach(function () {
+        typeRegistryInstance = new TypeRegistry ();
+        typeRegistryInstance.addType('testType', {
+            name: 'Test Type',
+            description: 'This is a test type.',
+            creatable: true
         });
+    });
 
-        it('types can be standardized', function () {
-            typeRegistryInstance.addType('standardizationTestType', {
-                label: 'Test Type',
-                description: 'This is a test type.',
-                creatable: true
-            });
-            typeRegistryInstance.standardizeType(typeRegistryInstance.types.standardizationTestType);
-            expect(typeRegistryInstance.get('standardizationTestType').definition.label).toBeUndefined();
-            expect(typeRegistryInstance.get('standardizationTestType').definition.name).toBe('Test Type');
+    it('types can be standardized', function () {
+        typeRegistryInstance.addType('standardizationTestType', {
+            label: 'Test Type',
+            description: 'This is a test type.',
+            creatable: true
         });
+        typeRegistryInstance.standardizeType(typeRegistryInstance.types.standardizationTestType);
+        expect(typeRegistryInstance.get('standardizationTestType').definition.label).toBeUndefined();
+        expect(typeRegistryInstance.get('standardizationTestType').definition.name).toBe('Test Type');
+    });
 
-        it('new types are registered successfully and can be retrieved', function () {
-            expect(typeRegistryInstance.get('testType').definition.name).toBe('Test Type');
-        });
+    it('new types are registered successfully and can be retrieved', function () {
+        expect(typeRegistryInstance.get('testType').definition.name).toBe('Test Type');
+    });
 
-        it('type registry contains new keys', function () {
-            expect(typeRegistryInstance.listKeys ()).toContain('testType');
-        });
+    it('type registry contains new keys', function () {
+        expect(typeRegistryInstance.listKeys ()).toContain('testType');
     });
 });

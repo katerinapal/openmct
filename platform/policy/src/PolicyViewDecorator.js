@@ -20,36 +20,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Filters out views based on policy.
-         * @param {PolicyService} policyService the service which provides
-         *        policy decisions
-         * @param {ViewService} viewService the service to decorate
-         * @constructor
-         * @memberof platform/policy
-         * @implements {ViewService}
-         */
-        function PolicyViewDecorator(policyService, viewService) {
-            this.policyService = policyService;
-            this.viewService = viewService;
-        }
+/**
+ * Filters out views based on policy.
+ * @param {PolicyService} policyService the service which provides
+ *        policy decisions
+ * @param {ViewService} viewService the service to decorate
+ * @constructor
+ * @memberof platform/policy
+ * @implements {ViewService}
+ */
+function PolicyViewDecorator(policyService, viewService) {
+    this.policyService = policyService;
+    this.viewService = viewService;
+}
 
-        PolicyViewDecorator.prototype.getViews = function (domainObject) {
-            var policyService = this.policyService;
+PolicyViewDecorator.prototype.getViews = function (domainObject) {
+    var policyService = this.policyService;
 
-            // Check if an action is allowed by policy.
-            function allow(view) {
-                return policyService.allow('view', view, domainObject);
-            }
-
-            // Look up actions, filter out the disallowed ones.
-            return this.viewService.getViews(domainObject).filter(allow);
-        };
-
-        return PolicyViewDecorator;
+    // Check if an action is allowed by policy.
+    function allow(view) {
+        return policyService.allow('view', view, domainObject);
     }
-);
+
+    // Look up actions, filter out the disallowed ones.
+    return this.viewService.getViews(domainObject).filter(allow);
+};
+
+var bindingVariable = PolicyViewDecorator;
+export default bindingVariable;

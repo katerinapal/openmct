@@ -1,3 +1,4 @@
+import ElementFactory from ".\\elements\\ElementFactory.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,57 +21,54 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./elements/ElementFactory'],
-    function (ElementFactory) {
+;
 
-        /**
-         * Proxy for configuring a fixed position view via the toolbar.
-         * @memberof platform/features/layout
-         * @constructor
-         * @param {Function} addElementCallback callback to invoke when
-         *        elements are created
-         * @param $q Angular's $q, for promise-handling
-         * @param {DialogService} dialogService dialog service to use
-         *        when adding a new element will require user input
-         */
-        function FixedProxy(addElementCallback, $q, dialogService) {
-            this.factory = new ElementFactory(dialogService);
-            this.$q = $q;
-            this.addElementCallback = addElementCallback;
-        }
+/**
+ * Proxy for configuring a fixed position view via the toolbar.
+ * @memberof platform/features/layout
+ * @constructor
+ * @param {Function} addElementCallback callback to invoke when
+ *        elements are created
+ * @param $q Angular's $q, for promise-handling
+ * @param {DialogService} dialogService dialog service to use
+ *        when adding a new element will require user input
+ */
+function FixedProxy(addElementCallback, $q, dialogService) {
+    this.factory = new ElementFactory(dialogService);
+    this.$q = $q;
+    this.addElementCallback = addElementCallback;
+}
 
-        /**
-         * Add a new visual element to this view. Supported types are:
-         *
-         * * `fixed.image`
-         * * `fixed.box`
-         * * `fixed.text`
-         * * `fixed.line`
-         *
-         * @param {string} type the type of element to add
-         */
-        FixedProxy.prototype.add = function (type) {
-            var addElementCallback = this.addElementCallback;
+/**
+ * Add a new visual element to this view. Supported types are:
+ *
+ * * `fixed.image`
+ * * `fixed.box`
+ * * `fixed.text`
+ * * `fixed.line`
+ *
+ * @param {string} type the type of element to add
+ */
+FixedProxy.prototype.add = function (type) {
+    var addElementCallback = this.addElementCallback;
 
-            // Place a configured element into the view configuration
-            function addElement(element) {
-                // Configure common properties of the element
-                element.x = element.x || 0;
-                element.y = element.y || 0;
-                element.width = element.width || 1;
-                element.height = element.height || 1;
-                element.type = type;
-                element.useGrid = true;
+    // Place a configured element into the view configuration
+    function addElement(element) {
+        // Configure common properties of the element
+        element.x = element.x || 0;
+        element.y = element.y || 0;
+        element.width = element.width || 1;
+        element.height = element.height || 1;
+        element.type = type;
+        element.useGrid = true;
 
-                // Finally, add it to the view's configuration
-                addElementCallback(element);
-            }
-
-            // Defer creation to the factory
-            this.$q.when(this.factory.createElement(type)).then(addElement);
-        };
-
-        return FixedProxy;
+        // Finally, add it to the view's configuration
+        addElementCallback(element);
     }
-);
+
+    // Defer creation to the factory
+    this.$q.when(this.factory.createElement(type)).then(addElement);
+};
+
+var bindingVariable = FixedProxy;
+export default bindingVariable;

@@ -1,3 +1,4 @@
+import TreeView from "..\\ui\\TreeView.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,62 +21,59 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'angular',
-    '../ui/TreeView'
-], function (angular, TreeView) {
-    function MCTTree(gestureService) {
-        function link(scope, element) {
-            if (!scope.allowSelection) {
-                scope.allowSelection = function () {
-                    return true;
-                };
+;
+function MCTTree(gestureService) {
+    function link(scope, element) {
+        if (!scope.allowSelection) {
+            scope.allowSelection = function () {
+                return true;
+            };
+        }
+        if (!scope.onSelection) {
+            scope.onSelection = function () {};
+        }
+        var currentSelection = scope.selectedObject;
+        var treeView = new TreeView(gestureService);
+
+        function setSelection(domainObject, event) {
+            if (currentSelection === domainObject) {
+                return;
             }
-            if (!scope.onSelection) {
-                scope.onSelection = function () {};
+            if (!scope.allowSelection(domainObject)) {
+                treeView.value(currentSelection);
+                return;
             }
-            var currentSelection = scope.selectedObject;
-            var treeView = new TreeView(gestureService);
-
-            function setSelection(domainObject, event) {
-                if (currentSelection === domainObject) {
-                    return;
-                }
-                if (!scope.allowSelection(domainObject)) {
-                    treeView.value(currentSelection);
-                    return;
-                }
-                currentSelection = domainObject;
-                scope.onSelection(domainObject);
-                scope.selectedObject = domainObject;
-                if (event && event instanceof MouseEvent) {
-                    scope.$apply();
-                }
+            currentSelection = domainObject;
+            scope.onSelection(domainObject);
+            scope.selectedObject = domainObject;
+            if (event && event instanceof MouseEvent) {
+                scope.$apply();
             }
-
-            var unobserve = treeView.observe(setSelection);
-
-            element.append(angular.element(treeView.elements()));
-
-            scope.$watch('selectedObject', function (object) {
-                currentSelection = object;
-                treeView.value(object);
-            });
-            scope.$watch('rootObject', treeView.model.bind(treeView));
-            scope.$on('$destroy', unobserve);
         }
 
-        return {
-            restrict: "E",
-            link: link,
-            scope: {
-                rootObject: "=",
-                selectedObject: "=",
-                onSelection: "=?",
-                allowSelection: "=?"
-            }
-        };
+        var unobserve = treeView.observe(setSelection);
+
+        element.append(angular.element(treeView.elements()));
+
+        scope.$watch('selectedObject', function (object) {
+            currentSelection = object;
+            treeView.value(object);
+        });
+        scope.$watch('rootObject', treeView.model.bind(treeView));
+        scope.$on('$destroy', unobserve);
     }
 
-    return MCTTree;
-});
+    return {
+        restrict: "E",
+        link: link,
+        scope: {
+            rootObject: "=",
+            selectedObject: "=",
+            onSelection: "=?",
+            allowSelection: "=?"
+        }
+    };
+}
+
+var bindingVariable = MCTTree;
+export default bindingVariable;

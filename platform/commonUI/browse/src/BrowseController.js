@@ -24,174 +24,171 @@
  * This bundle implements Browse mode.
  * @namespace platform/commonUI/browse
  */
-define(
-    ['lodash'],
-    function (_) {
+;
 
-        /**
-         * The BrowseController is used to populate the initial scope in Browse
-         * mode. It loads the root object from the objectService and makes it
-         * available in the scope for Angular template's; this is the point at
-         * which Angular templates first have access to the domain object
-         * hierarchy.
-         *
-         * @memberof platform/commonUI/browse
-         * @constructor
-         */
-        function BrowseController(
-            $scope,
-            $route,
-            $location,
-            objectService,
-            navigationService,
-            urlService,
-            defaultPath
-        ) {
-            var initialPath = ($route.current.params.ids || defaultPath).split("/");
-            var currentIds;
+/**
+ * The BrowseController is used to populate the initial scope in Browse
+ * mode. It loads the root object from the objectService and makes it
+ * available in the scope for Angular template's; this is the point at
+ * which Angular templates first have access to the domain object
+ * hierarchy.
+ *
+ * @memberof platform/commonUI/browse
+ * @constructor
+ */
+function BrowseController(
+    $scope,
+    $route,
+    $location,
+    objectService,
+    navigationService,
+    urlService,
+    defaultPath
+) {
+    var initialPath = ($route.current.params.ids || defaultPath).split("/");
+    var currentIds;
 
-            $scope.treeModel = {
-                selectedObject: undefined,
-                onSelection: function (object) {
-                    navigationService.setNavigation(object, true);
-                },
-                allowSelection: function (object) {
-                    return navigationService.shouldNavigate();
-                }
-            };
+    $scope.treeModel = {
+        selectedObject: undefined,
+        onSelection: function (object) {
+            navigationService.setNavigation(object, true);
+        },
+        allowSelection: function (object) {
+            return navigationService.shouldNavigate();
+        }
+    };
 
-            function idsForObject(domainObject) {
-                return urlService
-                    .urlForLocation("", domainObject)
-                    .replace('/', '');
+    function idsForObject(domainObject) {
+        return urlService
+            .urlForLocation("", domainObject)
+            .replace('/', '');
+    }
+
+    // Find an object in an array of objects.
+    function findObject(domainObjects, id) {
+        var i;
+        for (i = 0; i < domainObjects.length; i += 1) {
+            if (domainObjects[i].getId() === id) {
+                return domainObjects[i];
             }
+        }
+    }
 
-            // Find an object in an array of objects.
-            function findObject(domainObjects, id) {
-                var i;
-                for (i = 0; i < domainObjects.length; i += 1) {
-                    if (domainObjects[i].getId() === id) {
-                        return domainObjects[i];
-                    }
-                }
-            }
+    // helper, fetch a single object from the object service.
+    function getObject(id) {
+        return objectService.getObjects([id])
+            .then(function (results) {
+                return results[id];
+            });
+    }
 
-            // helper, fetch a single object from the object service.
-            function getObject(id) {
-                return objectService.getObjects([id])
-                    .then(function (results) {
-                        return results[id];
-                    });
-            }
-
-            // recursively locate and return an object inside of a container
-            // via a path.  If at any point in the recursion it fails to find
-            // the next object, it will return the parent.
-            function findViaComposition(containerObject, path) {
-                var nextId = path.shift();
-                if (!nextId) {
+    // recursively locate and return an object inside of a container
+    // via a path.  If at any point in the recursion it fails to find
+    // the next object, it will return the parent.
+    function findViaComposition(containerObject, path) {
+        var nextId = path.shift();
+        if (!nextId) {
+            return containerObject;
+        }
+        return containerObject.useCapability('composition')
+            .then(function (composees) {
+                var nextObject = findObject(composees, nextId);
+                if (!nextObject) {
                     return containerObject;
                 }
-                return containerObject.useCapability('composition')
-                    .then(function (composees) {
-                        var nextObject = findObject(composees, nextId);
-                        if (!nextObject) {
-                            return containerObject;
-                        }
-                        if (!nextObject.hasCapability('composition')) {
-                            return nextObject;
-                        }
-                        return findViaComposition(nextObject, path);
-                    });
-            }
-
-            function navigateToObject(desiredObject) {
-                $scope.navigatedObject = desiredObject;
-                $scope.treeModel.selectedObject = desiredObject;
-                currentIds = idsForObject(desiredObject);
-                $route.current.pathParams.ids = currentIds;
-                $location.path('/browse/' + currentIds);
-            }
-
-            function getLastChildIfRoot(object) {
-                if (object.getId() !== 'ROOT') {
-                    return object;
+                if (!nextObject.hasCapability('composition')) {
+                    return nextObject;
                 }
-                return object.useCapability('composition')
-                    .then(function (composees) {
-                        return composees[composees.length - 1];
-                    });
-            }
-
-            function navigateToPath(path) {
-                return getObject('ROOT')
-                    .then(function (root) {
-                        return findViaComposition(root, path);
-                    })
-                    .then(getLastChildIfRoot)
-                    .then(function (object) {
-                        navigationService.setNavigation(object);
-                    });
-            }
-
-            getObject('ROOT')
-                .then(function (root) {
-                    $scope.domainObject = root;
-                    navigateToPath(initialPath);
-                });
-
-            // Handle navigation events from view service.  Only navigates
-            // if path has changed.
-            function navigateDirectlyToModel(domainObject) {
-                var newIds = idsForObject(domainObject);
-                if (currentIds !== newIds) {
-                    currentIds = newIds;
-                    navigateToObject(domainObject);
-                }
-            }
-
-            // Listen for changes in navigation state.
-            navigationService.addListener(navigateDirectlyToModel);
-
-            // Listen for route changes which are caused by browser events
-            // (e.g. bookmarks to pages in OpenMCT) and prevent them.  Instead,
-            // navigate to the path ourselves, which results in it being
-            // properly set.
-            $scope.$on('$routeChangeStart', function (event, route, oldRoute) {
-                if (route.$$route === $route.current.$$route) {
-                    if (route.pathParams.ids &&
-                        route.pathParams.ids !== $route.current.pathParams.ids) {
-
-                        var otherParams = _.omit(route.params, 'ids');
-                        var oldOtherParams = _.omit(oldRoute.params, 'ids');
-                        var deletedParams = _.omit(oldOtherParams, _.keys(otherParams));
-
-                        event.preventDefault();
-
-                        navigateToPath(route.pathParams.ids.split('/'))
-                            .then(function () {
-                                if (!_.isEqual(otherParams, oldOtherParams)) {
-                                    _.forEach(otherParams, function (v, k) {
-                                        $location.search(k, v);
-                                    });
-                                    _.forEach(deletedParams, function (k) {
-                                        $location.search(k, null);
-                                    });
-                                }
-                            });
-                    } else {
-                        navigateToPath([]);
-                    }
-                }
+                return findViaComposition(nextObject, path);
             });
-
-            // Clean up when the scope is destroyed
-            $scope.$on("$destroy", function () {
-                navigationService.removeListener(navigateDirectlyToModel);
-            });
-        }
-
-        return BrowseController;
     }
-);
+
+    function navigateToObject(desiredObject) {
+        $scope.navigatedObject = desiredObject;
+        $scope.treeModel.selectedObject = desiredObject;
+        currentIds = idsForObject(desiredObject);
+        $route.current.pathParams.ids = currentIds;
+        $location.path('/browse/' + currentIds);
+    }
+
+    function getLastChildIfRoot(object) {
+        if (object.getId() !== 'ROOT') {
+            return object;
+        }
+        return object.useCapability('composition')
+            .then(function (composees) {
+                return composees[composees.length - 1];
+            });
+    }
+
+    function navigateToPath(path) {
+        return getObject('ROOT')
+            .then(function (root) {
+                return findViaComposition(root, path);
+            })
+            .then(getLastChildIfRoot)
+            .then(function (object) {
+                navigationService.setNavigation(object);
+            });
+    }
+
+    getObject('ROOT')
+        .then(function (root) {
+            $scope.domainObject = root;
+            navigateToPath(initialPath);
+        });
+
+    // Handle navigation events from view service.  Only navigates
+    // if path has changed.
+    function navigateDirectlyToModel(domainObject) {
+        var newIds = idsForObject(domainObject);
+        if (currentIds !== newIds) {
+            currentIds = newIds;
+            navigateToObject(domainObject);
+        }
+    }
+
+    // Listen for changes in navigation state.
+    navigationService.addListener(navigateDirectlyToModel);
+
+    // Listen for route changes which are caused by browser events
+    // (e.g. bookmarks to pages in OpenMCT) and prevent them.  Instead,
+    // navigate to the path ourselves, which results in it being
+    // properly set.
+    $scope.$on('$routeChangeStart', function (event, route, oldRoute) {
+        if (route.$$route === $route.current.$$route) {
+            if (route.pathParams.ids &&
+                route.pathParams.ids !== $route.current.pathParams.ids) {
+
+                var otherParams = _.omit(route.params, 'ids');
+                var oldOtherParams = _.omit(oldRoute.params, 'ids');
+                var deletedParams = _.omit(oldOtherParams, _.keys(otherParams));
+
+                event.preventDefault();
+
+                navigateToPath(route.pathParams.ids.split('/'))
+                    .then(function () {
+                        if (!_.isEqual(otherParams, oldOtherParams)) {
+                            _.forEach(otherParams, function (v, k) {
+                                $location.search(k, v);
+                            });
+                            _.forEach(deletedParams, function (k) {
+                                $location.search(k, null);
+                            });
+                        }
+                    });
+            } else {
+                navigateToPath([]);
+            }
+        }
+    });
+
+    // Clean up when the scope is destroyed
+    $scope.$on("$destroy", function () {
+        navigationService.removeListener(navigateDirectlyToModel);
+    });
+}
+
+var bindingVariable = BrowseController;
+export default bindingVariable;
 

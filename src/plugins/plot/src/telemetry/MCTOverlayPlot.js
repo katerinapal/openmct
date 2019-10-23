@@ -20,18 +20,13 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'text!../../res/templates/plot.html'
-], function (
-    PlotTemplate
-) {
-    return function MCTOverlayPlot() {
-        return {
-            restrict: "E",
-            template: PlotTemplate,
-            scope: {
-                domainObject: "="
-            }
-        };
+var bindingVariable = function MCTOverlayPlot() {
+    return {
+        restrict: "E",
+        template: PlotTemplate,
+        scope: {
+            domainObject: "="
+        }
     };
-});
+};;
+export default bindingVariable;

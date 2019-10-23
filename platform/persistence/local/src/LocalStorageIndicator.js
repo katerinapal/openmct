@@ -20,39 +20,36 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        var LOCAL_STORAGE_WARNING = [
-            "Using browser local storage for persistence.",
-            "Anything you create or change will be visible only",
-            "in this browser on this machine."
-        ].join(' ');
+var LOCAL_STORAGE_WARNING = [
+    "Using browser local storage for persistence.",
+    "Anything you create or change will be visible only",
+    "in this browser on this machine."
+].join(' ');
 
-        /**
-         * Indicator for local storage persistence. Provides a minimum
-         * level of feedback indicating that local storage is in use.
-         * @constructor
-         * @memberof platform/persistence/local
-         * @implements {Indicator}
-         */
-        function LocalStorageIndicator() {
-        }
+/**
+ * Indicator for local storage persistence. Provides a minimum
+ * level of feedback indicating that local storage is in use.
+ * @constructor
+ * @memberof platform/persistence/local
+ * @implements {Indicator}
+ */
+function LocalStorageIndicator() {
+}
 
-        LocalStorageIndicator.prototype.getCssClass = function () {
-            return "icon-database";
-        };
-        LocalStorageIndicator.prototype.getGlyphClass = function () {
-            return 'caution';
-        };
-        LocalStorageIndicator.prototype.getText = function () {
-            return "Off-line storage";
-        };
-        LocalStorageIndicator.prototype.getDescription = function () {
-            return LOCAL_STORAGE_WARNING;
-        };
+LocalStorageIndicator.prototype.getCssClass = function () {
+    return "icon-database";
+};
+LocalStorageIndicator.prototype.getGlyphClass = function () {
+    return 'caution';
+};
+LocalStorageIndicator.prototype.getText = function () {
+    return "Off-line storage";
+};
+LocalStorageIndicator.prototype.getDescription = function () {
+    return LOCAL_STORAGE_WARNING;
+};
 
-        return LocalStorageIndicator;
-    }
-);
+var bindingVariable = LocalStorageIndicator;
+export default bindingVariable;

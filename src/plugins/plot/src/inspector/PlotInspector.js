@@ -1,3 +1,6 @@
+import PlotBrowseRegion from ".\\PlotBrowseRegion.js";
+import PlotEditRegion from ".\\PlotEditRegion.js";
+import InspectorRegion from ".\\InspectorRegion.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,20 +23,12 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './InspectorRegion',
-    './PlotBrowseRegion',
-    './PlotEditRegion'
-], function (
-    InspectorRegion,
-    PlotBrowseRegion,
-    PlotEditRegion
-) {
+;
 
-    var plotInspector = new InspectorRegion();
+var plotInspector = new InspectorRegion();
 
-    plotInspector.addRegion(PlotBrowseRegion);
-    plotInspector.addRegion(PlotEditRegion);
+plotInspector.addRegion(PlotBrowseRegion);
+plotInspector.addRegion(PlotEditRegion);
 
-    return plotInspector;
-});
+var bindingVariable = plotInspector;
+export default bindingVariable;

@@ -20,53 +20,51 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A controller for banner notifications. Banner notifications are a
-         * non-blocking way of drawing the user's attention to an event such
-         * as system errors, or the progress or successful completion of an
-         * ongoing task. This controller provides scoped functions for
-         * dismissing and 'maximizing' notifications. See {@link NotificationService}
-         * for more details on Notifications.
-         *
-         * @param $scope
-         * @param notificationService
-         * @param dialogService
-         * @constructor
+/**
+ * A controller for banner notifications. Banner notifications are a
+ * non-blocking way of drawing the user's attention to an event such
+ * as system errors, or the progress or successful completion of an
+ * ongoing task. This controller provides scoped functions for
+ * dismissing and 'maximizing' notifications. See {@link NotificationService}
+ * for more details on Notifications.
+ *
+ * @param $scope
+ * @param notificationService
+ * @param dialogService
+ * @constructor
+ */
+function BannerController($scope, notificationService, dialogService) {
+    $scope.active = notificationService.active;
+
+    $scope.action = function (action, $event) {
+        /*
+         Prevents default 'maximize' behaviour when clicking on
+          notification button
          */
-        function BannerController($scope, notificationService, dialogService) {
-            $scope.active = notificationService.active;
+        $event.stopPropagation();
+        return action();
+    };
+    $scope.dismiss = function (notification, $event) {
+        $event.stopPropagation();
+        notification.dismissOrMinimize();
+    };
+    $scope.maximize = function (notification) {
+        if (notification.model.severity !== "info") {
+            var dialog;
+            notification.model.cancel = function () {
+                dialog.dismiss();
+            };
+            //If the notification is dismissed by the user, close
+            // the dialog.
+            notification.onDismiss(function () {
+                dialog.dismiss();
+            });
 
-            $scope.action = function (action, $event) {
-                /*
-                 Prevents default 'maximize' behaviour when clicking on
-                  notification button
-                 */
-                $event.stopPropagation();
-                return action();
-            };
-            $scope.dismiss = function (notification, $event) {
-                $event.stopPropagation();
-                notification.dismissOrMinimize();
-            };
-            $scope.maximize = function (notification) {
-                if (notification.model.severity !== "info") {
-                    var dialog;
-                    notification.model.cancel = function () {
-                        dialog.dismiss();
-                    };
-                    //If the notification is dismissed by the user, close
-                    // the dialog.
-                    notification.onDismiss(function () {
-                        dialog.dismiss();
-                    });
-
-                    dialog = dialogService.showBlockingMessage(notification.model);
-                }
-            };
+            dialog = dialogService.showBlockingMessage(notification.model);
         }
-        return BannerController;
-    });
+    };
+}
+var bindingVariable = BannerController;
+export default bindingVariable;

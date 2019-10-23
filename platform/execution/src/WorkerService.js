@@ -26,66 +26,63 @@
  * such as support for running web workers on background threads.
  * @namespace platform/execution
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Handles the execution of WebWorkers.
-         * @memberof platform/execution
-         * @constructor
-         */
-        function WorkerService($window, workers) {
-            var workerUrls = {},
-                sharedWorkers = {};
+/**
+ * Handles the execution of WebWorkers.
+ * @memberof platform/execution
+ * @constructor
+ */
+function WorkerService($window, workers) {
+    var workerUrls = {},
+        sharedWorkers = {};
 
-            function addWorker(worker) {
-                var key = worker.key;
-                if (!workerUrls[key]) {
-                    if (worker.scriptUrl) {
-                        workerUrls[key] = [
-                            worker.bundle.path,
-                            worker.bundle.sources,
-                            worker.scriptUrl
-                        ].join("/");
-                    } else if (worker.scriptText) {
-                        var blob = new Blob(
-                            [worker.scriptText],
-                            {type: 'application/javascript'}
-                        );
-                        workerUrls[key] = URL.createObjectURL(blob);
-                    }
-                    sharedWorkers[key] = worker.shared;
-                }
+    function addWorker(worker) {
+        var key = worker.key;
+        if (!workerUrls[key]) {
+            if (worker.scriptUrl) {
+                workerUrls[key] = [
+                    worker.bundle.path,
+                    worker.bundle.sources,
+                    worker.scriptUrl
+                ].join("/");
+            } else if (worker.scriptText) {
+                var blob = new Blob(
+                    [worker.scriptText],
+                    {type: 'application/javascript'}
+                );
+                workerUrls[key] = URL.createObjectURL(blob);
             }
-
-            (workers || []).forEach(addWorker);
-            this.workerUrls = workerUrls;
-            this.sharedWorkers = sharedWorkers;
-            this.Worker = $window.Worker;
-            this.SharedWorker = $window.SharedWorker;
+            sharedWorkers[key] = worker.shared;
         }
-
-        /**
-         * Start running a new web worker. This will run a worker
-         * that has been registered under the `workers` category
-         * of extension.
-         *
-         * This will return either a Worker or a SharedWorker,
-         * depending on whether a `shared` flag has been specified
-         * on the the extension definition for the referenced worker.
-         *
-         * @param {string} key symbolic identifier for the worker
-         * @returns {Worker | SharedWorker} the running Worker
-         */
-        WorkerService.prototype.run = function (key) {
-            var scriptUrl = this.workerUrls[key],
-                Worker = this.sharedWorkers[key] ?
-                        this.SharedWorker : this.Worker;
-            return scriptUrl && Worker && new Worker(scriptUrl);
-        };
-
-        return WorkerService;
     }
-);
+
+    (workers || []).forEach(addWorker);
+    this.workerUrls = workerUrls;
+    this.sharedWorkers = sharedWorkers;
+    this.Worker = $window.Worker;
+    this.SharedWorker = $window.SharedWorker;
+}
+
+/**
+ * Start running a new web worker. This will run a worker
+ * that has been registered under the `workers` category
+ * of extension.
+ *
+ * This will return either a Worker or a SharedWorker,
+ * depending on whether a `shared` flag has been specified
+ * on the the extension definition for the referenced worker.
+ *
+ * @param {string} key symbolic identifier for the worker
+ * @returns {Worker | SharedWorker} the running Worker
+ */
+WorkerService.prototype.run = function (key) {
+    var scriptUrl = this.workerUrls[key],
+        Worker = this.sharedWorkers[key] ?
+                this.SharedWorker : this.Worker;
+    return scriptUrl && Worker && new Worker(scriptUrl);
+};
+
+var bindingVariable = WorkerService;
+export default bindingVariable;
 

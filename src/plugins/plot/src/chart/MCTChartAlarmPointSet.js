@@ -1,3 +1,5 @@
+import eventHelpers from "..\\lib\\eventHelpers.js";
+import extend from "..\\lib\\extend.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,57 +23,50 @@
  *****************************************************************************/
 /*global define*/
 
-define([
-    '../lib/extend',
-    '../lib/eventHelpers'
-], function (
-    extend,
-    eventHelpers
-) {
+;
 
-    function MCTChartAlarmPointSet(series, chart, offset) {
-        this.series = series;
-        this.chart = chart;
-        this.offset = offset;
-        this.points = [];
+function MCTChartAlarmPointSet(series, chart, offset) {
+    this.series = series;
+    this.chart = chart;
+    this.offset = offset;
+    this.points = [];
 
-        this.listenTo(series, 'add', this.append, this);
-        this.listenTo(series, 'remove', this.remove, this);
-        this.listenTo(series, 'reset', this.reset, this);
-        this.listenTo(series, 'destroy', this.destroy, this);
-        series.data.forEach(function (point, index) {
-            this.append(point, index, series);
-        }, this);
-    }
+    this.listenTo(series, 'add', this.append, this);
+    this.listenTo(series, 'remove', this.remove, this);
+    this.listenTo(series, 'reset', this.reset, this);
+    this.listenTo(series, 'destroy', this.destroy, this);
+    series.data.forEach(function (point, index) {
+        this.append(point, index, series);
+    }, this);
+}
 
-    MCTChartAlarmPointSet.prototype.append = function (datum) {
-        if (datum.mctLimitState) {
-            this.points.push({
-                x: this.offset.xVal(datum, this.series),
-                y: this.offset.yVal(datum, this.series),
-                datum: datum
-            });
-        }
-    };
-
-    MCTChartAlarmPointSet.prototype.remove = function (datum) {
-        this.points = this.points.filter(function (p) {
-            return p.datum !== datum;
+MCTChartAlarmPointSet.prototype.append = function (datum) {
+    if (datum.mctLimitState) {
+        this.points.push({
+            x: this.offset.xVal(datum, this.series),
+            y: this.offset.yVal(datum, this.series),
+            datum: datum
         });
-    };
+    }
+};
 
-    MCTChartAlarmPointSet.prototype.reset = function () {
-        this.points = [];
-    };
+MCTChartAlarmPointSet.prototype.remove = function (datum) {
+    this.points = this.points.filter(function (p) {
+        return p.datum !== datum;
+    });
+};
 
-    MCTChartAlarmPointSet.prototype.destroy = function () {
-        this.stopListening();
-    };
+MCTChartAlarmPointSet.prototype.reset = function () {
+    this.points = [];
+};
+
+MCTChartAlarmPointSet.prototype.destroy = function () {
+    this.stopListening();
+};
 
 
 
-    eventHelpers.extend(MCTChartAlarmPointSet.prototype);
+eventHelpers.extend(MCTChartAlarmPointSet.prototype);
 
-    return MCTChartAlarmPointSet;
-
-});
+var bindingVariable = MCTChartAlarmPointSet;
+export default bindingVariable;

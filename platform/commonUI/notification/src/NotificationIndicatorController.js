@@ -20,41 +20,38 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Provides an indicator that is visible when there are
-         * banner notifications that have been minimized. Will also indicate
-         * the number of notifications. Notifications can be viewed by
-         * clicking on the indicator to launch a dialog showing a list of
-         * notifications.
-         * @param $scope
-         * @param notificationService
-         * @param dialogService
-         * @constructor
-         */
-        function NotificationIndicatorController($scope, notificationService, dialogService) {
-            $scope.notifications = notificationService.notifications;
-            $scope.highest = notificationService.highest;
+/**
+ * Provides an indicator that is visible when there are
+ * banner notifications that have been minimized. Will also indicate
+ * the number of notifications. Notifications can be viewed by
+ * clicking on the indicator to launch a dialog showing a list of
+ * notifications.
+ * @param $scope
+ * @param notificationService
+ * @param dialogService
+ * @constructor
+ */
+function NotificationIndicatorController($scope, notificationService, dialogService) {
+    $scope.notifications = notificationService.notifications;
+    $scope.highest = notificationService.highest;
 
-            /**
-             * Launch a dialog showing a list of current notifications.
-             */
-            $scope.showNotificationsList = function () {
-                dialogService.getDialogResponse('overlay-message-list', {
-                    dialog: {
-                        title: "Messages",
-                        //Launch the message list dialog with the models
-                        // from the notifications
-                        messages: notificationService.notifications
-                    }
-                });
+    /**
+     * Launch a dialog showing a list of current notifications.
+     */
+    $scope.showNotificationsList = function () {
+        dialogService.getDialogResponse('overlay-message-list', {
+            dialog: {
+                title: "Messages",
+                //Launch the message list dialog with the models
+                // from the notifications
+                messages: notificationService.notifications
+            }
+        });
 
-            };
-        }
-        return NotificationIndicatorController;
-    }
-);
+    };
+}
+var bindingVariable = NotificationIndicatorController;
+export default bindingVariable;
 

@@ -20,26 +20,23 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Disallow composition changes to objects which are not mutable.
-         * @memberof platform/containment
-         * @constructor
-         * @implements {Policy.<Type, Type>}
-         */
-        function CompositionMutabilityPolicy() {
-        }
+/**
+ * Disallow composition changes to objects which are not mutable.
+ * @memberof platform/containment
+ * @constructor
+ * @implements {Policy.<Type, Type>}
+ */
+function CompositionMutabilityPolicy() {
+}
 
-        CompositionMutabilityPolicy.prototype.allow = function (candidate) {
-            // Equate creatability with mutability; that is, users
-            // can only modify objects of types they can create, and
-            // vice versa.
-            return candidate.getCapability('type').hasFeature('creation');
-        };
+CompositionMutabilityPolicy.prototype.allow = function (candidate) {
+    // Equate creatability with mutability; that is, users
+    // can only modify objects of types they can create, and
+    // vice versa.
+    return candidate.getCapability('type').hasFeature('creation');
+};
 
-        return CompositionMutabilityPolicy;
-    }
-);
+var bindingVariable = CompositionMutabilityPolicy;
+export default bindingVariable;

@@ -20,73 +20,70 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Variant of AccessorMutator to handle the specific case of updating
-         * useGrid, in order update the positions appropriately from within
-         * the scope of UnitAccessorMutator
-         *
-         * @memberof platform/features/layout
-         * @constructor
-         * @param {ElementProxy} proxy ElementProxy object to perform the update
-         *                             upon
-         */
-        function UnitAccessorMutator(elementProxy) {
-            var self = this;
+/**
+ * Variant of AccessorMutator to handle the specific case of updating
+ * useGrid, in order update the positions appropriately from within
+ * the scope of UnitAccessorMutator
+ *
+ * @memberof platform/features/layout
+ * @constructor
+ * @param {ElementProxy} proxy ElementProxy object to perform the update
+ *                             upon
+ */
+function UnitAccessorMutator(elementProxy) {
+    var self = this;
 
-            this.elementProxy = elementProxy;
-            return function (useGrid) {
-                var current = elementProxy.element.useGrid;
-                if (arguments.length > 0) {
-                    elementProxy.element.useGrid = useGrid;
-                    if (useGrid && !current) {
-                        self.convertCoordsTo('grid');
-                    } else if (!useGrid && current) {
-                        self.convertCoordsTo('px');
-                    }
-                }
-
-                return elementProxy.element.useGrid;
-            };
+    this.elementProxy = elementProxy;
+    return function (useGrid) {
+        var current = elementProxy.element.useGrid;
+        if (arguments.length > 0) {
+            elementProxy.element.useGrid = useGrid;
+            if (useGrid && !current) {
+                self.convertCoordsTo('grid');
+            } else if (!useGrid && current) {
+                self.convertCoordsTo('px');
+            }
         }
 
-        /**
-         * For the elementProxy object called upon, convert its element's
-         * coordinates and size from pixels to grid units, or vice-versa.
-         * @param {string} unit When called with 'px', converts grid units to
-         *                      pixels; when called with 'grid', snaps element
-         *                      to grid units
-         */
-        UnitAccessorMutator.prototype.convertCoordsTo = function (unit) {
-            var proxy = this.elementProxy,
-                gridSize = proxy.gridSize,
-                element = proxy.element,
-                minWidth = proxy.getMinWidth(),
-                minHeight = proxy.getMinHeight();
-            if (unit === 'px') {
-                element.x = element.x * gridSize[0];
-                element.y = element.y * gridSize[1];
-                element.width = element.width * gridSize[0];
-                element.height = element.height * gridSize[1];
-                if (element.x2 && element.y2) {
-                    element.x2 = element.x2 * gridSize[0];
-                    element.y2 = element.y2 * gridSize[1];
-                }
-            } else if (unit === 'grid') {
-                element.x = Math.round(element.x / gridSize[0]);
-                element.y = Math.round(element.y / gridSize[1]);
-                element.width = Math.max(Math.round(element.width / gridSize[0]), minWidth);
-                element.height = Math.max(Math.round(element.height / gridSize[1]), minHeight);
-                if (element.x2 && element.y2) {
-                    element.x2 = Math.round(element.x2 / gridSize[0]);
-                    element.y2 = Math.round(element.y2 / gridSize[1]);
-                }
-            }
-        };
+        return elementProxy.element.useGrid;
+    };
+}
 
-        return UnitAccessorMutator;
+/**
+ * For the elementProxy object called upon, convert its element's
+ * coordinates and size from pixels to grid units, or vice-versa.
+ * @param {string} unit When called with 'px', converts grid units to
+ *                      pixels; when called with 'grid', snaps element
+ *                      to grid units
+ */
+UnitAccessorMutator.prototype.convertCoordsTo = function (unit) {
+    var proxy = this.elementProxy,
+        gridSize = proxy.gridSize,
+        element = proxy.element,
+        minWidth = proxy.getMinWidth(),
+        minHeight = proxy.getMinHeight();
+    if (unit === 'px') {
+        element.x = element.x * gridSize[0];
+        element.y = element.y * gridSize[1];
+        element.width = element.width * gridSize[0];
+        element.height = element.height * gridSize[1];
+        if (element.x2 && element.y2) {
+            element.x2 = element.x2 * gridSize[0];
+            element.y2 = element.y2 * gridSize[1];
+        }
+    } else if (unit === 'grid') {
+        element.x = Math.round(element.x / gridSize[0]);
+        element.y = Math.round(element.y / gridSize[1]);
+        element.width = Math.max(Math.round(element.width / gridSize[0]), minWidth);
+        element.height = Math.max(Math.round(element.height / gridSize[1]), minHeight);
+        if (element.x2 && element.y2) {
+            element.x2 = Math.round(element.x2 / gridSize[0]);
+            element.y2 = Math.round(element.y2 / gridSize[1]);
+        }
     }
-);
+};
+
+var bindingVariable = UnitAccessorMutator;
+export default bindingVariable;

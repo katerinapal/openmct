@@ -1,3 +1,6 @@
+import ExportService from ".\\ExportService.js";
+import saveAs from "..\\commonUI\\edit\\src\\actions\\SaveAsAction.js";
+import legacyRegistry from "..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,44 +23,37 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./ExportService",
-    "saveAs",
-    "legacyRegistry"
-], function (ExportService, saveAs, legacyRegistry) {
-
-    legacyRegistry.register("platform/exporters", {
-        extensions: {
-            services: [
-                {
-                    key: "exportService",
-                    implementation: function () {
-                        return new ExportService(saveAs);
-                    }
+legacyRegistry.register("platform/exporters", {
+    extensions: {
+        services: [
+            {
+                key: "exportService",
+                implementation: function () {
+                    return new ExportService(saveAs);
                 }
-            ],
-            licenses: [
-                {
-                    "name": "CSV.js",
-                    "version": "3.6.4",
-                    "author": "Kash Nouroozi",
-                    "description": "Encoder for CSV (comma separated values) export",
-                    "website": "https://github.com/knrz/CSV.js",
-                    "copyright": "Copyright (c) 2014 Kash Nouroozi",
-                    "license": "license-mit",
-                    "link": "https://github.com/knrz/CSV.js/blob/3.6.4/LICENSE"
-                },
-                {
-                    "name": "FileSaver.js",
-                    "version": "0.0.2",
-                    "author": "Eli Grey",
-                    "description": "File download initiator (for file exports)",
-                    "website": "https://github.com/eligrey/FileSaver.js/",
-                    "copyright": "Copyright © 2015 Eli Grey.",
-                    "license": "license-mit",
-                    "link": "https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md"
-                }
-            ]
-        }
-    });
+            }
+        ],
+        licenses: [
+            {
+                "name": "CSV.js",
+                "version": "3.6.4",
+                "author": "Kash Nouroozi",
+                "description": "Encoder for CSV (comma separated values) export",
+                "website": "https://github.com/knrz/CSV.js",
+                "copyright": "Copyright (c) 2014 Kash Nouroozi",
+                "license": "license-mit",
+                "link": "https://github.com/knrz/CSV.js/blob/3.6.4/LICENSE"
+            },
+            {
+                "name": "FileSaver.js",
+                "version": "0.0.2",
+                "author": "Eli Grey",
+                "description": "File download initiator (for file exports)",
+                "website": "https://github.com/eligrey/FileSaver.js/",
+                "copyright": "Copyright © 2015 Eli Grey.",
+                "license": "license-mit",
+                "link": "https://github.com/eligrey/FileSaver.js/blob/master/LICENSE.md"
+            }
+        ]
+    }
 });

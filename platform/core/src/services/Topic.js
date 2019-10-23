@@ -20,76 +20,73 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        var ERROR_PREFIX = "Error when notifying listener: ";
+var ERROR_PREFIX = "Error when notifying listener: ";
 
-        /**
-         * The `topic` service provides a way to create both named,
-         * shared listeners and anonymous, private listeners.
-         *
-         * Usage:
-         *
-         * ```
-         * var t = topic('foo'); // Use/create a named topic
-         * t.listen(function () { ... });
-         * t.notify({ some: "message" });
-         * ```
-         *
-         * Named topics are shared; multiple calls to `topic`
-         * with the same argument will return a single object instance.
-         * Anonymous topics (where `topic` has been called with no
-         * arguments) are private; each call returns a new instance.
-         *
-         * @returns {Function}
-         * @memberof platform/core
-         */
-        function Topic($log) {
-            var topics = {};
+/**
+ * The `topic` service provides a way to create both named,
+ * shared listeners and anonymous, private listeners.
+ *
+ * Usage:
+ *
+ * ```
+ * var t = topic('foo'); // Use/create a named topic
+ * t.listen(function () { ... });
+ * t.notify({ some: "message" });
+ * ```
+ *
+ * Named topics are shared; multiple calls to `topic`
+ * with the same argument will return a single object instance.
+ * Anonymous topics (where `topic` has been called with no
+ * arguments) are private; each call returns a new instance.
+ *
+ * @returns {Function}
+ * @memberof platform/core
+ */
+function Topic($log) {
+    var topics = {};
 
-            function createTopic() {
-                var listeners = [];
+    function createTopic() {
+        var listeners = [];
 
-                return {
-                    listen: function (listener) {
-                        listeners.push(listener);
-                        return function unlisten() {
-                            listeners = listeners.filter(function (l) {
-                                return l !== listener;
-                            });
-                        };
-                    },
-                    notify: function (message) {
-                        listeners.forEach(function (listener) {
-                            try {
-                                listener(message);
-                            } catch (e) {
-                                $log.error(ERROR_PREFIX + e.message);
-                                $log.error(e);
-                            }
-                        });
-                    }
+        return {
+            listen: function (listener) {
+                listeners.push(listener);
+                return function unlisten() {
+                    listeners = listeners.filter(function (l) {
+                        return l !== listener;
+                    });
                 };
+            },
+            notify: function (message) {
+                listeners.forEach(function (listener) {
+                    try {
+                        listener(message);
+                    } catch (e) {
+                        $log.error(ERROR_PREFIX + e.message);
+                        $log.error(e);
+                    }
+                });
             }
-
-            /**
-             * Use and (if necessary) create a new topic.
-             * @param {string} [key] name of the topic to use
-             * @memberof platform/core.Topic#
-             */
-            return function (key) {
-                if (arguments.length < 1) {
-                    return createTopic();
-                } else {
-                    topics[key] = topics[key] || createTopic();
-                    return topics[key];
-                }
-            };
-        }
-
-        return Topic;
+        };
     }
-);
+
+    /**
+     * Use and (if necessary) create a new topic.
+     * @param {string} [key] name of the topic to use
+     * @memberof platform/core.Topic#
+     */
+    return function (key) {
+        if (arguments.length < 1) {
+            return createTopic();
+        } else {
+            topics[key] = topics[key] || createTopic();
+            return topics[key];
+        }
+    };
+}
+
+var bindingVariable = Topic;
+export default bindingVariable;
 

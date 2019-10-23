@@ -1,3 +1,4 @@
+import ContextualDomainObject from ".\\ContextualDomainObject.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,66 +21,63 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./ContextualDomainObject'],
-    function (ContextualDomainObject) {
+;
 
-        /**
-         * Implements the `instantiation` capability. This allows new domain
-         * objects to be instantiated.
-         *
-         * @constructor
-         * @memberof platform/core
-         * @param $injector Angular's `$injector`
-         * @implements {Capability}
-         */
-        function InstantiationCapability(
-            $injector,
-            identifierService,
-            now,
-            domainObject
-        ) {
-            this.$injector = $injector;
-            this.identifierService = identifierService;
-            this.domainObject = domainObject;
-            this.now = now;
-        }
+/**
+ * Implements the `instantiation` capability. This allows new domain
+ * objects to be instantiated.
+ *
+ * @constructor
+ * @memberof platform/core
+ * @param $injector Angular's `$injector`
+ * @implements {Capability}
+ */
+function InstantiationCapability(
+    $injector,
+    identifierService,
+    now,
+    domainObject
+) {
+    this.$injector = $injector;
+    this.identifierService = identifierService;
+    this.domainObject = domainObject;
+    this.now = now;
+}
 
-        /**
-         * Instantiate a new domain object with the provided model.
-         *
-         * This domain object will have been simply instantiated; it will not
-         * have been persisted, nor will it have been added to the
-         * composition of the object which exposed this capability.
-         *
-         * @param {object} the model for the new domain object
-         * @returns {DomainObject} the new domain object
-         */
-        InstantiationCapability.prototype.instantiate = function (model) {
-            var parsedId =
-                    this.identifierService.parse(this.domainObject.getId()),
-                space = parsedId.getDefinedSpace(),
-                id = this.identifierService.generate(space);
+/**
+ * Instantiate a new domain object with the provided model.
+ *
+ * This domain object will have been simply instantiated; it will not
+ * have been persisted, nor will it have been added to the
+ * composition of the object which exposed this capability.
+ *
+ * @param {object} the model for the new domain object
+ * @returns {DomainObject} the new domain object
+ */
+InstantiationCapability.prototype.instantiate = function (model) {
+    var parsedId =
+            this.identifierService.parse(this.domainObject.getId()),
+        space = parsedId.getDefinedSpace(),
+        id = this.identifierService.generate(space);
 
-            model.modified = this.now();
+    model.modified = this.now();
 
-            // Lazily initialize; instantiate depends on capabilityService,
-            // which depends on all capabilities, including this one.
-            this.instantiateFn = this.instantiateFn ||
-                this.$injector.get("instantiate");
+    // Lazily initialize; instantiate depends on capabilityService,
+    // which depends on all capabilities, including this one.
+    this.instantiateFn = this.instantiateFn ||
+        this.$injector.get("instantiate");
 
-            var newObject = this.instantiateFn(model, id);
+    var newObject = this.instantiateFn(model, id);
 
-            return new ContextualDomainObject(newObject, this.domainObject);
-        };
+    return new ContextualDomainObject(newObject, this.domainObject);
+};
 
-        /**
-         * Alias of `instantiate`.
-         * @see {platform/core.CreationCapability#instantiate}
-         */
-        InstantiationCapability.prototype.invoke =
-            InstantiationCapability.prototype.instantiate;
+/**
+ * Alias of `instantiate`.
+ * @see {platform/core.CreationCapability#instantiate}
+ */
+InstantiationCapability.prototype.invoke =
+    InstantiationCapability.prototype.instantiate;
 
-        return InstantiationCapability;
-    }
-);
+var bindingVariable = InstantiationCapability;
+export default bindingVariable;

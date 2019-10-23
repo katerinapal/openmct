@@ -1,3 +1,5 @@
+import ElementProxy from ".\\ElementProxy.js";
+import AccessorMutator from ".\\AccessorMutator.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,48 +22,45 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./ElementProxy', './AccessorMutator'],
-    function (ElementProxy, AccessorMutator) {
+;
 
-        /**
-         * Selection proxy for Box elements in a fixed position view.
-         * Also serves as a superclass for Text elements, since those
-         * elements have a superset of Box properties.
-         *
-         * Note that arguments here are meant to match those expected
-         * by `Array.prototype.map`
-         *
-         * @memberof platform/features/layout
-         * @constructor
-         * @param element the fixed position element, as stored in its
-         *        configuration
-         * @param index the element's index within its array
-         * @param {number[]} gridSize the current layout grid size in [x,y] from
-         * @param {Array} elements the full array of elements
-         */
-        function BoxProxy(element, index, elements, gridSize) {
-            var proxy = new ElementProxy(element, index, elements, gridSize);
+/**
+ * Selection proxy for Box elements in a fixed position view.
+ * Also serves as a superclass for Text elements, since those
+ * elements have a superset of Box properties.
+ *
+ * Note that arguments here are meant to match those expected
+ * by `Array.prototype.map`
+ *
+ * @memberof platform/features/layout
+ * @constructor
+ * @param element the fixed position element, as stored in its
+ *        configuration
+ * @param index the element's index within its array
+ * @param {number[]} gridSize the current layout grid size in [x,y] from
+ * @param {Array} elements the full array of elements
+ */
+function BoxProxy(element, index, elements, gridSize) {
+    var proxy = new ElementProxy(element, index, elements, gridSize);
 
-            /**
-             * Get/set this element's fill color. (Omitting the
-             * argument makes this act as a getter.)
-             * @method
-             * @param {string} fill the new fill color
-             * @returns {string} the fill color
-             * @memberof platform/features/layout.BoxProxy#
-             */
-            proxy.fill = new AccessorMutator(element, 'fill');
+    /**
+     * Get/set this element's fill color. (Omitting the
+     * argument makes this act as a getter.)
+     * @method
+     * @param {string} fill the new fill color
+     * @returns {string} the fill color
+     * @memberof platform/features/layout.BoxProxy#
+     */
+    proxy.fill = new AccessorMutator(element, 'fill');
 
-            //Expose x,y, width and height for editing
-            proxy.editWidth = new AccessorMutator(element, 'width');
-            proxy.editHeight = new AccessorMutator(element, 'height');
-            proxy.editX = new AccessorMutator(element, 'x');
-            proxy.editY = new AccessorMutator(element, 'y');
+    //Expose x,y, width and height for editing
+    proxy.editWidth = new AccessorMutator(element, 'width');
+    proxy.editHeight = new AccessorMutator(element, 'height');
+    proxy.editX = new AccessorMutator(element, 'x');
+    proxy.editY = new AccessorMutator(element, 'y');
 
-            return proxy;
-        }
+    return proxy;
+}
 
-        return BoxProxy;
-    }
-);
+var bindingVariable = BoxProxy;
+export default bindingVariable;

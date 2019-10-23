@@ -20,26 +20,23 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-], function (
-) {
-    return function (buildInfo) {
-        return function (openmct) {
-            var aliases = { timestamp: "Built" };
-            var descriptions = {
-                timestamp: "The date on which this version of Open MCT was built.",
-                revision: "A unique revision identifier for the client sources.",
-                branch: "The name of the branch that was used during the build."
-            };
-
-            Object.keys(buildInfo).forEach(function (key) {
-                openmct.legacyExtension("versions", {
-                    key: key,
-                    name: aliases[key] || (key.charAt(0).toUpperCase() + key.substring(1)),
-                    value: buildInfo[key],
-                    description: descriptions[key]
-                });
-            });
+var bindingVariable = function (buildInfo) {
+    return function (openmct) {
+        var aliases = { timestamp: "Built" };
+        var descriptions = {
+            timestamp: "The date on which this version of Open MCT was built.",
+            revision: "A unique revision identifier for the client sources.",
+            branch: "The name of the branch that was used during the build."
         };
+
+        Object.keys(buildInfo).forEach(function (key) {
+            openmct.legacyExtension("versions", {
+                key: key,
+                name: aliases[key] || (key.charAt(0).toUpperCase() + key.substring(1)),
+                value: buildInfo[key],
+                description: descriptions[key]
+            });
+        });
     };
-});
+};;
+export default bindingVariable;

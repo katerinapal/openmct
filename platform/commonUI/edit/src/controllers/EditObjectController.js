@@ -24,63 +24,60 @@
  * This bundle implements Edit mode.
  * @namespace platform/commonUI/edit
  */
-define(
-    [],
-    function () {
+;
 
-        function cancelEditing(domainObject) {
-            var navigatedObject = domainObject,
-                editorCapability = navigatedObject &&
-                    navigatedObject.getCapability("editor");
+function cancelEditing(domainObject) {
+    var navigatedObject = domainObject,
+        editorCapability = navigatedObject &&
+            navigatedObject.getCapability("editor");
 
-            return editorCapability &&
-                editorCapability.finish();
-        }
+    return editorCapability &&
+        editorCapability.finish();
+}
 
-        /**
-         * Controller which is responsible for populating the scope for
-         * Edit mode
-         * @memberof platform/commonUI/edit
-         * @constructor
-         */
-        function EditObjectController($scope, $location, navigationService) {
-            this.scope = $scope;
-            var domainObject = $scope.domainObject;
+/**
+ * Controller which is responsible for populating the scope for
+ * Edit mode
+ * @memberof platform/commonUI/edit
+ * @constructor
+ */
+function EditObjectController($scope, $location, navigationService) {
+    this.scope = $scope;
+    var domainObject = $scope.domainObject;
 
-            var removeCheck = navigationService
-                .checkBeforeNavigation(function () {
-                    return "Continuing will cause the loss of any unsaved changes.";
-                });
+    var removeCheck = navigationService
+        .checkBeforeNavigation(function () {
+            return "Continuing will cause the loss of any unsaved changes.";
+        });
 
-            $scope.$on('$destroy', function () {
-                removeCheck();
-                cancelEditing(domainObject);
-            });
+    $scope.$on('$destroy', function () {
+        removeCheck();
+        cancelEditing(domainObject);
+    });
 
-            function setViewForDomainObject() {
+    function setViewForDomainObject() {
 
-                var locationViewKey = $location.search().view;
+        var locationViewKey = $location.search().view;
 
-                function selectViewIfMatching(view) {
-                    if (view.key === locationViewKey) {
-                        $scope.representation = $scope.representation || {};
-                        $scope.representation.selected = view;
-                    }
-                }
-
-                if (locationViewKey) {
-                    ((domainObject && domainObject.useCapability('view')) || [])
-                        .forEach(selectViewIfMatching);
-                }
+        function selectViewIfMatching(view) {
+            if (view.key === locationViewKey) {
+                $scope.representation = $scope.representation || {};
+                $scope.representation.selected = view;
             }
-
-            setViewForDomainObject();
-
-            $scope.doAction = function (action) {
-                return $scope[action] && $scope[action]();
-            };
         }
 
-        return EditObjectController;
+        if (locationViewKey) {
+            ((domainObject && domainObject.useCapability('view')) || [])
+                .forEach(selectViewIfMatching);
+        }
     }
-);
+
+    setViewForDomainObject();
+
+    $scope.doAction = function (action) {
+        return $scope[action] && $scope[action]();
+    };
+}
+
+var bindingVariable = EditObjectController;
+export default bindingVariable;

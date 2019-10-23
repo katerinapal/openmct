@@ -1,3 +1,4 @@
+import TimelineSwimlaneDropHandler from ".\\TimelineSwimlaneDropHandler.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,94 +21,91 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./TimelineSwimlaneDropHandler'],
-    function (TimelineSwimlaneDropHandler) {
+;
 
-        var ACTIVITY_RELATIONSHIP = "modes";
+var ACTIVITY_RELATIONSHIP = "modes";
 
-        /**
-         * Adds optional methods to TimelineSwimlanes, in order
-         * to conditionally make available options in the toolbar.
-         * @constructor
-         */
-        function TimelineSwimlaneDecorator(swimlane, selection) {
-            var domainObject = swimlane && swimlane.domainObject,
-                model = (domainObject && domainObject.getModel()) || {},
-                mutator = domainObject && domainObject.getCapability('mutation'),
-                type = domainObject && domainObject.getCapability('type'),
-                dropHandler = new TimelineSwimlaneDropHandler(swimlane);
+/**
+ * Adds optional methods to TimelineSwimlanes, in order
+ * to conditionally make available options in the toolbar.
+ * @constructor
+ */
+function TimelineSwimlaneDecorator(swimlane, selection) {
+    var domainObject = swimlane && swimlane.domainObject,
+        model = (domainObject && domainObject.getModel()) || {},
+        mutator = domainObject && domainObject.getCapability('mutation'),
+        type = domainObject && domainObject.getCapability('type'),
+        dropHandler = new TimelineSwimlaneDropHandler(swimlane);
 
-            // Activity Modes dialog
-            function modes(value) {
-                // Can be used as a setter...
-                if (arguments.length > 0 && Array.isArray(value)) {
-                    if ((model.relationships || {})[ACTIVITY_RELATIONSHIP] !== value) {
-                        // Update the relationships
-                        mutator.mutate(function (m) {
-                            m.relationships = m.relationships || {};
-                            m.relationships[ACTIVITY_RELATIONSHIP] = value;
-                        });
-                    }
-                }
-                // ...otherwise, use as a getter
-                return (model.relationships || {})[ACTIVITY_RELATIONSHIP] || [];
+    // Activity Modes dialog
+    function modes(value) {
+        // Can be used as a setter...
+        if (arguments.length > 0 && Array.isArray(value)) {
+            if ((model.relationships || {})[ACTIVITY_RELATIONSHIP] !== value) {
+                // Update the relationships
+                mutator.mutate(function (m) {
+                    m.relationships = m.relationships || {};
+                    m.relationships[ACTIVITY_RELATIONSHIP] = value;
+                });
             }
-
-            // Activity Link dialog
-            function link(value) {
-                // Can be used as a setter...
-                if (arguments.length > 0 && (typeof value === 'string') &&
-                        value !== model.link) {
-                    // Update the link
-                    mutator.mutate(function (m) {
-                        m.link = value;
-                    });
-                }
-                return model.link;
-            }
-
-            // Fire the Remove action
-            function remove() {
-                return domainObject.getCapability("action").perform("remove");
-            }
-
-            // Select the current swimlane
-            function select() {
-                selection.select(swimlane);
-            }
-
-            // Check if the swimlane is selected
-            function selected() {
-                return selection.get() === swimlane;
-            }
-
-            // Activities should have the Activity Modes and Activity Link dialog
-            if (type && type.instanceOf("activity") && mutator) {
-                swimlane.modes = modes;
-                swimlane.link = link;
-            }
-
-            // Everything but the top-level object should have Remove
-            if (swimlane.parent) {
-                swimlane.remove = remove;
-            }
-
-            // We're in edit mode, if a selection is available
-            if (selection) {
-                // Add shorthands to select, and check for selection
-                swimlane.select = select;
-                swimlane.selected = selected;
-            }
-
-            // Expose drop handlers (which needed a reference to the swimlane)
-            swimlane.allowDropIn = dropHandler.allowDropIn;
-            swimlane.allowDropAfter = dropHandler.allowDropAfter;
-            swimlane.drop = dropHandler.drop;
-
-            return swimlane;
         }
-
-        return TimelineSwimlaneDecorator;
+        // ...otherwise, use as a getter
+        return (model.relationships || {})[ACTIVITY_RELATIONSHIP] || [];
     }
-);
+
+    // Activity Link dialog
+    function link(value) {
+        // Can be used as a setter...
+        if (arguments.length > 0 && (typeof value === 'string') &&
+                value !== model.link) {
+            // Update the link
+            mutator.mutate(function (m) {
+                m.link = value;
+            });
+        }
+        return model.link;
+    }
+
+    // Fire the Remove action
+    function remove() {
+        return domainObject.getCapability("action").perform("remove");
+    }
+
+    // Select the current swimlane
+    function select() {
+        selection.select(swimlane);
+    }
+
+    // Check if the swimlane is selected
+    function selected() {
+        return selection.get() === swimlane;
+    }
+
+    // Activities should have the Activity Modes and Activity Link dialog
+    if (type && type.instanceOf("activity") && mutator) {
+        swimlane.modes = modes;
+        swimlane.link = link;
+    }
+
+    // Everything but the top-level object should have Remove
+    if (swimlane.parent) {
+        swimlane.remove = remove;
+    }
+
+    // We're in edit mode, if a selection is available
+    if (selection) {
+        // Add shorthands to select, and check for selection
+        swimlane.select = select;
+        swimlane.selected = selected;
+    }
+
+    // Expose drop handlers (which needed a reference to the swimlane)
+    swimlane.allowDropIn = dropHandler.allowDropIn;
+    swimlane.allowDropAfter = dropHandler.allowDropAfter;
+    swimlane.drop = dropHandler.drop;
+
+    return swimlane;
+}
+
+var bindingVariable = TimelineSwimlaneDecorator;
+export default bindingVariable;

@@ -1,3 +1,4 @@
+import DeviceMatchers from ".\\DeviceMatchers.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,38 +21,34 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./DeviceMatchers'],
-    function (DeviceMatchers) {
+;
 
-        /**
-         * Runs at application startup and adds a subset of the following
-         * CSS classes to the body of the document, depending on device
-         * attributes:
-         *
-         * * `mobile`: Phones or tablets.
-         * * `phone`: Phones specifically.
-         * * `tablet`: Tablets specifically.
-         * * `desktop`: Non-mobile devices.
-         * * `portrait`: Devices in a portrait-style orientation.
-         * * `landscape`: Devices in a landscape-style orientation.
-         * * `touch`: Device supports touch events.
-         *
-         * @param {platform/commonUI/mobile.AgentService} agentService
-         *        the service used to examine the user agent
-         * @param $document Angular's jqLite-wrapped document element
-         * @constructor
-         */
-        function MobileClassifier(agentService, $document) {
-            var body = $document.find('body');
-            Object.keys(DeviceMatchers).forEach(function (key) {
-                if (DeviceMatchers[key](agentService)) {
-                    body.addClass(key);
-                }
-            });
+/**
+ * Runs at application startup and adds a subset of the following
+ * CSS classes to the body of the document, depending on device
+ * attributes:
+ *
+ * * `mobile`: Phones or tablets.
+ * * `phone`: Phones specifically.
+ * * `tablet`: Tablets specifically.
+ * * `desktop`: Non-mobile devices.
+ * * `portrait`: Devices in a portrait-style orientation.
+ * * `landscape`: Devices in a landscape-style orientation.
+ * * `touch`: Device supports touch events.
+ *
+ * @param {platform/commonUI/mobile.AgentService} agentService
+ *        the service used to examine the user agent
+ * @param $document Angular's jqLite-wrapped document element
+ * @constructor
+ */
+function MobileClassifier(agentService, $document) {
+    var body = $document.find('body');
+    Object.keys(DeviceMatchers).forEach(function (key) {
+        if (DeviceMatchers[key](agentService)) {
+            body.addClass(key);
         }
+    });
+}
 
-        return MobileClassifier;
-
-    }
-);
+var bindingVariable = MobileClassifier;
+export default bindingVariable;

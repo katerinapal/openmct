@@ -20,52 +20,49 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Implements the "Pause" action for timers.
-         *
-         * Sets the reference pausedTime in a timer to the current
-         * time, such that it stops counting up.
-         *
-         * @implements {Action}
-         * @memberof platform/features/clock
-         * @constructor
-         * @param {Function} now a function which returns the current
-         *        time (typically wrapping `Date.now`)
-         * @param {ActionContext} context the context for this action
-         */
-        function PauseTimerAction(now, context) {
-            this.domainObject = context.domainObject;
-            this.now = now;
-        }
+/**
+ * Implements the "Pause" action for timers.
+ *
+ * Sets the reference pausedTime in a timer to the current
+ * time, such that it stops counting up.
+ *
+ * @implements {Action}
+ * @memberof platform/features/clock
+ * @constructor
+ * @param {Function} now a function which returns the current
+ *        time (typically wrapping `Date.now`)
+ * @param {ActionContext} context the context for this action
+ */
+function PauseTimerAction(now, context) {
+    this.domainObject = context.domainObject;
+    this.now = now;
+}
 
-        PauseTimerAction.appliesTo = function (context) {
-            var model =
-                (context.domainObject && context.domainObject.getModel()) ||
-                {};
+PauseTimerAction.appliesTo = function (context) {
+    var model =
+        (context.domainObject && context.domainObject.getModel()) ||
+        {};
 
 
-            // We show this variant for timers which have
-            // a target time, or is in a playing state.
-            return model.type === 'timer' &&
-                    model.timerState === 'started';
-        };
+    // We show this variant for timers which have
+    // a target time, or is in a playing state.
+    return model.type === 'timer' &&
+            model.timerState === 'started';
+};
 
-        PauseTimerAction.prototype.perform = function () {
-            var domainObject = this.domainObject,
-                now = this.now;
+PauseTimerAction.prototype.perform = function () {
+    var domainObject = this.domainObject,
+        now = this.now;
 
-            function updateModel(model) {
-                model.timerState = 'paused';
-                model.pausedTime = now();
-            }
-
-            return domainObject.useCapability('mutation', updateModel);
-        };
-
-        return PauseTimerAction;
+    function updateModel(model) {
+        model.timerState = 'paused';
+        model.pausedTime = now();
     }
-);
+
+    return domainObject.useCapability('mutation', updateModel);
+};
+
+var bindingVariable = PauseTimerAction;
+export default bindingVariable;

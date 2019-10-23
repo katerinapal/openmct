@@ -20,119 +20,115 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller for the `autocomplete` form control.
-         *
-         * @memberof platform/forms
-         * @constructor
-         */
-        function AutocompleteController($scope, $element) {
+/**
+ * Controller for the `autocomplete` form control.
+ *
+ * @memberof platform/forms
+ * @constructor
+ */
+function AutocompleteController($scope, $element) {
 
-            var key = {
-                        down: 40,
-                        up: 38,
-                        enter: 13
-                    },
-                autocompleteInputElement = $element[0].getElementsByClassName('autocompleteInput')[0];
+    var key = {
+                down: 40,
+                up: 38,
+                enter: 13
+            },
+        autocompleteInputElement = $element[0].getElementsByClassName('autocompleteInput')[0];
 
-            if ($scope.options[0].name) {
-                // If "options" include name, value pair
-                $scope.optionNames = $scope.options.map(function (opt) {
-                    return opt.name;
-                });
-            } else {
-                // If options is only an array of string.
-                $scope.optionNames = $scope.options;
-            }
-
-            function fillInputWithIndexedOption() {
-                if ($scope.filteredOptions[$scope.optionIndex]) {
-                    $scope.ngModel[$scope.field] = $scope.filteredOptions[$scope.optionIndex].name;
-                }
-            }
-
-            function decrementOptionIndex() {
-                if ($scope.optionIndex === 0) {
-                    $scope.optionIndex = $scope.filteredOptions.length;
-                }
-                $scope.optionIndex--;
-                fillInputWithIndexedOption();
-            }
-
-            function incrementOptionIndex() {
-                if ($scope.optionIndex === $scope.filteredOptions.length - 1) {
-                    $scope.optionIndex = -1;
-                }
-                $scope.optionIndex++;
-                fillInputWithIndexedOption();
-            }
-
-            function fillInputWithString(string) {
-                $scope.hideOptions = true;
-                $scope.ngModel[$scope.field] = string;
-            }
-
-            function showOptions(string) {
-                $scope.hideOptions = false;
-                $scope.filterOptions(string);
-                $scope.optionIndex = 0;
-            }
-
-            $scope.keyDown = function ($event) {
-                if ($scope.filteredOptions) {
-                    var keyCode = $event.keyCode;
-                    switch (keyCode) {
-                        case key.down:
-                            incrementOptionIndex();
-                            break;
-                        case key.up:
-                            $event.preventDefault();    // Prevents cursor jumping back and forth
-                            decrementOptionIndex();
-                            break;
-                        case key.enter:
-                            if ($scope.filteredOptions[$scope.optionIndex]) {
-                                fillInputWithString($scope.filteredOptions[$scope.optionIndex].name);
-                            }
-                    }
-                }
-            };
-
-            $scope.filterOptions = function (string) {
-                $scope.hideOptions = false;
-                $scope.filteredOptions = $scope.optionNames.filter(function (option) {
-                    return option.toLowerCase().indexOf(string.toLowerCase()) >= 0;
-                }).map(function (option, index) {
-                    return {
-                        optionId: index,
-                        name: option
-                    };
-                });
-            };
-
-            $scope.inputClicked = function () {
-                autocompleteInputElement.select();
-                showOptions(autocompleteInputElement.value);
-            };
-
-            $scope.arrowClicked = function () {
-                autocompleteInputElement.select();
-                showOptions('');
-            };
-
-            $scope.fillInput = function (string) {
-                fillInputWithString(string);
-            };
-
-            $scope.optionMouseover = function (optionId) {
-                $scope.optionIndex = optionId;
-            };
-        }
-
-        return AutocompleteController;
-
+    if ($scope.options[0].name) {
+        // If "options" include name, value pair
+        $scope.optionNames = $scope.options.map(function (opt) {
+            return opt.name;
+        });
+    } else {
+        // If options is only an array of string.
+        $scope.optionNames = $scope.options;
     }
-);
+
+    function fillInputWithIndexedOption() {
+        if ($scope.filteredOptions[$scope.optionIndex]) {
+            $scope.ngModel[$scope.field] = $scope.filteredOptions[$scope.optionIndex].name;
+        }
+    }
+
+    function decrementOptionIndex() {
+        if ($scope.optionIndex === 0) {
+            $scope.optionIndex = $scope.filteredOptions.length;
+        }
+        $scope.optionIndex--;
+        fillInputWithIndexedOption();
+    }
+
+    function incrementOptionIndex() {
+        if ($scope.optionIndex === $scope.filteredOptions.length - 1) {
+            $scope.optionIndex = -1;
+        }
+        $scope.optionIndex++;
+        fillInputWithIndexedOption();
+    }
+
+    function fillInputWithString(string) {
+        $scope.hideOptions = true;
+        $scope.ngModel[$scope.field] = string;
+    }
+
+    function showOptions(string) {
+        $scope.hideOptions = false;
+        $scope.filterOptions(string);
+        $scope.optionIndex = 0;
+    }
+
+    $scope.keyDown = function ($event) {
+        if ($scope.filteredOptions) {
+            var keyCode = $event.keyCode;
+            switch (keyCode) {
+                case key.down:
+                    incrementOptionIndex();
+                    break;
+                case key.up:
+                    $event.preventDefault();    // Prevents cursor jumping back and forth
+                    decrementOptionIndex();
+                    break;
+                case key.enter:
+                    if ($scope.filteredOptions[$scope.optionIndex]) {
+                        fillInputWithString($scope.filteredOptions[$scope.optionIndex].name);
+                    }
+            }
+        }
+    };
+
+    $scope.filterOptions = function (string) {
+        $scope.hideOptions = false;
+        $scope.filteredOptions = $scope.optionNames.filter(function (option) {
+            return option.toLowerCase().indexOf(string.toLowerCase()) >= 0;
+        }).map(function (option, index) {
+            return {
+                optionId: index,
+                name: option
+            };
+        });
+    };
+
+    $scope.inputClicked = function () {
+        autocompleteInputElement.select();
+        showOptions(autocompleteInputElement.value);
+    };
+
+    $scope.arrowClicked = function () {
+        autocompleteInputElement.select();
+        showOptions('');
+    };
+
+    $scope.fillInput = function (string) {
+        fillInputWithString(string);
+    };
+
+    $scope.optionMouseover = function (optionId) {
+        $scope.optionIndex = optionId;
+    };
+}
+
+var bindingVariable = AutocompleteController;
+export default bindingVariable;

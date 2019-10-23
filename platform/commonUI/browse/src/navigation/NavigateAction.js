@@ -23,46 +23,43 @@
 /**
  * Module defining NavigateAction. Created by vwoeltje on 11/10/14.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The navigate action navigates to a specific domain object.
-         * @memberof platform/commonUI/browse
-         * @constructor
-         * @implements {Action}
-         */
-        function NavigateAction(navigationService, context) {
-            this.domainObject = context.domainObject;
-            this.navigationService = navigationService;
-        }
+/**
+ * The navigate action navigates to a specific domain object.
+ * @memberof platform/commonUI/browse
+ * @constructor
+ * @implements {Action}
+ */
+function NavigateAction(navigationService, context) {
+    this.domainObject = context.domainObject;
+    this.navigationService = navigationService;
+}
 
-        /**
-         * Navigate to the object described in the context.
-         * @returns {Promise} a promise that is resolved once the
-         *          navigation has been updated
-         */
-        NavigateAction.prototype.perform = function () {
-            if (this.navigationService.shouldNavigate()) {
-                this.navigationService.setNavigation(this.domainObject, true);
-                return Promise.resolve({});
-            }
-
-            return Promise.reject('Navigation Prevented by User');
-        };
-
-        /**
-         * Navigate as an action is only applicable when a domain object
-         * is described in the action context.
-         * @param {ActionContext} context the context in which the action
-         *        will be performed
-         * @returns {boolean} true if applicable
-         */
-        NavigateAction.appliesTo = function (context) {
-            return context.domainObject !== undefined;
-        };
-
-        return NavigateAction;
+/**
+ * Navigate to the object described in the context.
+ * @returns {Promise} a promise that is resolved once the
+ *          navigation has been updated
+ */
+NavigateAction.prototype.perform = function () {
+    if (this.navigationService.shouldNavigate()) {
+        this.navigationService.setNavigation(this.domainObject, true);
+        return Promise.resolve({});
     }
-);
+
+    return Promise.reject('Navigation Prevented by User');
+};
+
+/**
+ * Navigate as an action is only applicable when a domain object
+ * is described in the action context.
+ * @param {ActionContext} context the context in which the action
+ *        will be performed
+ * @returns {boolean} true if applicable
+ */
+NavigateAction.appliesTo = function (context) {
+    return context.domainObject !== undefined;
+};
+
+var bindingVariable = NavigateAction;
+export default bindingVariable;

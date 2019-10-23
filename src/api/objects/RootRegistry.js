@@ -20,38 +20,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'lodash'
-], function (
-    _
-) {
+;
 
-    function RootRegistry() {
-        this.providers = [];
-    }
+function RootRegistry() {
+    this.providers = [];
+}
 
-    RootRegistry.prototype.getRoots = function () {
-        var promises = this.providers.map(function (provider) {
-            return provider();
+RootRegistry.prototype.getRoots = function () {
+    var promises = this.providers.map(function (provider) {
+        return provider();
+    });
+    return Promise.all(promises)
+        .then(_.flatten);
+};
+
+function isKey(key) {
+    return _.isObject(key) && _.has(key, 'key') && _.has(key, 'namespace');
+}
+
+RootRegistry.prototype.addRoot = function (key) {
+    if (isKey(key) || (_.isArray(key) && _.every(key, isKey))) {
+        this.providers.push(function () {
+            return key;
         });
-        return Promise.all(promises)
-            .then(_.flatten);
-    };
-
-    function isKey(key) {
-        return _.isObject(key) && _.has(key, 'key') && _.has(key, 'namespace');
+    } else if (_.isFunction(key)) {
+        this.providers.push(key);
     }
+};
 
-    RootRegistry.prototype.addRoot = function (key) {
-        if (isKey(key) || (_.isArray(key) && _.every(key, isKey))) {
-            this.providers.push(function () {
-                return key;
-            });
-        } else if (_.isFunction(key)) {
-            this.providers.push(key);
-        }
-    };
-
-    return RootRegistry;
-
-});
+var bindingVariable = RootRegistry;
+export default bindingVariable;

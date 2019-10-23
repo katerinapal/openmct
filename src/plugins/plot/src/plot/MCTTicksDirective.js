@@ -1,3 +1,4 @@
+import MCTTicksController from ".\\MCTTicksController.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,24 +21,20 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './MCTTicksController'
-], function (
-    MCTTicksController
-) {
+;
 
-    function MCTTicksDirective() {
-        return {
-            priority: 1000,
-            restrict: "E",
-            scope: true,
-            controllerAs: 'ticksController',
-            controller: MCTTicksController,
-            bindToController: {
-                axis: '='
-            }
-        };
-    }
+function MCTTicksDirective() {
+    return {
+        priority: 1000,
+        restrict: "E",
+        scope: true,
+        controllerAs: 'ticksController',
+        controller: MCTTicksController,
+        bindToController: {
+            axis: '='
+        }
+    };
+}
 
-    return MCTTicksDirective;
-});
+var bindingVariable = MCTTicksDirective;
+export default bindingVariable;

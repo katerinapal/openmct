@@ -1,3 +1,7 @@
+import PolicyActionDecorator from ".\\src\\PolicyActionDecorator.js";
+import PolicyViewDecorator from ".\\src\\PolicyViewDecorator.js";
+import PolicyProvider from ".\\src\\PolicyProvider.js";
+import legacyRegistry from "..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,49 +24,36 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/PolicyActionDecorator",
-    "./src/PolicyViewDecorator",
-    "./src/PolicyProvider",
-    'legacyRegistry'
-], function (
-    PolicyActionDecorator,
-    PolicyViewDecorator,
-    PolicyProvider,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/policy", {
-        "name": "Policy Service",
-        "description": "Provides support for extension-driven decisions.",
-        "sources": "src",
-        "extensions": {
-            "components": [
-                {
-                    "type": "decorator",
-                    "provides": "actionService",
-                    "implementation": PolicyActionDecorator,
-                    "depends": [
-                        "policyService"
-                    ]
-                },
-                {
-                    "type": "decorator",
-                    "provides": "viewService",
-                    "implementation": PolicyViewDecorator,
-                    "depends": [
-                        "policyService"
-                    ]
-                },
-                {
-                    "type": "provider",
-                    "provides": "policyService",
-                    "implementation": PolicyProvider,
-                    "depends": [
-                        "policies[]"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/policy", {
+    "name": "Policy Service",
+    "description": "Provides support for extension-driven decisions.",
+    "sources": "src",
+    "extensions": {
+        "components": [
+            {
+                "type": "decorator",
+                "provides": "actionService",
+                "implementation": PolicyActionDecorator,
+                "depends": [
+                    "policyService"
+                ]
+            },
+            {
+                "type": "decorator",
+                "provides": "viewService",
+                "implementation": PolicyViewDecorator,
+                "depends": [
+                    "policyService"
+                ]
+            },
+            {
+                "type": "provider",
+                "provides": "policyService",
+                "implementation": PolicyProvider,
+                "depends": [
+                    "policies[]"
+                ]
+            }
+        ]
+    }
 });

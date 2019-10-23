@@ -20,33 +20,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Policy suppressing move actions among editable and non-editable
-     * domain objects.
-     * @memberof platform/commonUI/edit
-     * @constructor
-     * @implements {Policy.<View, DomainObject>}
-     */
-    function EditableMovePolicy() {
+/**
+ * Policy suppressing move actions among editable and non-editable
+ * domain objects.
+ * @memberof platform/commonUI/edit
+ * @constructor
+ * @implements {Policy.<View, DomainObject>}
+ */
+function EditableMovePolicy() {
+}
+
+EditableMovePolicy.prototype.allow = function (action, context) {
+    var domainObject = context.domainObject,
+        selectedObject = context.selectedObject,
+        key = action.getMetadata().key,
+        isDomainObjectEditing = domainObject.hasCapability('editor') &&
+            domainObject.getCapability('editor').inEditContext();
+
+    if (key === 'move' && isDomainObjectEditing) {
+        return !!selectedObject && selectedObject.hasCapability('editor') &&
+            selectedObject.getCapability('editor').inEditContext();
     }
 
-    EditableMovePolicy.prototype.allow = function (action, context) {
-        var domainObject = context.domainObject,
-            selectedObject = context.selectedObject,
-            key = action.getMetadata().key,
-            isDomainObjectEditing = domainObject.hasCapability('editor') &&
-                domainObject.getCapability('editor').inEditContext();
+    // Like all policies, allow by default.
+    return true;
+};
 
-        if (key === 'move' && isDomainObjectEditing) {
-            return !!selectedObject && selectedObject.hasCapability('editor') &&
-                selectedObject.getCapability('editor').inEditContext();
-        }
-
-        // Like all policies, allow by default.
-        return true;
-    };
-
-    return EditableMovePolicy;
-});
+var bindingVariable = EditableMovePolicy;
+export default bindingVariable;

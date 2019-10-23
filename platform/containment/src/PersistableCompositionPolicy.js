@@ -1,3 +1,4 @@
+import objectUtils from "..\\..\\..\\src\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -25,36 +26,33 @@
  * can be contained within which other objects.
  * @namespace platform/containment
  */
-define(
-    ['../../../src/api/objects/object-utils'],
-    function (objectUtils) {
+;
 
-        function PersistableCompositionPolicy(openmct) {
-            this.openmct = openmct;
-        }
+function PersistableCompositionPolicy(openmct) {
+    this.openmct = openmct;
+}
 
-        /**
-         * Only allow changes to composition if the changes can be saved. This in
-         * effect prevents selection of objects from the locator that do not
-         * support persistence.
-         * @param parent
-         * @param child
-         * @returns {boolean}
-         */
-        PersistableCompositionPolicy.prototype.allow = function (parent) {
-            // If object is in edit mode, allow composition because it is
-            // part of object creation, and the object may be saved to another
-            // namespace that does support persistence. The EditPersistableObjectsPolicy
-            // prevents editing of objects that cannot be persisted, so we can assume that this
-            // is a new object.
-            if (!(parent.hasCapability('editor') && parent.getCapability('editor').isEditContextRoot())) {
-                var identifier = objectUtils.parseKeyString(parent.getId());
-                var provider = this.openmct.objects.getProvider(identifier);
-                return provider.save !== undefined;
-            }
-            return true;
-        };
-
-        return PersistableCompositionPolicy;
+/**
+ * Only allow changes to composition if the changes can be saved. This in
+ * effect prevents selection of objects from the locator that do not
+ * support persistence.
+ * @param parent
+ * @param child
+ * @returns {boolean}
+ */
+PersistableCompositionPolicy.prototype.allow = function (parent) {
+    // If object is in edit mode, allow composition because it is
+    // part of object creation, and the object may be saved to another
+    // namespace that does support persistence. The EditPersistableObjectsPolicy
+    // prevents editing of objects that cannot be persisted, so we can assume that this
+    // is a new object.
+    if (!(parent.hasCapability('editor') && parent.getCapability('editor').isEditContextRoot())) {
+        var identifier = objectUtils.parseKeyString(parent.getId());
+        var provider = this.openmct.objects.getProvider(identifier);
+        return provider.save !== undefined;
     }
-);
+    return true;
+};
+
+var bindingVariable = PersistableCompositionPolicy;
+export default bindingVariable;

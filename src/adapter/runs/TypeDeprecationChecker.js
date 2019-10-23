@@ -21,27 +21,22 @@
  *****************************************************************************/
 
 /* global console */
-define([
+;
 
-], function (
-
-) {
-
-    function checkForDeprecatedFunctionality(typeDef) {
-        if (typeDef.hasOwnProperty('telemetry')) {
-            console.warn(
-                'DEPRECATION WARNING: Telemetry data on type ' +
-                'registrations will be deprecated in a future version, ' +
-                'please convert to a custom telemetry metadata provider ' +
-                'for type: ' + typeDef.key
-            );
-        }
+function checkForDeprecatedFunctionality(typeDef) {
+    if (typeDef.hasOwnProperty('telemetry')) {
+        console.warn(
+            'DEPRECATION WARNING: Telemetry data on type ' +
+            'registrations will be deprecated in a future version, ' +
+            'please convert to a custom telemetry metadata provider ' +
+            'for type: ' + typeDef.key
+        );
     }
+}
 
-    function TypeDeprecationChecker(types) {
-        types.forEach(checkForDeprecatedFunctionality);
-    }
+function TypeDeprecationChecker(types) {
+    types.forEach(checkForDeprecatedFunctionality);
+}
 
-    return TypeDeprecationChecker;
-
-});
+var bindingVariable = TypeDeprecationChecker;
+export default bindingVariable;

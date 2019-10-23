@@ -1,3 +1,6 @@
+import ListViewController from ".\\src\\controllers\\ListViewController.js";
+import MCTGesture from ".\\src\\directives\\MCTGesture.js";
+import legacyRegistry from "..\\..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,45 +23,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
- define([
-    './src/controllers/ListViewController',
-    './src/directives/MCTGesture',
-    'text!./res/templates/listview.html',
-    'legacyRegistry'
-], function (
-    ListViewController,
-    MCTGesture,
-    listViewTemplate,
-    legacyRegistry
-) {
-    legacyRegistry.register("platform/features/listview", {
-        "name": "List View Plugin",
-        "description": "Allows folder contents to be shown in list format",
-        "extensions":
-        {
-            "views": [
-                {
-                    "key": "list",
-                    "type": "folder",
-                    "name": "List",
-                    "cssClass": "icon-list-view",
-                    "template": listViewTemplate
-                }
-            ],
-            "controllers": [
-                {
-                    "key": "ListViewController",
-                    "implementation": ListViewController,
-                    "depends": ["$scope", "formatService"]
-                }
-            ],
-            "directives": [
-                {
-                    "key": "mctGesture",
-                    "implementation" : MCTGesture,
-                    "depends": ["gestureService"]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/features/listview", {
+    "name": "List View Plugin",
+    "description": "Allows folder contents to be shown in list format",
+    "extensions":
+    {
+        "views": [
+            {
+                "key": "list",
+                "type": "folder",
+                "name": "List",
+                "cssClass": "icon-list-view",
+                "template": listViewTemplate
+            }
+        ],
+        "controllers": [
+            {
+                "key": "ListViewController",
+                "implementation": ListViewController,
+                "depends": ["$scope", "formatService"]
+            }
+        ],
+        "directives": [
+            {
+                "key": "mctGesture",
+                "implementation" : MCTGesture,
+                "depends": ["gestureService"]
+            }
+        ]
+    }
 });

@@ -1,3 +1,4 @@
+import saveAs from "..\\..\\..\\..\\..\\platform\\commonUI\\edit\\src\\actions\\SaveAsAction.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -23,150 +24,141 @@
 /**
  * Module defining ExportImageService. Created by hudsonfoo on 09/02/16
  */
-define(
-    [
-        "html2canvas",
-        "saveAs"
-    ],
-    function (
-        html2canvas,
-        saveAs
-    ) {
+;
 
-        /**
-         * The export image service will export any HTML node to
-         * JPG, or PNG.
-         * @param {object} $q
-         * @param {object} $timeout
-         * @param {object} $log
-         * @param {constant} EXPORT_IMAGE_TIMEOUT time in milliseconds before a timeout error is returned
-         * @constructor
-         */
-        function ExportImageService($q, $timeout, $log) {
-            this.$q = $q;
-            this.$timeout = $timeout;
-            this.$log = $log;
-            this.EXPORT_IMAGE_TIMEOUT = 1000;
-        }
+/**
+ * The export image service will export any HTML node to
+ * JPG, or PNG.
+ * @param {object} $q
+ * @param {object} $timeout
+ * @param {object} $log
+ * @param {constant} EXPORT_IMAGE_TIMEOUT time in milliseconds before a timeout error is returned
+ * @constructor
+ */
+function ExportImageService($q, $timeout, $log) {
+    this.$q = $q;
+    this.$timeout = $timeout;
+    this.$log = $log;
+    this.EXPORT_IMAGE_TIMEOUT = 1000;
+}
 
-        function changeBackgroundColor(element, color) {
-            element.style.backgroundColor = color;
-        }
+function changeBackgroundColor(element, color) {
+    element.style.backgroundColor = color;
+}
 
-        /**
-         * Renders an HTML element into a base64 encoded image
-         * as a BLOB, PNG, or JPG.
-         * @param {node} element that will be converted to an image
-         * @param {string} type of image to convert the element to
-         * @returns {promise}
-         */
-        ExportImageService.prototype.renderElement = function (element, type, color) {
-            var defer = this.$q.defer(),
-                validTypes = ["png", "jpg", "jpeg"],
-                renderTimeout,
-                originalColor;
+/**
+ * Renders an HTML element into a base64 encoded image
+ * as a BLOB, PNG, or JPG.
+ * @param {node} element that will be converted to an image
+ * @param {string} type of image to convert the element to
+ * @returns {promise}
+ */
+ExportImageService.prototype.renderElement = function (element, type, color) {
+    var defer = this.$q.defer(),
+        validTypes = ["png", "jpg", "jpeg"],
+        renderTimeout,
+        originalColor;
 
-            if (validTypes.indexOf(type) === -1) {
-                this.$log.error("Invalid type requested. Try: (" + validTypes.join(",") + ")");
-                return;
-            }
+    if (validTypes.indexOf(type) === -1) {
+        this.$log.error("Invalid type requested. Try: (" + validTypes.join(",") + ")");
+        return;
+    }
 
-            if (color) {
-                // Save color to be restored later
-                originalColor = element.style.backgroundColor || '';
-                // Defaulting to white so we can see the chart when printed
-                changeBackgroundColor(element, color);
-            }
+    if (color) {
+        // Save color to be restored later
+        originalColor = element.style.backgroundColor || '';
+        // Defaulting to white so we can see the chart when printed
+        changeBackgroundColor(element, color);
+    }
 
-            renderTimeout = this.$timeout(function () {
-                defer.reject("html2canvas timed out");
-                this.$log.warn("html2canvas timed out");
-            }.bind(this), this.EXPORT_IMAGE_TIMEOUT);
+    renderTimeout = this.$timeout(function () {
+        defer.reject("html2canvas timed out");
+        this.$log.warn("html2canvas timed out");
+    }.bind(this), this.EXPORT_IMAGE_TIMEOUT);
 
-            try {
-                html2canvas(element, {
-                    onrendered: function (canvas) {
-                        if (color) {
-                            changeBackgroundColor(element, originalColor);
-                        }
-                        switch (type.toLowerCase()) {
-                            case "png":
-                                canvas.toBlob(defer.resolve, "image/png");
-                                break;
-
-                            default:
-                            case "jpg":
-                            case "jpeg":
-                                canvas.toBlob(defer.resolve, "image/jpeg");
-                                break;
-                        }
-                    }
-                });
-            } catch (e) {
-                defer.reject(e);
-                this.$log.warn("html2canvas failed with error: " + e);
-            }
-
-            defer.promise.finally(function () {
-                renderTimeout.cancel();
+    try {
+        html2canvas(element, {
+            onrendered: function (canvas) {
                 if (color) {
                     changeBackgroundColor(element, originalColor);
                 }
-            });
+                switch (type.toLowerCase()) {
+                    case "png":
+                        canvas.toBlob(defer.resolve, "image/png");
+                        break;
 
-            return defer.promise;
-        };
-
-        /**
-         * Takes a screenshot of a DOM node and exports to JPG.
-         * @param {node} element to be exported
-         * @param {string} filename the exported image
-         * @returns {promise}
-         */
-        ExportImageService.prototype.exportJPG = function (element, filename, color) {
-            return this.renderElement(element, "jpeg", color).then(function (img) {
-                saveAs(img, filename);
-            });
-        };
-
-        /**
-         * Takes a screenshot of a DOM node and exports to PNG.
-         * @param {node} element to be exported
-         * @param {string} filename the exported image
-         * @returns {promise}
-         */
-        ExportImageService.prototype.exportPNG = function (element, filename, color) {
-            return this.renderElement(element, "png", color).then(function (img) {
-                saveAs(img, filename);
-            });
-        };
-
-        /**
-         * canvas.toBlob() not supported in IE < 10, Opera, and Safari. This polyfill
-         * implements the method in browsers that would not otherwise support it.
-         * https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
-         */
-        function polyfillToBlob() {
-            if (!HTMLCanvasElement.prototype.toBlob) {
-                Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
-                    value: function (callback, type, quality) {
-
-                        var binStr = atob(this.toDataURL(type, quality).split(',')[1]),
-                            len = binStr.length,
-                            arr = new Uint8Array(len);
-
-                        for (var i = 0; i < len; i++) {
-                            arr[i] = binStr.charCodeAt(i);
-                        }
-
-                        callback(new Blob([arr], {type: type || "image/png"}));
-                    }
-                });
+                    default:
+                    case "jpg":
+                    case "jpeg":
+                        canvas.toBlob(defer.resolve, "image/jpeg");
+                        break;
+                }
             }
-        }
-
-        polyfillToBlob();
-
-        return ExportImageService;
+        });
+    } catch (e) {
+        defer.reject(e);
+        this.$log.warn("html2canvas failed with error: " + e);
     }
-);
+
+    defer.promise.finally(function () {
+        renderTimeout.cancel();
+        if (color) {
+            changeBackgroundColor(element, originalColor);
+        }
+    });
+
+    return defer.promise;
+};
+
+/**
+ * Takes a screenshot of a DOM node and exports to JPG.
+ * @param {node} element to be exported
+ * @param {string} filename the exported image
+ * @returns {promise}
+ */
+ExportImageService.prototype.exportJPG = function (element, filename, color) {
+    return this.renderElement(element, "jpeg", color).then(function (img) {
+        saveAs(img, filename);
+    });
+};
+
+/**
+ * Takes a screenshot of a DOM node and exports to PNG.
+ * @param {node} element to be exported
+ * @param {string} filename the exported image
+ * @returns {promise}
+ */
+ExportImageService.prototype.exportPNG = function (element, filename, color) {
+    return this.renderElement(element, "png", color).then(function (img) {
+        saveAs(img, filename);
+    });
+};
+
+/**
+ * canvas.toBlob() not supported in IE < 10, Opera, and Safari. This polyfill
+ * implements the method in browsers that would not otherwise support it.
+ * https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob
+ */
+function polyfillToBlob() {
+    if (!HTMLCanvasElement.prototype.toBlob) {
+        Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
+            value: function (callback, type, quality) {
+
+                var binStr = atob(this.toDataURL(type, quality).split(',')[1]),
+                    len = binStr.length,
+                    arr = new Uint8Array(len);
+
+                for (var i = 0; i < len; i++) {
+                    arr[i] = binStr.charCodeAt(i);
+                }
+
+                callback(new Blob([arr], {type: type || "image/png"}));
+            }
+        });
+    }
+}
+
+polyfillToBlob();
+
+var bindingVariable = ExportImageService;
+export default bindingVariable;

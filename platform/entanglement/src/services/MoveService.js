@@ -21,82 +21,81 @@
  *****************************************************************************/
 
 
-define(
-    function () {
-        /**
-         * MoveService provides an interface for moving objects from one
-         * location to another.  It also provides a method for determining if
-         * an object can be copied to a specific location.
-         * @constructor
-         * @memberof platform/entanglement
-         * @implements {platform/entanglement.AbstractComposeService}
-         */
-        function MoveService(policyService, linkService) {
-            this.policyService = policyService;
-            this.linkService = linkService;
+;
+
+/**
+ * MoveService provides an interface for moving objects from one
+ * location to another.  It also provides a method for determining if
+ * an object can be copied to a specific location.
+ * @constructor
+ * @memberof platform/entanglement
+ * @implements {platform/entanglement.AbstractComposeService}
+ */
+function MoveService(policyService, linkService) {
+    this.policyService = policyService;
+    this.linkService = linkService;
+}
+
+MoveService.prototype.validate = function (object, parentCandidate) {
+    var currentParent = object
+        .getCapability('context')
+        .getParent();
+
+    if (!parentCandidate || !parentCandidate.getId) {
+        return false;
+    }
+    if (parentCandidate.getId() === currentParent.getId()) {
+        return false;
+    }
+    if (parentCandidate.getId() === object.getId()) {
+        return false;
+    }
+    if (parentCandidate.getModel().composition.indexOf(object.getId()) !== -1) {
+        return false;
+    }
+    return this.policyService.allow(
+        "composition",
+        parentCandidate,
+        object
+    );
+};
+
+MoveService.prototype.perform = function (object, parentObject) {
+    function relocate(objectInNewContext) {
+        var newLocationCapability = objectInNewContext
+                .getCapability('location'),
+            oldLocationCapability = object
+                .getCapability('location');
+
+        if (!newLocationCapability ||
+                !oldLocationCapability) {
+            return;
         }
 
-        MoveService.prototype.validate = function (object, parentCandidate) {
-            var currentParent = object
-                .getCapability('context')
-                .getParent();
-
-            if (!parentCandidate || !parentCandidate.getId) {
-                return false;
-            }
-            if (parentCandidate.getId() === currentParent.getId()) {
-                return false;
-            }
-            if (parentCandidate.getId() === object.getId()) {
-                return false;
-            }
-            if (parentCandidate.getModel().composition.indexOf(object.getId()) !== -1) {
-                return false;
-            }
-            return this.policyService.allow(
-                "composition",
-                parentCandidate,
-                object
+        if (oldLocationCapability.isOriginal()) {
+            return newLocationCapability.setPrimaryLocation(
+                newLocationCapability
+                    .getContextualLocation()
             );
-        };
-
-        MoveService.prototype.perform = function (object, parentObject) {
-            function relocate(objectInNewContext) {
-                var newLocationCapability = objectInNewContext
-                        .getCapability('location'),
-                    oldLocationCapability = object
-                        .getCapability('location');
-
-                if (!newLocationCapability ||
-                        !oldLocationCapability) {
-                    return;
-                }
-
-                if (oldLocationCapability.isOriginal()) {
-                    return newLocationCapability.setPrimaryLocation(
-                        newLocationCapability
-                            .getContextualLocation()
-                    );
-                }
-            }
-
-            if (!this.validate(object, parentObject)) {
-                throw new Error(
-                    "Tried to move objects without validating first."
-                );
-            }
-
-            return this.linkService
-                .perform(object, parentObject)
-                .then(relocate)
-                .then(function () {
-                    return object
-                        .getCapability('action')
-                        .perform('remove');
-                });
-        };
-
-        return MoveService;
+        }
     }
-);
+
+    if (!this.validate(object, parentObject)) {
+        throw new Error(
+            "Tried to move objects without validating first."
+        );
+    }
+
+    return this.linkService
+        .perform(object, parentObject)
+        .then(relocate)
+        .then(function () {
+            return object
+                .getCapability('action')
+                .perform('remove');
+        });
+};
+
+var bindingVariable = MoveService;
+export default bindingVariable;
 

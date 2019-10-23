@@ -20,56 +20,53 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The TelemetryFormatter is responsible for formatting (as text
-         * for display) values along either the domain (usually time) or
-         * the range (usually value) of a data series.
-         * @memberof platform/telemetry
-         * @constructor
-         * @param {FormatService} formatService the service to user to format
-         *        domain values
-         * @param {string} defaultFormatKey the format to request when no
-         *        format has been otherwise specified
-         */
-        function TelemetryFormatter(formatService, defaultFormatKey) {
-            this.formatService = formatService;
-            this.defaultFormat = formatService.getFormat(defaultFormatKey);
-        }
+/**
+ * The TelemetryFormatter is responsible for formatting (as text
+ * for display) values along either the domain (usually time) or
+ * the range (usually value) of a data series.
+ * @memberof platform/telemetry
+ * @constructor
+ * @param {FormatService} formatService the service to user to format
+ *        domain values
+ * @param {string} defaultFormatKey the format to request when no
+ *        format has been otherwise specified
+ */
+function TelemetryFormatter(formatService, defaultFormatKey) {
+    this.formatService = formatService;
+    this.defaultFormat = formatService.getFormat(defaultFormatKey);
+}
 
-        /**
-         * Format a domain value.
-         * @param {number} v the domain value; usually, a timestamp
-         *        in milliseconds since start of 1970
-         * @param {string} [key] a key which identifies the format
-         *        to use
-         * @returns {string} a textual representation of the
-         *        data and time, suitable for display.
-         */
-        TelemetryFormatter.prototype.formatDomainValue = function (v, key) {
-            var formatter = (key === undefined) ?
-                    this.defaultFormat :
-                    this.formatService.getFormat(key);
+/**
+ * Format a domain value.
+ * @param {number} v the domain value; usually, a timestamp
+ *        in milliseconds since start of 1970
+ * @param {string} [key] a key which identifies the format
+ *        to use
+ * @returns {string} a textual representation of the
+ *        data and time, suitable for display.
+ */
+TelemetryFormatter.prototype.formatDomainValue = function (v, key) {
+    var formatter = (key === undefined) ?
+            this.defaultFormat :
+            this.formatService.getFormat(key);
 
-            return isNaN(v) ? "" : formatter.format(v);
-        };
+    return isNaN(v) ? "" : formatter.format(v);
+};
 
-        /**
-         * Format a range value.
-         * @param {number} v the range value; a numeric value
-         * @param {string} [key] the key which identifies the
-         *        range; if unspecified or unknown, this will
-         *        be treated as a numeric value.
-         * @returns {string} a textual representation of the
-         *        value, suitable for display.
-         */
-        TelemetryFormatter.prototype.formatRangeValue = function (v, key) {
-            return String(v);
-        };
+/**
+ * Format a range value.
+ * @param {number} v the range value; a numeric value
+ * @param {string} [key] the key which identifies the
+ *        range; if unspecified or unknown, this will
+ *        be treated as a numeric value.
+ * @returns {string} a textual representation of the
+ *        value, suitable for display.
+ */
+TelemetryFormatter.prototype.formatRangeValue = function (v, key) {
+    return String(v);
+};
 
-        return TelemetryFormatter;
-    }
-);
+var bindingVariable = TelemetryFormatter;
+export default bindingVariable;

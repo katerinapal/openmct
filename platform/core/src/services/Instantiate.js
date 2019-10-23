@@ -1,3 +1,4 @@
+import DomainObjectImpl from "..\\objects\\DomainObjectImpl.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,41 +21,38 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['../objects/DomainObjectImpl'],
-    function (DomainObjectImpl) {
+;
 
-        /**
-         * The `instantiate` service allows new domain object instances to be
-         * created. These objects are not persisted to any back-end or
-         * placed anywhere in the object hierarchy by default.
-         *
-         * Usage: `instantiate(model, [id])`
-         *
-         * ...returns a new instance of a domain object with the specified
-         * model. An identifier may be provided; if omitted, one will be
-         * generated instead.
-         *
-         * @constructor
-         * @memberof platform/core
-         * @param {CapabilityService} capabilityService the service which will
-         *        provide instantiated domain objects with their capabilities
-         * @param {IdentifierService} identifierService service to generate
-         *        new identifiers
-         */
-        function Instantiate(
-            capabilityService,
-            identifierService,
-            cacheService
-        ) {
-            return function (model, id) {
-                var capabilities = capabilityService.getCapabilities(model);
-                id = id || identifierService.generate();
-                cacheService.put(id, model);
-                return new DomainObjectImpl(id, model, capabilities);
-            };
-        }
+/**
+ * The `instantiate` service allows new domain object instances to be
+ * created. These objects are not persisted to any back-end or
+ * placed anywhere in the object hierarchy by default.
+ *
+ * Usage: `instantiate(model, [id])`
+ *
+ * ...returns a new instance of a domain object with the specified
+ * model. An identifier may be provided; if omitted, one will be
+ * generated instead.
+ *
+ * @constructor
+ * @memberof platform/core
+ * @param {CapabilityService} capabilityService the service which will
+ *        provide instantiated domain objects with their capabilities
+ * @param {IdentifierService} identifierService service to generate
+ *        new identifiers
+ */
+function Instantiate(
+    capabilityService,
+    identifierService,
+    cacheService
+) {
+    return function (model, id) {
+        var capabilities = capabilityService.getCapabilities(model);
+        id = id || identifierService.generate();
+        cacheService.put(id, model);
+        return new DomainObjectImpl(id, model, capabilities);
+    };
+}
 
-        return Instantiate;
-    }
-);
+var bindingVariable = Instantiate;
+export default bindingVariable;

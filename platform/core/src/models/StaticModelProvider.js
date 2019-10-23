@@ -23,48 +23,45 @@
 /**
  * Module defining StaticModelProvider. Created by vwoeltje on 11/7/14.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Loads static models, provided as declared extensions of bundles.
-         * @memberof platform/core
-         * @constructor
-         */
-        function StaticModelProvider(models, $q, $log) {
-            var modelMap = {};
+/**
+ * Loads static models, provided as declared extensions of bundles.
+ * @memberof platform/core
+ * @constructor
+ */
+function StaticModelProvider(models, $q, $log) {
+    var modelMap = {};
 
-            function addModelToMap(model) {
-                // Skip models which don't look right
-                if (typeof model !== 'object' ||
-                        typeof model.id !== 'string' ||
-                            typeof model.model !== 'object') {
-                    $log.warn([
-                        "Skipping malformed domain object model exposed by ",
-                        ((model || {}).bundle || {}).path
-                    ].join(""));
-                } else {
-                    modelMap[model.id] = model.model;
-                }
-            }
-
-            // Prepopulate maps with models to make subsequent lookup faster.
-            models.forEach(addModelToMap);
-
-            this.modelMap = modelMap;
-            this.$q = $q;
+    function addModelToMap(model) {
+        // Skip models which don't look right
+        if (typeof model !== 'object' ||
+                typeof model.id !== 'string' ||
+                    typeof model.model !== 'object') {
+            $log.warn([
+                "Skipping malformed domain object model exposed by ",
+                ((model || {}).bundle || {}).path
+            ].join(""));
+        } else {
+            modelMap[model.id] = model.model;
         }
-
-        StaticModelProvider.prototype.getModels = function (ids) {
-            var modelMap = this.modelMap,
-                result = {};
-            ids.forEach(function (id) {
-                result[id] = modelMap[id];
-            });
-            return this.$q.when(result);
-        };
-
-        return StaticModelProvider;
     }
-);
+
+    // Prepopulate maps with models to make subsequent lookup faster.
+    models.forEach(addModelToMap);
+
+    this.modelMap = modelMap;
+    this.$q = $q;
+}
+
+StaticModelProvider.prototype.getModels = function (ids) {
+    var modelMap = this.modelMap,
+        result = {};
+    ids.forEach(function (id) {
+        result[id] = modelMap[id];
+    });
+    return this.$q.when(result);
+};
+
+var bindingVariable = StaticModelProvider;
+export default bindingVariable;

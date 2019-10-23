@@ -1,3 +1,5 @@
+import ExportAsJSONAction from ".\\src\\actions\\ExportAsJSONAction.js";
+import ImportAsJSONAction from ".\\src\\actions\\ImportAsJSONAction.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,56 +23,48 @@
  *****************************************************************************/
 /*global define*/
 
-define([
-    "./src/actions/ExportAsJSONAction",
-    "./src/actions/ImportAsJSONAction"
-], function (
-    ExportAsJSONAction,
-    ImportAsJSONAction
-) {
-
-    return function ImportExportPlugin() {
-        return function (openmct) {
-            ExportAsJSONAction.appliesTo = function (context) {
-                return openmct.$injector.get('policyService')
-                  .allow("creation", context.domainObject.getCapability("type")
-                );
-            };
-
-            openmct.legacyRegistry.register("platform/import-export", {
-                "name": "Import-export plugin",
-                "description": "Allows importing / exporting of domain objects as JSON.",
-                "extensions": {
-                    "actions": [
-                        {
-                            "key": "export.JSON",
-                            "name": "Export as JSON",
-                            "implementation": ExportAsJSONAction,
-                            "category": "contextual",
-                            "cssClass": "icon-export",
-                            "depends": [
-                                "exportService",
-                                "policyService",
-                                "identifierService"
-                            ]
-                        },
-                        {
-                            "key": "import.JSON",
-                            "name": "Import from JSON",
-                            "implementation": ImportAsJSONAction,
-                            "category": "contextual",
-                            "cssClass": "icon-import",
-                            "depends": [
-                                 "exportService",
-                                 "identifierService",
-                                 "dialogService",
-                                 "openmct"
-                            ]
-                        }
-                    ]
-                }
-            });
-            openmct.legacyRegistry.enable('platform/import-export');
+var bindingVariable = function ImportExportPlugin() {
+    return function (openmct) {
+        ExportAsJSONAction.appliesTo = function (context) {
+            return openmct.$injector.get('policyService')
+              .allow("creation", context.domainObject.getCapability("type")
+            );
         };
+
+        openmct.legacyRegistry.register("platform/import-export", {
+            "name": "Import-export plugin",
+            "description": "Allows importing / exporting of domain objects as JSON.",
+            "extensions": {
+                "actions": [
+                    {
+                        "key": "export.JSON",
+                        "name": "Export as JSON",
+                        "implementation": ExportAsJSONAction,
+                        "category": "contextual",
+                        "cssClass": "icon-export",
+                        "depends": [
+                            "exportService",
+                            "policyService",
+                            "identifierService"
+                        ]
+                    },
+                    {
+                        "key": "import.JSON",
+                        "name": "Import from JSON",
+                        "implementation": ImportAsJSONAction,
+                        "category": "contextual",
+                        "cssClass": "icon-import",
+                        "depends": [
+                             "exportService",
+                             "identifierService",
+                             "dialogService",
+                             "openmct"
+                        ]
+                    }
+                ]
+            }
+        });
+        openmct.legacyRegistry.enable('platform/import-export');
     };
-});
+};;
+export default bindingVariable;

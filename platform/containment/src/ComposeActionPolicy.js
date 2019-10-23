@@ -20,59 +20,55 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Restrict `compose` actions to cases where composition
-         * is explicitly allowed.
-         *
-         * Note that this is a policy that needs the `policyService`,
-         * since it's delegated to a different policy category.
-         * To avoid a circular dependency, the service is obtained via
-         * Angular's `$injector`.
-         * @constructor
-         * @memberof platform/containment
-         * @implements {Policy.<Action, ActionContext>}
-         */
-        function ComposeActionPolicy($injector) {
-            this.getPolicyService = function () {
-                return $injector.get('policyService');
-            };
-        }
+/**
+ * Restrict `compose` actions to cases where composition
+ * is explicitly allowed.
+ *
+ * Note that this is a policy that needs the `policyService`,
+ * since it's delegated to a different policy category.
+ * To avoid a circular dependency, the service is obtained via
+ * Angular's `$injector`.
+ * @constructor
+ * @memberof platform/containment
+ * @implements {Policy.<Action, ActionContext>}
+ */
+function ComposeActionPolicy($injector) {
+    this.getPolicyService = function () {
+        return $injector.get('policyService');
+    };
+}
 
-        ComposeActionPolicy.prototype.allowComposition = function (containerObject, selectedObject) {
+ComposeActionPolicy.prototype.allowComposition = function (containerObject, selectedObject) {
 
-            // Get a reference to the policy service if needed...
-            this.policyService = this.policyService || this.getPolicyService();
+    // Get a reference to the policy service if needed...
+    this.policyService = this.policyService || this.getPolicyService();
 
-            // ...and delegate to the composition policy
-            return containerObject.getId() !== selectedObject.getId() &&
-                this.policyService.allow(
-                    'composition',
-                    containerObject,
-                    selectedObject
-                );
-        };
+    // ...and delegate to the composition policy
+    return containerObject.getId() !== selectedObject.getId() &&
+        this.policyService.allow(
+            'composition',
+            containerObject,
+            selectedObject
+        );
+};
 
-        /**
-         * Check whether or not a compose action should be allowed
-         * in this context.
-         * @returns {boolean} true if it may be allowed
-         * @memberof platform/containment.ComposeActionPolicy#
-         */
-        ComposeActionPolicy.prototype.allow = function (candidate, context) {
-            if (candidate.getMetadata().key === 'compose') {
-                return this.allowComposition(
-                    (context || {}).domainObject,
-                    (context || {}).selectedObject
-                );
-            }
-            return true;
-        };
-
-        return ComposeActionPolicy;
-
+/**
+ * Check whether or not a compose action should be allowed
+ * in this context.
+ * @returns {boolean} true if it may be allowed
+ * @memberof platform/containment.ComposeActionPolicy#
+ */
+ComposeActionPolicy.prototype.allow = function (candidate, context) {
+    if (candidate.getMetadata().key === 'compose') {
+        return this.allowComposition(
+            (context || {}).domainObject,
+            (context || {}).selectedObject
+        );
     }
-);
+    return true;
+};
+
+var bindingVariable = ComposeActionPolicy;
+export default bindingVariable;

@@ -1,3 +1,7 @@
+import StatusRepresenter from ".\\src\\StatusRepresenter.js";
+import StatusCapability from ".\\src\\StatusCapability.js";
+import StatusService from ".\\src\\StatusService.js";
+import legacyRegistry from "..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,43 +24,30 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/StatusRepresenter",
-    "./src/StatusCapability",
-    "./src/StatusService",
-    'legacyRegistry'
-], function (
-    StatusRepresenter,
-    StatusCapability,
-    StatusService,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/status", {
-        "extensions": {
-            "representers": [
-                {
-                    "implementation": StatusRepresenter
-                }
-            ],
-            "capabilities": [
-                {
-                    "key": "status",
-                    "implementation": StatusCapability,
-                    "depends": [
-                        "statusService"
-                    ]
-                }
-            ],
-            "services": [
-                {
-                    "key": "statusService",
-                    "implementation": StatusService,
-                    "depends": [
-                        "topic"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/status", {
+    "extensions": {
+        "representers": [
+            {
+                "implementation": StatusRepresenter
+            }
+        ],
+        "capabilities": [
+            {
+                "key": "status",
+                "implementation": StatusCapability,
+                "depends": [
+                    "statusService"
+                ]
+            }
+        ],
+        "services": [
+            {
+                "key": "statusService",
+                "implementation": StatusService,
+                "depends": [
+                    "topic"
+                ]
+            }
+        ]
+    }
 });

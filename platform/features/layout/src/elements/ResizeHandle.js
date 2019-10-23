@@ -19,59 +19,55 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
-define(
-    [],
-    function () {
+;
 
-        /**
-         * @interface platform/features/layout.ElementHandle
-         * @private
-         */
+/**
+ * @interface platform/features/layout.ElementHandle
+ * @private
+ */
 
-        /**
-         * Handle for changing width/height properties of an element.
-         * This is used to support drag handles for different
-         * element types in a fixed position view.
-         * @memberof platform/features/layout
-         * @constructor
-         */
-        function ResizeHandle(element, minWidth, minHeight, gridSize) {
-            this.element = element;
+/**
+ * Handle for changing width/height properties of an element.
+ * This is used to support drag handles for different
+ * element types in a fixed position view.
+ * @memberof platform/features/layout
+ * @constructor
+ */
+function ResizeHandle(element, minWidth, minHeight, gridSize) {
+    this.element = element;
 
-            // Ensure reasonable defaults
-            this.minWidth = minWidth || 0;
-            this.minHeight = minHeight || 0;
+    // Ensure reasonable defaults
+    this.minWidth = minWidth || 0;
+    this.minHeight = minHeight || 0;
 
-            this.gridSize = gridSize;
-        }
+    this.gridSize = gridSize;
+}
 
-        ResizeHandle.prototype.x = function (value) {
-            var element = this.element;
-            if (arguments.length > 0) {
-                element.width = Math.max(
-                    this.minWidth,
-                    value - element.x
-                );
-            }
-            return element.x + element.width;
-        };
-
-        ResizeHandle.prototype.y = function (value) {
-            var element = this.element;
-            if (arguments.length > 0) {
-                element.height = Math.max(
-                    this.minHeight,
-                    value - element.y
-                );
-            }
-            return element.y + element.height;
-        };
-
-        ResizeHandle.prototype.getGridSize = function () {
-            return this.gridSize;
-        };
-
-        return ResizeHandle;
-
+ResizeHandle.prototype.x = function (value) {
+    var element = this.element;
+    if (arguments.length > 0) {
+        element.width = Math.max(
+            this.minWidth,
+            value - element.x
+        );
     }
-);
+    return element.x + element.width;
+};
+
+ResizeHandle.prototype.y = function (value) {
+    var element = this.element;
+    if (arguments.length > 0) {
+        element.height = Math.max(
+            this.minHeight,
+            value - element.y
+        );
+    }
+    return element.y + element.height;
+};
+
+ResizeHandle.prototype.getGridSize = function () {
+    return this.gridSize;
+};
+
+var bindingVariable = ResizeHandle;
+export default bindingVariable;

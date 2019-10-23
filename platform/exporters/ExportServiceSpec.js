@@ -1,3 +1,5 @@
+import ExportService from ".\\ExportService.js";
+import CSV from "..\\features\\timeline\\src\\actions\\ExportTimelineAsCSVTask.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,123 +22,116 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ["./ExportService", "csv"],
-    function (ExportService, CSV) {
+describe("ExportService", function () {
+    var mockSaveAs,
+        testRows,
+        csvContents,
+        exportService;
 
-        describe("ExportService", function () {
-            var mockSaveAs,
-                testRows,
-                csvContents,
-                exportService;
+    function finishedReadingCSV() {
+        return !!csvContents;
+    }
 
-            function finishedReadingCSV() {
-                return !!csvContents;
-            }
+    beforeEach(function () {
+        csvContents = undefined;
+        testRows = [
+            { a: 1, b: 2, c: 3 },
+            { a: 4, b: 5, c: 6 },
+            { a: 7, b: 8, c: 9 }
+        ];
+        mockSaveAs = jasmine.createSpy('saveAs');
+        mockSaveAs.andCallFake(function (blob) {
+            var reader = new FileReader();
+            reader.onloadend = function () {
+                csvContents = new CSV(reader.result).parse();
+            };
+            reader.readAsText(blob);
+        });
+        exportService = new ExportService(mockSaveAs);
+    });
 
-            beforeEach(function () {
-                csvContents = undefined;
-                testRows = [
-                    { a: 1, b: 2, c: 3 },
-                    { a: 4, b: 5, c: 6 },
-                    { a: 7, b: 8, c: 9 }
-                ];
-                mockSaveAs = jasmine.createSpy('saveAs');
-                mockSaveAs.andCallFake(function (blob) {
-                    var reader = new FileReader();
-                    reader.onloadend = function () {
-                        csvContents = new CSV(reader.result).parse();
-                    };
-                    reader.readAsText(blob);
-                });
-                exportService = new ExportService(mockSaveAs);
-            });
-
-            describe("#exportCSV(rows)", function () {
-                beforeEach(function () {
-                    exportService.exportCSV(testRows);
-                    waitsFor(finishedReadingCSV);
-                });
-
-                it("triggers saving of a file", function () {
-                    expect(mockSaveAs).toHaveBeenCalledWith(
-                        jasmine.any(Blob),
-                        jasmine.any(String)
-                    );
-                });
-
-                it("includes headers from the data set", function () {
-                    expect(csvContents[0])
-                        .toEqual(Object.keys(testRows[0]).sort());
-                });
-
-                it("includes data from the data set", function () {
-                    var headers = csvContents[0],
-                        expectedData = testRows.map(function (row) {
-                            return headers.map(function (key) {
-                                return String(row[key]);
-                            });
-                        });
-                    // Everything after header should be data
-                    expect(csvContents.slice(1)).toEqual(expectedData);
-                });
-            });
-
-            describe("#exportCSV(rows, options.headers)", function () {
-                var testHeaders;
-
-                beforeEach(function () {
-                    testHeaders = ['a', 'b'];
-                    exportService
-                        .exportCSV(testRows, { headers: testHeaders });
-                    waitsFor(finishedReadingCSV);
-                });
-
-                it("triggers saving of a file", function () {
-                    expect(mockSaveAs).toHaveBeenCalledWith(
-                        jasmine.any(Blob),
-                        jasmine.any(String)
-                    );
-                });
-
-                it("includes only the specified headers", function () {
-                    expect(csvContents[0])
-                        .toEqual(testHeaders);
-                    expect(csvContents[0])
-                        .not.toEqual(Object.keys(testRows[0]).sort());
-                });
-
-                it("includes a subset data from the data set", function () {
-                    var headers = testHeaders,
-                        expectedData = testRows.map(function (row) {
-                            return headers.map(function (key) {
-                                return String(row[key]);
-                            });
-                        });
-                    expect(csvContents.slice(1)).toEqual(expectedData);
-                });
-            });
-
-            describe("#exportCSV(rows, options.filename)", function () {
-                var testFilename;
-
-                beforeEach(function () {
-                    testFilename = "some-test-filename.csv";
-                    exportService
-                        .exportCSV(testRows, { filename: testFilename });
-                    waitsFor(finishedReadingCSV);
-                });
-
-                it("saves a file with the specified name", function () {
-                    expect(mockSaveAs).toHaveBeenCalledWith(
-                        jasmine.any(Blob),
-                        testFilename
-                    );
-                });
-            });
-
-
+    describe("#exportCSV(rows)", function () {
+        beforeEach(function () {
+            exportService.exportCSV(testRows);
+            waitsFor(finishedReadingCSV);
         });
 
-    }
-);
+        it("triggers saving of a file", function () {
+            expect(mockSaveAs).toHaveBeenCalledWith(
+                jasmine.any(Blob),
+                jasmine.any(String)
+            );
+        });
+
+        it("includes headers from the data set", function () {
+            expect(csvContents[0])
+                .toEqual(Object.keys(testRows[0]).sort());
+        });
+
+        it("includes data from the data set", function () {
+            var headers = csvContents[0],
+                expectedData = testRows.map(function (row) {
+                    return headers.map(function (key) {
+                        return String(row[key]);
+                    });
+                });
+            // Everything after header should be data
+            expect(csvContents.slice(1)).toEqual(expectedData);
+        });
+    });
+
+    describe("#exportCSV(rows, options.headers)", function () {
+        var testHeaders;
+
+        beforeEach(function () {
+            testHeaders = ['a', 'b'];
+            exportService
+                .exportCSV(testRows, { headers: testHeaders });
+            waitsFor(finishedReadingCSV);
+        });
+
+        it("triggers saving of a file", function () {
+            expect(mockSaveAs).toHaveBeenCalledWith(
+                jasmine.any(Blob),
+                jasmine.any(String)
+            );
+        });
+
+        it("includes only the specified headers", function () {
+            expect(csvContents[0])
+                .toEqual(testHeaders);
+            expect(csvContents[0])
+                .not.toEqual(Object.keys(testRows[0]).sort());
+        });
+
+        it("includes a subset data from the data set", function () {
+            var headers = testHeaders,
+                expectedData = testRows.map(function (row) {
+                    return headers.map(function (key) {
+                        return String(row[key]);
+                    });
+                });
+            expect(csvContents.slice(1)).toEqual(expectedData);
+        });
+    });
+
+    describe("#exportCSV(rows, options.filename)", function () {
+        var testFilename;
+
+        beforeEach(function () {
+            testFilename = "some-test-filename.csv";
+            exportService
+                .exportCSV(testRows, { filename: testFilename });
+            waitsFor(finishedReadingCSV);
+        });
+
+        it("saves a file with the specified name", function () {
+            expect(mockSaveAs).toHaveBeenCalledWith(
+                jasmine.any(Blob),
+                testFilename
+            );
+        });
+    });
+
+
+});

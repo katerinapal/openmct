@@ -1,3 +1,4 @@
+import PaneController from ".\\PaneController.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,58 +22,55 @@
  *****************************************************************************/
 
 
-define(
-    ["./PaneController"],
-    function (PaneController) {
+;
 
-        /**
-         * Pane controller that reveals inspector, if hidden, when object
-         * switches to edit mode.
-         *
-         * @param $scope
-         * @param agentService
-         * @param $window
-         * @param navigationService
-         * @constructor
-         */
-        function InspectorPaneController($scope, agentService, $window, navigationService, $location, $attrs) {
-            PaneController.call(this, $scope, agentService, $window, $location, $attrs);
-            var statusListener,
-                self = this;
+/**
+ * Pane controller that reveals inspector, if hidden, when object
+ * switches to edit mode.
+ *
+ * @param $scope
+ * @param agentService
+ * @param $window
+ * @param navigationService
+ * @constructor
+ */
+function InspectorPaneController($scope, agentService, $window, navigationService, $location, $attrs) {
+    PaneController.call(this, $scope, agentService, $window, $location, $attrs);
+    var statusListener,
+        self = this;
 
-            function showInspector(statuses) {
-                if (statuses.indexOf('editing') !== -1 && !self.visible()) {
-                    self.toggle();
-                }
-            }
+    function showInspector(statuses) {
+        if (statuses.indexOf('editing') !== -1 && !self.visible()) {
+            self.toggle();
+        }
+    }
 
-            function attachStatusListener(domainObject) {
-                // Remove existing status listener if existing
-                if (statusListener) {
-                    statusListener();
-                }
-
-                if (domainObject.hasCapability("status")) {
-                    statusListener = domainObject.getCapability("status").listen(showInspector);
-                }
-                return statusListener;
-            }
-
-            var domainObject = navigationService.getNavigation();
-            if (domainObject) {
-                attachStatusListener(domainObject);
-            }
-
-            navigationService.addListener(attachStatusListener);
-
-            $scope.$on("$destroy", function () {
-                statusListener();
-                navigationService.removeListener(attachStatusListener);
-            });
+    function attachStatusListener(domainObject) {
+        // Remove existing status listener if existing
+        if (statusListener) {
+            statusListener();
         }
 
-        InspectorPaneController.prototype = Object.create(PaneController.prototype);
-
-        return InspectorPaneController;
+        if (domainObject.hasCapability("status")) {
+            statusListener = domainObject.getCapability("status").listen(showInspector);
+        }
+        return statusListener;
     }
-);
+
+    var domainObject = navigationService.getNavigation();
+    if (domainObject) {
+        attachStatusListener(domainObject);
+    }
+
+    navigationService.addListener(attachStatusListener);
+
+    $scope.$on("$destroy", function () {
+        statusListener();
+        navigationService.removeListener(attachStatusListener);
+    });
+}
+
+InspectorPaneController.prototype = Object.create(PaneController.prototype);
+
+var bindingVariable = InspectorPaneController;
+export default bindingVariable;

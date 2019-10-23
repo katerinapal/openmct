@@ -20,37 +20,34 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Designates a specific timer for following. Timelines, for example,
-         * use the actively followed timer to display a time-of-interest line
-         * and interpret time conductor bounds in the Timeline's relative
-         * time frame.
-         *
-         * @implements {Action}
-         * @memberof platform/features/clock
-         * @constructor
-         * @param {ActionContext} context the context for this action
-         */
-        function FollowTimerAction(timerService, context) {
-            var domainObject =
-                context.domainObject &&
-                context.domainObject.useCapability('adapter');
-            this.perform =
-                timerService.setTimer.bind(timerService, domainObject);
-        }
+/**
+ * Designates a specific timer for following. Timelines, for example,
+ * use the actively followed timer to display a time-of-interest line
+ * and interpret time conductor bounds in the Timeline's relative
+ * time frame.
+ *
+ * @implements {Action}
+ * @memberof platform/features/clock
+ * @constructor
+ * @param {ActionContext} context the context for this action
+ */
+function FollowTimerAction(timerService, context) {
+    var domainObject =
+        context.domainObject &&
+        context.domainObject.useCapability('adapter');
+    this.perform =
+        timerService.setTimer.bind(timerService, domainObject);
+}
 
-        FollowTimerAction.appliesTo = function (context) {
-            var model =
-                (context.domainObject && context.domainObject.getModel()) ||
-                {};
+FollowTimerAction.appliesTo = function (context) {
+    var model =
+        (context.domainObject && context.domainObject.getModel()) ||
+        {};
 
-            return model.type === 'timer';
-        };
+    return model.type === 'timer';
+};
 
-        return FollowTimerAction;
-    }
-);
+var bindingVariable = FollowTimerAction;
+export default bindingVariable;

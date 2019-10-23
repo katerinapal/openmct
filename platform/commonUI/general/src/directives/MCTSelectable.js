@@ -20,41 +20,38 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The mct-selectable directive allows selection functionality
-         * (click) to be attached to specific elements.
-         *
-         * @memberof platform/commonUI/general
-         * @constructor
-         */
-        function MCTSelectable(openmct) {
+/**
+ * The mct-selectable directive allows selection functionality
+ * (click) to be attached to specific elements.
+ *
+ * @memberof platform/commonUI/general
+ * @constructor
+ */
+function MCTSelectable(openmct) {
 
-            // Link; install event handlers.
-            function link(scope, element, attrs) {
-                var removeSelectable = openmct.selection.selectable(
-                    element[0],
-                    scope.$eval(attrs.mctSelectable),
-                    attrs.hasOwnProperty('mctInitSelect') && scope.$eval(attrs.mctInitSelect) !== false
-                );
+    // Link; install event handlers.
+    function link(scope, element, attrs) {
+        var removeSelectable = openmct.selection.selectable(
+            element[0],
+            scope.$eval(attrs.mctSelectable),
+            attrs.hasOwnProperty('mctInitSelect') && scope.$eval(attrs.mctInitSelect) !== false
+        );
 
-                scope.$on("$destroy", function () {
-                    removeSelectable();
-                });
-            }
-
-            return {
-                // mct-selectable only makes sense as an attribute
-                restrict: "A",
-                // Link function, to install event handlers
-                link: link
-            };
-
-        }
-
-        return MCTSelectable;
+        scope.$on("$destroy", function () {
+            removeSelectable();
+        });
     }
-);
+
+    return {
+        // mct-selectable only makes sense as an attribute
+        restrict: "A",
+        // Link function, to install event handlers
+        link: link
+    };
+
+}
+
+var bindingVariable = MCTSelectable;
+export default bindingVariable;

@@ -21,69 +21,66 @@
  *****************************************************************************/
 
 
-define(
-    [],
-    function () {
+;
 
-        // Return values to use when a persistence space is unknown,
-        // and there is no appropriate provider to route to.
-        var METHOD_DEFAULTS = {
-            createObject: false,
-            readObject: undefined,
-            listObjects: [],
-            updateObject: false,
-            deleteObject: false
-        };
+// Return values to use when a persistence space is unknown,
+// and there is no appropriate provider to route to.
+var METHOD_DEFAULTS = {
+    createObject: false,
+    readObject: undefined,
+    listObjects: [],
+    updateObject: false,
+    deleteObject: false
+};
 
-        /**
-         * Aggregates multiple persistence providers, such that they can be
-         * utilized as if they were a single object. This is achieved by
-         * routing persistence calls to an appropriate provider; the space
-         * specified at call time is matched with the first provider (per
-         * priority order) which reports that it provides persistence for
-         * this space.
-         *
-         * @memberof platform/persistence/aggregator
-         * @constructor
-         * @implements {PersistenceService}
-         * @param $q Angular's $q, for promises
-         * @param {PersistenceService[]} providers the providers to aggregate
-         */
-        function PersistenceAggregator($q, providers) {
-            var providerMap = {};
+/**
+ * Aggregates multiple persistence providers, such that they can be
+ * utilized as if they were a single object. This is achieved by
+ * routing persistence calls to an appropriate provider; the space
+ * specified at call time is matched with the first provider (per
+ * priority order) which reports that it provides persistence for
+ * this space.
+ *
+ * @memberof platform/persistence/aggregator
+ * @constructor
+ * @implements {PersistenceService}
+ * @param $q Angular's $q, for promises
+ * @param {PersistenceService[]} providers the providers to aggregate
+ */
+function PersistenceAggregator($q, providers) {
+    var providerMap = {};
 
-            function addToMap(provider) {
-                return provider.listSpaces().then(function (spaces) {
-                    spaces.forEach(function (space) {
-                        providerMap[space] = providerMap[space] || provider;
-                    });
-                });
-            }
-
-            this.providerMapPromise = $q.all(providers.map(addToMap))
-                .then(function () {
-                    return providerMap;
-                });
-        }
-
-        PersistenceAggregator.prototype.listSpaces = function () {
-            return this.providerMapPromise.then(function (map) {
-                return Object.keys(map);
+    function addToMap(provider) {
+        return provider.listSpaces().then(function (spaces) {
+            spaces.forEach(function (space) {
+                providerMap[space] = providerMap[space] || provider;
             });
-        };
-
-        Object.keys(METHOD_DEFAULTS).forEach(function (method) {
-            PersistenceAggregator.prototype[method] = function (space) {
-                var delegateArgs = Array.prototype.slice.apply(arguments, []);
-                return this.providerMapPromise.then(function (map) {
-                    var provider = map[space];
-                    return provider ?
-                            provider[method].apply(provider, delegateArgs) :
-                            METHOD_DEFAULTS[method];
-                });
-            };
         });
-
-        return PersistenceAggregator;
     }
-);
+
+    this.providerMapPromise = $q.all(providers.map(addToMap))
+        .then(function () {
+            return providerMap;
+        });
+}
+
+PersistenceAggregator.prototype.listSpaces = function () {
+    return this.providerMapPromise.then(function (map) {
+        return Object.keys(map);
+    });
+};
+
+Object.keys(METHOD_DEFAULTS).forEach(function (method) {
+    PersistenceAggregator.prototype[method] = function (space) {
+        var delegateArgs = Array.prototype.slice.apply(arguments, []);
+        return this.providerMapPromise.then(function (map) {
+            var provider = map[space];
+            return provider ?
+                    provider[method].apply(provider, delegateArgs) :
+                    METHOD_DEFAULTS[method];
+        });
+    };
+});
+
+var bindingVariable = PersistenceAggregator;
+export default bindingVariable;

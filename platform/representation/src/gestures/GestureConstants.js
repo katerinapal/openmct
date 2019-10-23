@@ -24,7 +24,7 @@
  * Constants used by domain object gestures.
  * @class platform/representation.GestureConstants
  */
-define({
+export default {
     /**
      * The string identifier for the data type used for drag-and-drop
      * composition of domain objects. (e.g. in event.dataTransfer.setData
@@ -50,4 +50,4 @@ define({
      * @memberof platform/representation.GestureConstants
      */
     MCT_DROP_EVENT: 'mctDrop'
-});
+};;

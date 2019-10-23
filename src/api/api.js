@@ -1,3 +1,10 @@
+import TimeAPI from ".\\time\\TimeAPI.js";
+import ObjectAPI from ".\\objects\\ObjectAPI.js";
+import CompositionAPI from ".\\composition\\CompositionAPI.js";
+import TypeRegistry from ".\\types\\TypeRegistry.js";
+import Dialog from ".\\ui\\Dialog.js";
+import GestureAPI from ".\\ui\\GestureAPI.js";
+import TelemetryAPI from ".\\telemetry\\TelemetryAPI.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,30 +27,13 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './time/TimeAPI',
-    './objects/ObjectAPI',
-    './composition/CompositionAPI',
-    './types/TypeRegistry',
-    './ui/Dialog',
-    './ui/GestureAPI',
-    './telemetry/TelemetryAPI'
-], function (
-    TimeAPI,
-    ObjectAPI,
-    CompositionAPI,
-    TypeRegistry,
-    Dialog,
-    GestureAPI,
-    TelemetryAPI
-) {
-    return {
-        TimeAPI: TimeAPI,
-        ObjectAPI: ObjectAPI,
-        CompositionAPI: CompositionAPI,
-        Dialog: Dialog,
-        TypeRegistry: TypeRegistry,
-        GestureAPI: GestureAPI,
-        TelemetryAPI: TelemetryAPI
-    };
-});
+var bindingVariable = {
+    TimeAPI: TimeAPI,
+    ObjectAPI: ObjectAPI,
+    CompositionAPI: CompositionAPI,
+    Dialog: Dialog,
+    TypeRegistry: TypeRegistry,
+    GestureAPI: GestureAPI,
+    TelemetryAPI: TelemetryAPI
+};;
+export default bindingVariable;

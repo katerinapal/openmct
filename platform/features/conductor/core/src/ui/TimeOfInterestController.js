@@ -20,90 +20,87 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller for the Time of Interest element used in various views to display the TOI. Responsible for setting
-         * the text label for the current TOI, and for toggling the (un)pinned state which determines whether the TOI
-         * indicator is visible.
-         * @constructor
-         */
-        function TimeOfInterestController($scope, openmct, formatService) {
-            this.timeAPI = openmct.time;
-            this.formatService = formatService;
-            this.format = undefined;
-            this.toiText = undefined;
-            this.$scope = $scope;
+/**
+ * Controller for the Time of Interest element used in various views to display the TOI. Responsible for setting
+ * the text label for the current TOI, and for toggling the (un)pinned state which determines whether the TOI
+ * indicator is visible.
+ * @constructor
+ */
+function TimeOfInterestController($scope, openmct, formatService) {
+    this.timeAPI = openmct.time;
+    this.formatService = formatService;
+    this.format = undefined;
+    this.toiText = undefined;
+    this.$scope = $scope;
 
-            //Bind all class functions to 'this'
-            Object.keys(TimeOfInterestController.prototype).filter(function (key) {
-                return typeof TimeOfInterestController.prototype[key] === 'function';
-            }).forEach(function (key) {
-                this[key] = TimeOfInterestController.prototype[key].bind(this);
-            }.bind(this));
+    //Bind all class functions to 'this'
+    Object.keys(TimeOfInterestController.prototype).filter(function (key) {
+        return typeof TimeOfInterestController.prototype[key] === 'function';
+    }).forEach(function (key) {
+        this[key] = TimeOfInterestController.prototype[key].bind(this);
+    }.bind(this));
 
-            this.timeAPI.on('timeOfInterest', this.changeTimeOfInterest);
-            this.timeAPI.on('timeSystem', this.changeTimeSystem);
-            if (this.timeAPI.timeSystem() !== undefined) {
-                this.changeTimeSystem(this.timeAPI.timeSystem());
-                var toi = this.timeAPI.timeOfInterest();
-                if (toi) {
-                    this.changeTimeOfInterest(toi);
-                }
-            }
-
-            $scope.$on('$destroy', this.destroy);
+    this.timeAPI.on('timeOfInterest', this.changeTimeOfInterest);
+    this.timeAPI.on('timeSystem', this.changeTimeSystem);
+    if (this.timeAPI.timeSystem() !== undefined) {
+        this.changeTimeSystem(this.timeAPI.timeSystem());
+        var toi = this.timeAPI.timeOfInterest();
+        if (toi) {
+            this.changeTimeOfInterest(toi);
         }
-
-        /**
-         * Called when the time of interest changes on the conductor. Will pin (display) the TOI indicator, and set the
-         * text using the default formatter of the currently active Time System.
-         * @private
-         * @param {integer} toi Current time of interest in ms
-         */
-        TimeOfInterestController.prototype.changeTimeOfInterest = function (toi) {
-            if (toi !== undefined) {
-                this.$scope.pinned = true;
-                this.toiText = this.format.format(toi);
-            } else {
-                this.$scope.pinned = false;
-            }
-        };
-
-        /**
-         * When time system is changed, update the formatter used to
-         * display the current TOI label
-         */
-        TimeOfInterestController.prototype.changeTimeSystem = function (timeSystem) {
-            this.format = this.formatService.getFormat(timeSystem.timeFormat);
-        };
-
-        /**
-         * @private
-         */
-        TimeOfInterestController.prototype.destroy = function () {
-            this.timeAPI.off('timeOfInterest', this.changeTimeOfInterest);
-            this.timeAPI.off('timeSystem', this.changeTimeSystem);
-        };
-
-        /**
-         * Will unpin (hide) the TOI indicator. Has the effect of setting the time of interest to `undefined` on the
-         * Time Conductor
-         */
-        TimeOfInterestController.prototype.dismiss = function () {
-            this.timeAPI.timeOfInterest(undefined);
-        };
-
-        /**
-         * Sends out a time of interest event with the effect of resetting
-         * the TOI displayed in views.
-         */
-        TimeOfInterestController.prototype.resync = function () {
-            this.timeAPI.timeOfInterest(this.timeAPI.timeOfInterest());
-        };
-
-        return TimeOfInterestController;
     }
-);
+
+    $scope.$on('$destroy', this.destroy);
+}
+
+/**
+ * Called when the time of interest changes on the conductor. Will pin (display) the TOI indicator, and set the
+ * text using the default formatter of the currently active Time System.
+ * @private
+ * @param {integer} toi Current time of interest in ms
+ */
+TimeOfInterestController.prototype.changeTimeOfInterest = function (toi) {
+    if (toi !== undefined) {
+        this.$scope.pinned = true;
+        this.toiText = this.format.format(toi);
+    } else {
+        this.$scope.pinned = false;
+    }
+};
+
+/**
+ * When time system is changed, update the formatter used to
+ * display the current TOI label
+ */
+TimeOfInterestController.prototype.changeTimeSystem = function (timeSystem) {
+    this.format = this.formatService.getFormat(timeSystem.timeFormat);
+};
+
+/**
+ * @private
+ */
+TimeOfInterestController.prototype.destroy = function () {
+    this.timeAPI.off('timeOfInterest', this.changeTimeOfInterest);
+    this.timeAPI.off('timeSystem', this.changeTimeSystem);
+};
+
+/**
+ * Will unpin (hide) the TOI indicator. Has the effect of setting the time of interest to `undefined` on the
+ * Time Conductor
+ */
+TimeOfInterestController.prototype.dismiss = function () {
+    this.timeAPI.timeOfInterest(undefined);
+};
+
+/**
+ * Sends out a time of interest event with the effect of resetting
+ * the TOI displayed in views.
+ */
+TimeOfInterestController.prototype.resync = function () {
+    this.timeAPI.timeOfInterest(this.timeAPI.timeOfInterest());
+};
+
+var bindingVariable = TimeOfInterestController;
+export default bindingVariable;

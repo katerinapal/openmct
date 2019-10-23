@@ -20,92 +20,89 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller to support the date-time entry field.
-         *
-         * Accepts a `format` property in the `structure` attribute
-         * which allows a date/time to be specified via its symbolic
-         * key (as will be used to look up said format from the
-         * `formatService`.)
-         *
-         * {@see FormatService}
-         * @constructor
-         * @memberof platform/commonUI/general
-         * @param $scope the Angular scope for this controller
-         * @param {FormatService} formatService the service to user to format
-         *        domain values
-         * @param {string} defaultFormat the format to request when no
-         *        format has been otherwise specified
-         */
-        function DateTimeFieldController($scope, formatService, defaultFormat) {
-            var formatter = formatService.getFormat(defaultFormat);
+/**
+ * Controller to support the date-time entry field.
+ *
+ * Accepts a `format` property in the `structure` attribute
+ * which allows a date/time to be specified via its symbolic
+ * key (as will be used to look up said format from the
+ * `formatService`.)
+ *
+ * {@see FormatService}
+ * @constructor
+ * @memberof platform/commonUI/general
+ * @param $scope the Angular scope for this controller
+ * @param {FormatService} formatService the service to user to format
+ *        domain values
+ * @param {string} defaultFormat the format to request when no
+ *        format has been otherwise specified
+ */
+function DateTimeFieldController($scope, formatService, defaultFormat) {
+    var formatter = formatService.getFormat(defaultFormat);
 
-            function updateFromModel(value) {
-                // Only reformat if the value is different from user
-                // input (to avoid reformatting valid input while typing.)
-                if (!formatter.validate($scope.textValue) ||
-                        formatter.parse($scope.textValue) !== value) {
-                    $scope.textValue = formatter.format(value);
-                    $scope.textInvalid = false;
-                    $scope.lastValidValue = $scope.textValue;
-                }
-                $scope.pickerModel = { value: value };
-            }
-
-            function updateFromView(textValue) {
-                $scope.textInvalid = !formatter.validate(textValue);
-                if (!$scope.textInvalid) {
-                    $scope.ngModel[$scope.field] =
-                        formatter.parse(textValue);
-                    $scope.lastValidValue = $scope.textValue;
-                }
-            }
-
-            function updateFromPicker(value) {
-                if (value !== $scope.ngModel[$scope.field]) {
-                    $scope.ngModel[$scope.field] = value;
-                    updateFromModel(value);
-                    if ($scope.ngBlur) {
-                        $scope.ngBlur();
-                    }
-
-                    // If picker is active, dismiss it when valid value has been selected
-                    // This 'if' is to avoid unnecessary validation if picker is not active
-                    if ($scope.picker.active) {
-                        if ($scope.structure.validate && $scope.structure.validate($scope.ngModel[$scope.field])) {
-                            $scope.picker.active = false;
-                        } else if (!$scope.structure.validate) {
-                            //If picker visible, but no validation function, hide picker
-                            $scope.picker.active = false;
-                        }
-                    }
-                }
-            }
-
-            function setFormat(format) {
-                formatter = formatService.getFormat(format || defaultFormat);
-                updateFromModel($scope.ngModel[$scope.field]);
-            }
-
-            function restoreTextValue() {
-                $scope.textValue = $scope.lastValidValue;
-                updateFromView($scope.textValue);
-            }
-
-            $scope.restoreTextValue = restoreTextValue;
-
-            $scope.picker = { active: false };
-
-            $scope.$watch('structure.format', setFormat);
-            $scope.$watch('ngModel[field]', updateFromModel);
-            $scope.$watch('pickerModel.value', updateFromPicker);
-            $scope.$watch('textValue', updateFromView);
+    function updateFromModel(value) {
+        // Only reformat if the value is different from user
+        // input (to avoid reformatting valid input while typing.)
+        if (!formatter.validate($scope.textValue) ||
+                formatter.parse($scope.textValue) !== value) {
+            $scope.textValue = formatter.format(value);
+            $scope.textInvalid = false;
+            $scope.lastValidValue = $scope.textValue;
         }
-
-        return DateTimeFieldController;
+        $scope.pickerModel = { value: value };
     }
-);
+
+    function updateFromView(textValue) {
+        $scope.textInvalid = !formatter.validate(textValue);
+        if (!$scope.textInvalid) {
+            $scope.ngModel[$scope.field] =
+                formatter.parse(textValue);
+            $scope.lastValidValue = $scope.textValue;
+        }
+    }
+
+    function updateFromPicker(value) {
+        if (value !== $scope.ngModel[$scope.field]) {
+            $scope.ngModel[$scope.field] = value;
+            updateFromModel(value);
+            if ($scope.ngBlur) {
+                $scope.ngBlur();
+            }
+
+            // If picker is active, dismiss it when valid value has been selected
+            // This 'if' is to avoid unnecessary validation if picker is not active
+            if ($scope.picker.active) {
+                if ($scope.structure.validate && $scope.structure.validate($scope.ngModel[$scope.field])) {
+                    $scope.picker.active = false;
+                } else if (!$scope.structure.validate) {
+                    //If picker visible, but no validation function, hide picker
+                    $scope.picker.active = false;
+                }
+            }
+        }
+    }
+
+    function setFormat(format) {
+        formatter = formatService.getFormat(format || defaultFormat);
+        updateFromModel($scope.ngModel[$scope.field]);
+    }
+
+    function restoreTextValue() {
+        $scope.textValue = $scope.lastValidValue;
+        updateFromView($scope.textValue);
+    }
+
+    $scope.restoreTextValue = restoreTextValue;
+
+    $scope.picker = { active: false };
+
+    $scope.$watch('structure.format', setFormat);
+    $scope.$watch('ngModel[field]', updateFromModel);
+    $scope.$watch('pickerModel.value', updateFromPicker);
+    $scope.$watch('textValue', updateFromView);
+}
+
+var bindingVariable = DateTimeFieldController;
+export default bindingVariable;

@@ -20,55 +20,55 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(function () {
+;
 
-    /**
-     * A Type describes a kind of domain object that may appear or be
-     * created within Open MCT.
-     *
-     * @param {module:opemct.TypeRegistry~TypeDefinition} definition
-     * @class Type
-     * @memberof module:openmct
-     */
-    function Type(definition) {
-        this.definition = definition;
+/**
+ * A Type describes a kind of domain object that may appear or be
+ * created within Open MCT.
+ *
+ * @param {module:opemct.TypeRegistry~TypeDefinition} definition
+ * @class Type
+ * @memberof module:openmct
+ */
+function Type(definition) {
+    this.definition = definition;
+}
+
+/**
+ * Check if a domain object is an instance of this type.
+ * @param domainObject
+ * @returns {boolean} true if the domain object is of this type
+ * @memberof module:openmct.Type#
+ * @method check
+ */
+Type.prototype.check = function (domainObject) {
+    // Depends on assignment from MCT.
+    return domainObject.type === this.key;
+};
+
+/**
+ * Get a definition for this type that can be registered using the
+ * legacy bundle format.
+ * @private
+ */
+Type.prototype.toLegacyDefinition = function () {
+    var def = {};
+    def.name = this.definition.name;
+    def.cssClass = this.definition.cssClass;
+    def.description = this.definition.description;
+    def.properties = this.definition.form;
+
+    if (this.definition.initialize) {
+        def.model = {};
+        this.definition.initialize(def.model);
     }
 
-    /**
-     * Check if a domain object is an instance of this type.
-     * @param domainObject
-     * @returns {boolean} true if the domain object is of this type
-     * @memberof module:openmct.Type#
-     * @method check
-     */
-    Type.prototype.check = function (domainObject) {
-        // Depends on assignment from MCT.
-        return domainObject.type === this.key;
-    };
+    if (this.definition.creatable) {
+        def.features = ['creation'];
+    }
 
-    /**
-     * Get a definition for this type that can be registered using the
-     * legacy bundle format.
-     * @private
-     */
-    Type.prototype.toLegacyDefinition = function () {
-        var def = {};
-        def.name = this.definition.name;
-        def.cssClass = this.definition.cssClass;
-        def.description = this.definition.description;
-        def.properties = this.definition.form;
+    return def;
+};
 
-        if (this.definition.initialize) {
-            def.model = {};
-            this.definition.initialize(def.model);
-        }
-
-        if (this.definition.creatable) {
-            def.features = ['creation'];
-        }
-
-        return def;
-    };
-
-    return Type;
-});
+var bindingVariable = Type;
+export default bindingVariable;

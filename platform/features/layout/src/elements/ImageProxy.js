@@ -1,3 +1,5 @@
+import ElementProxy from ".\\ElementProxy.js";
+import AccessorMutator from ".\\AccessorMutator.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,45 +22,42 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./ElementProxy', './AccessorMutator'],
-    function (ElementProxy, AccessorMutator) {
+;
 
-        /**
-         * Selection proxy for Image elements in a fixed position view.
-         *
-         * Note that arguments here are meant to match those expected
-         * by `Array.prototype.map`
-         *
-         * @memberof platform/features/layout
-         * @constructor
-         * @param element the fixed position element, as stored in its
-         *        configuration
-         * @param index the element's index within its array
-         * @param {Array} elements the full array of elements
-         * @param {number[]} gridSize the current layout grid size in [x,y] from
-         * @augments {platform/features/layout.ElementProxy}
-         */
-        function ImageProxy(element, index, elements, gridSize) {
-            var proxy = new ElementProxy(element, index, elements, gridSize);
+/**
+ * Selection proxy for Image elements in a fixed position view.
+ *
+ * Note that arguments here are meant to match those expected
+ * by `Array.prototype.map`
+ *
+ * @memberof platform/features/layout
+ * @constructor
+ * @param element the fixed position element, as stored in its
+ *        configuration
+ * @param index the element's index within its array
+ * @param {Array} elements the full array of elements
+ * @param {number[]} gridSize the current layout grid size in [x,y] from
+ * @augments {platform/features/layout.ElementProxy}
+ */
+function ImageProxy(element, index, elements, gridSize) {
+    var proxy = new ElementProxy(element, index, elements, gridSize);
 
-            /**
-             * Get and/or set the displayed text of this element.
-             * @param {string} [text] the new text (if setting)
-             * @returns {string} the text
-             * @memberof platform/features/layout.ImageProxy#
-             */
-            proxy.url = new AccessorMutator(element, 'url');
+    /**
+     * Get and/or set the displayed text of this element.
+     * @param {string} [text] the new text (if setting)
+     * @returns {string} the text
+     * @memberof platform/features/layout.ImageProxy#
+     */
+    proxy.url = new AccessorMutator(element, 'url');
 
-            //Expose x,y, width and height properties for editing
-            proxy.editWidth = new AccessorMutator(element, 'width');
-            proxy.editHeight = new AccessorMutator(element, 'height');
-            proxy.editX = new AccessorMutator(element, 'x');
-            proxy.editY = new AccessorMutator(element, 'y');
+    //Expose x,y, width and height properties for editing
+    proxy.editWidth = new AccessorMutator(element, 'width');
+    proxy.editHeight = new AccessorMutator(element, 'height');
+    proxy.editX = new AccessorMutator(element, 'x');
+    proxy.editY = new AccessorMutator(element, 'y');
 
-            return proxy;
-        }
+    return proxy;
+}
 
-        return ImageProxy;
-    }
-);
+var bindingVariable = ImageProxy;
+export default bindingVariable;

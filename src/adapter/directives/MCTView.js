@@ -20,27 +20,25 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-], function (
-) {
-    function MCTView(openmct) {
-        return {
-            restrict: 'E',
-            link: function (scope, element, attrs) {
-                var provider = openmct.objectViews.getByProviderKey(attrs.mctProviderKey);
-                var view = new provider.view(scope.domainObject.useCapability('adapter'));
-                var domElement = element[0];
+;
+function MCTView(openmct) {
+    return {
+        restrict: 'E',
+        link: function (scope, element, attrs) {
+            var provider = openmct.objectViews.getByProviderKey(attrs.mctProviderKey);
+            var view = new provider.view(scope.domainObject.useCapability('adapter'));
+            var domElement = element[0];
 
-                view.show(domElement);
+            view.show(domElement);
 
-                if (view.destroy) {
-                    scope.$on('$destroy', function () {
-                        view.destroy(domElement);
-                    });
-                }
+            if (view.destroy) {
+                scope.$on('$destroy', function () {
+                    view.destroy(domElement);
+                });
             }
-        };
-    }
+        }
+    };
+}
 
-    return MCTView;
-});
+var bindingVariable = MCTView;
+export default bindingVariable;

@@ -20,36 +20,36 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Disallow duplication when the object to be duplicated is not
-     * creatable.
-     * @constructor
-     * @implements {Policy}
-     * @memberof platform/entanglement
-     */
-    function CopyPolicy() {
+/**
+ * Disallow duplication when the object to be duplicated is not
+ * creatable.
+ * @constructor
+ * @implements {Policy}
+ * @memberof platform/entanglement
+ */
+function CopyPolicy() {
+}
+
+function allowCreation(domainObject) {
+    var type = domainObject && domainObject.getCapability('type');
+    return !!(type && type.hasFeature('creation'));
+}
+
+function selectedObject(context) {
+    return context.selectedObject || context.domainObject;
+}
+
+CopyPolicy.prototype.allow = function (action, context) {
+    var key = action.getMetadata().key;
+
+    if (key === 'copy') {
+        return allowCreation(selectedObject(context));
     }
 
-    function allowCreation(domainObject) {
-        var type = domainObject && domainObject.getCapability('type');
-        return !!(type && type.hasFeature('creation'));
-    }
+    return true;
+};
 
-    function selectedObject(context) {
-        return context.selectedObject || context.domainObject;
-    }
-
-    CopyPolicy.prototype.allow = function (action, context) {
-        var key = action.getMetadata().key;
-
-        if (key === 'copy') {
-            return allowCreation(selectedObject(context));
-        }
-
-        return true;
-    };
-
-    return CopyPolicy;
-});
+var bindingVariable = CopyPolicy;
+export default bindingVariable;

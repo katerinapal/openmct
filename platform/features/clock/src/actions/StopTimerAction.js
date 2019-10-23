@@ -20,52 +20,49 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Implements the "Stop" action for timers.
-         *
-         * Sets the reference timestamp in a timer undefined,
-         * such that it is reset and makes no movements.
-         *
-         * @implements {Action}
-         * @memberof platform/features/clock
-         * @constructor
-         * @param {Function} now a function which returns the current
-         *        time (typically wrapping `Date.now`)
-         * @param {ActionContext} context the context for this action
-         */
-        function StopTimerAction(now, context) {
-            this.domainObject = context.domainObject;
-            this.now = now;
-        }
+/**
+ * Implements the "Stop" action for timers.
+ *
+ * Sets the reference timestamp in a timer undefined,
+ * such that it is reset and makes no movements.
+ *
+ * @implements {Action}
+ * @memberof platform/features/clock
+ * @constructor
+ * @param {Function} now a function which returns the current
+ *        time (typically wrapping `Date.now`)
+ * @param {ActionContext} context the context for this action
+ */
+function StopTimerAction(now, context) {
+    this.domainObject = context.domainObject;
+    this.now = now;
+}
 
-        StopTimerAction.appliesTo = function (context) {
-            var model =
-                (context.domainObject && context.domainObject.getModel()) ||
-                {};
+StopTimerAction.appliesTo = function (context) {
+    var model =
+        (context.domainObject && context.domainObject.getModel()) ||
+        {};
 
 
-            // We show this variant for timers which do not yet have
-            // a target time.
-            return model.type === 'timer' &&
-                    model.timerState !== 'stopped';
-        };
+    // We show this variant for timers which do not yet have
+    // a target time.
+    return model.type === 'timer' &&
+            model.timerState !== 'stopped';
+};
 
-        StopTimerAction.prototype.perform = function () {
-            var domainObject = this.domainObject;
+StopTimerAction.prototype.perform = function () {
+    var domainObject = this.domainObject;
 
-            function updateModel(model) {
-                model.timestamp = undefined;
-                model.timerState = 'stopped';
-                model.pausedTime = undefined;
-            }
-
-            return domainObject.useCapability('mutation', updateModel);
-        };
-
-        return StopTimerAction;
+    function updateModel(model) {
+        model.timestamp = undefined;
+        model.timerState = 'stopped';
+        model.pausedTime = undefined;
     }
-);
+
+    return domainObject.useCapability('mutation', updateModel);
+};
+
+var bindingVariable = StopTimerAction;
+export default bindingVariable;

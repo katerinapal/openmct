@@ -20,156 +20,156 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['zepto'], function ($) {
+;
 
-    /**
-     * The ImportAsJSONAction is available from context menus and allows a user
-     * to import a previously exported domain object into any domain object
-     * that has the composition capability.
-     *
-     * @implements {Action}
-     * @constructor
-     * @memberof platform/import-export
-     */
-    function ImportAsJSONAction(
-        exportService,
-        identifierService,
-        dialogService,
-        openmct,
-        context
-    ) {
+/**
+ * The ImportAsJSONAction is available from context menus and allows a user
+ * to import a previously exported domain object into any domain object
+ * that has the composition capability.
+ *
+ * @implements {Action}
+ * @constructor
+ * @memberof platform/import-export
+ */
+function ImportAsJSONAction(
+    exportService,
+    identifierService,
+    dialogService,
+    openmct,
+    context
+) {
 
-        this.openmct = openmct;
-        this.context = context;
-        this.exportService = exportService;
-        this.dialogService = dialogService;
-        this.identifierService = identifierService;
-        this.instantiate = openmct.$injector.get("instantiate");
-    }
+    this.openmct = openmct;
+    this.context = context;
+    this.exportService = exportService;
+    this.dialogService = dialogService;
+    this.identifierService = identifierService;
+    this.instantiate = openmct.$injector.get("instantiate");
+}
 
-    ImportAsJSONAction.prototype.perform = function () {
-        this.dialogService.getUserInput(this.getFormModel(), {})
-            .then(function (form) {
-                var objectTree = form.selectFile.body;
-                if (this.validateJSON(objectTree)) {
-                    this.importObjectTree(JSON.parse(objectTree));
-                } else {
-                    this.displayError();
-                }
-            }.bind(this));
-    };
+ImportAsJSONAction.prototype.perform = function () {
+    this.dialogService.getUserInput(this.getFormModel(), {})
+        .then(function (form) {
+            var objectTree = form.selectFile.body;
+            if (this.validateJSON(objectTree)) {
+                this.importObjectTree(JSON.parse(objectTree));
+            } else {
+                this.displayError();
+            }
+        }.bind(this));
+};
 
-    ImportAsJSONAction.prototype.importObjectTree = function (objTree) {
-        var parent = this.context.domainObject;
-        var tree = this.generateNewIdentifiers(objTree);
-        var rootId = tree.rootId;
-        var rootObj = this.instantiate(tree.openmct[rootId], rootId);
+ImportAsJSONAction.prototype.importObjectTree = function (objTree) {
+    var parent = this.context.domainObject;
+    var tree = this.generateNewIdentifiers(objTree);
+    var rootId = tree.rootId;
+    var rootObj = this.instantiate(tree.openmct[rootId], rootId);
 
-        // Instantiate all objects in tree with their newly genereated ids,
-        // adding each to its rightful parent's composition
-        rootObj.getCapability("location").setPrimaryLocation(parent.getId());
-        this.deepInstantiate(rootObj, tree.openmct, []);
-        parent.getCapability("composition").add(rootObj);
-    };
+    // Instantiate all objects in tree with their newly genereated ids,
+    // adding each to its rightful parent's composition
+    rootObj.getCapability("location").setPrimaryLocation(parent.getId());
+    this.deepInstantiate(rootObj, tree.openmct, []);
+    parent.getCapability("composition").add(rootObj);
+};
 
-    ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree, seen) {
-        // Traverses object tree, instantiates all domain object w/ new IDs and
-        // adds to parent's composition
-        if (parent.hasCapability("composition")) {
-            var parentModel = parent.getModel();
-            var newObj;
+ImportAsJSONAction.prototype.deepInstantiate = function (parent, tree, seen) {
+    // Traverses object tree, instantiates all domain object w/ new IDs and
+    // adds to parent's composition
+    if (parent.hasCapability("composition")) {
+        var parentModel = parent.getModel();
+        var newObj;
 
-            seen.push(parent.getId());
-            parentModel.composition.forEach(function (childId, index) {
-                if (!tree[childId] || seen.includes(childId)) {
-                    return;
-                }
+        seen.push(parent.getId());
+        parentModel.composition.forEach(function (childId, index) {
+            if (!tree[childId] || seen.includes(childId)) {
+                return;
+            }
 
-                newObj = this.instantiate(tree[childId], childId);
-                parent.getCapability("composition").add(newObj);
-                newObj.getCapability("location")
-                    .setPrimaryLocation(tree[childId].location);
-                this.deepInstantiate(newObj, tree, seen);
-            }, this);
-        }
-    };
-
-    ImportAsJSONAction.prototype.generateNewIdentifiers = function (tree) {
-        // For each domain object in the file, generate new ID, replace in tree
-        Object.keys(tree.openmct).forEach(function (domainObjectId) {
-            var newId = this.identifierService.generate();
-            tree = this.rewriteId(domainObjectId, newId, tree);
+            newObj = this.instantiate(tree[childId], childId);
+            parent.getCapability("composition").add(newObj);
+            newObj.getCapability("location")
+                .setPrimaryLocation(tree[childId].location);
+            this.deepInstantiate(newObj, tree, seen);
         }, this);
-        return tree;
-    };
+    }
+};
 
-    /**
-     * Rewrites all instances of a given id in the tree with a newly generated
-     * replacement to prevent collision.
-     *
-     * @private
-     */
-    ImportAsJSONAction.prototype.rewriteId = function (oldID, newID, tree) {
-        tree = JSON.stringify(tree).replace(new RegExp(oldID, 'g'), newID);
-        return JSON.parse(tree);
-    };
+ImportAsJSONAction.prototype.generateNewIdentifiers = function (tree) {
+    // For each domain object in the file, generate new ID, replace in tree
+    Object.keys(tree.openmct).forEach(function (domainObjectId) {
+        var newId = this.identifierService.generate();
+        tree = this.rewriteId(domainObjectId, newId, tree);
+    }, this);
+    return tree;
+};
 
-    ImportAsJSONAction.prototype.getFormModel = function () {
-        return {
-            name: "Import as JSON",
-            sections: [
-                {
-                    name: "Import A File",
-                    rows: [
-                        {
-                            name: 'Select File',
-                            key: 'selectFile',
-                            control: 'file-input',
-                            required: true,
-                            text: 'Select File'
-                        }
-                    ]
-                }
-            ]
-        };
-    };
+/**
+ * Rewrites all instances of a given id in the tree with a newly generated
+ * replacement to prevent collision.
+ *
+ * @private
+ */
+ImportAsJSONAction.prototype.rewriteId = function (oldID, newID, tree) {
+    tree = JSON.stringify(tree).replace(new RegExp(oldID, 'g'), newID);
+    return JSON.parse(tree);
+};
 
-    ImportAsJSONAction.prototype.validateJSON = function (jsonString) {
-        var json;
-        try {
-            json = JSON.parse(jsonString);
-        } catch (e) {
-            return false;
-        }
-        if (!json.openmct || !json.rootId) {
-            return false;
-        }
-        return true;
-    };
-
-    ImportAsJSONAction.prototype.displayError = function () {
-        var dialog,
-        model = {
-            title: "Invalid File",
-            actionText:  "The selected file was either invalid JSON or was " +
-                "not formatted properly for import into Open MCT.",
-            severity: "error",
-            options: [
-                {
-                    label: "Ok",
-                    callback: function () {
-                        dialog.dismiss();
+ImportAsJSONAction.prototype.getFormModel = function () {
+    return {
+        name: "Import as JSON",
+        sections: [
+            {
+                name: "Import A File",
+                rows: [
+                    {
+                        name: 'Select File',
+                        key: 'selectFile',
+                        control: 'file-input',
+                        required: true,
+                        text: 'Select File'
                     }
+                ]
+            }
+        ]
+    };
+};
+
+ImportAsJSONAction.prototype.validateJSON = function (jsonString) {
+    var json;
+    try {
+        json = JSON.parse(jsonString);
+    } catch (e) {
+        return false;
+    }
+    if (!json.openmct || !json.rootId) {
+        return false;
+    }
+    return true;
+};
+
+ImportAsJSONAction.prototype.displayError = function () {
+    var dialog,
+    model = {
+        title: "Invalid File",
+        actionText:  "The selected file was either invalid JSON or was " +
+            "not formatted properly for import into Open MCT.",
+        severity: "error",
+        options: [
+            {
+                label: "Ok",
+                callback: function () {
+                    dialog.dismiss();
                 }
-            ]
-        };
-        dialog = this.dialogService.showBlockingMessage(model);
+            }
+        ]
     };
+    dialog = this.dialogService.showBlockingMessage(model);
+};
 
-    ImportAsJSONAction.appliesTo = function (context) {
-        return context.domainObject !== undefined &&
-            context.domainObject.hasCapability("composition");
-    };
+ImportAsJSONAction.appliesTo = function (context) {
+    return context.domainObject !== undefined &&
+        context.domainObject.hasCapability("composition");
+};
 
-    return ImportAsJSONAction;
-});
+var bindingVariable = ImportAsJSONAction;
+export default bindingVariable;

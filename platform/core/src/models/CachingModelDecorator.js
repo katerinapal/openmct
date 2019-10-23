@@ -20,45 +20,42 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The caching model decorator maintains a cache of loaded domain
-         * object models, and ensures that duplicate models for the same
-         * object are not provided.
-         * @memberof platform/core
-         * @constructor
-         * @param {ModelService} modelService this service to decorate
-         * @implements {ModelService}
-         */
-        function CachingModelDecorator(cacheService, modelService) {
-            this.cacheService = cacheService;
-            this.modelService = modelService;
-        }
+/**
+ * The caching model decorator maintains a cache of loaded domain
+ * object models, and ensures that duplicate models for the same
+ * object are not provided.
+ * @memberof platform/core
+ * @constructor
+ * @param {ModelService} modelService this service to decorate
+ * @implements {ModelService}
+ */
+function CachingModelDecorator(cacheService, modelService) {
+    this.cacheService = cacheService;
+    this.modelService = modelService;
+}
 
-        CachingModelDecorator.prototype.getModels = function (ids) {
-            var loadFromCache = ids.filter(function cached(id) {
-                    return this.cacheService.has(id);
-                }, this),
-                loadFromService = ids.filter(function notCached(id) {
-                    return !this.cacheService.has(id);
-                }, this);
+CachingModelDecorator.prototype.getModels = function (ids) {
+    var loadFromCache = ids.filter(function cached(id) {
+            return this.cacheService.has(id);
+        }, this),
+        loadFromService = ids.filter(function notCached(id) {
+            return !this.cacheService.has(id);
+        }, this);
 
-            if (!loadFromCache.length) {
-                return this.modelService.getModels(loadFromService);
-            }
-
-            return this.modelService.getModels(loadFromService)
-                .then(function (modelResults) {
-                    loadFromCache.forEach(function (id) {
-                        modelResults[id] = this.cacheService.get(id);
-                    }, this);
-                    return modelResults;
-                }.bind(this));
-        };
-
-        return CachingModelDecorator;
+    if (!loadFromCache.length) {
+        return this.modelService.getModels(loadFromService);
     }
-);
+
+    return this.modelService.getModels(loadFromService)
+        .then(function (modelResults) {
+            loadFromCache.forEach(function (id) {
+                modelResults[id] = this.cacheService.get(id);
+            }, this);
+            return modelResults;
+        }.bind(this));
+};
+
+var bindingVariable = CachingModelDecorator;
+export default bindingVariable;

@@ -21,48 +21,48 @@
  *****************************************************************************/
 /*global define*/
 
-define([], function () {
+;
 
-    /**
-     * Listens for mutation on domain objects and triggers persistence when
-     * it occurs.
-     * @param {Topic} topic the `topic` service; used to listen for mutation
-     * @memberof platform/core
-     */
-    function TransactingMutationListener(
-        topic,
-        transactionService,
-        cacheService
-    ) {
+/**
+ * Listens for mutation on domain objects and triggers persistence when
+ * it occurs.
+ * @param {Topic} topic the `topic` service; used to listen for mutation
+ * @memberof platform/core
+ */
+function TransactingMutationListener(
+    topic,
+    transactionService,
+    cacheService
+) {
 
-        function hasChanged(domainObject) {
-            var model = domainObject.getModel();
-            return model.persisted === undefined || model.modified > model.persisted;
-        }
-
-        var mutationTopic = topic('mutation');
-        mutationTopic.listen(function (domainObject) {
-            var persistence = domainObject.getCapability('persistence');
-            var wasActive = transactionService.isActive();
-            cacheService.put(domainObject.getId(), domainObject.getModel());
-
-            if (hasChanged(domainObject)) {
-
-                if (!wasActive) {
-                    transactionService.startTransaction();
-                }
-
-                transactionService.addToTransaction(
-                    persistence.persist.bind(persistence),
-                    persistence.refresh.bind(persistence)
-                );
-
-                if (!wasActive) {
-                    transactionService.commit();
-                }
-            }
-        });
+    function hasChanged(domainObject) {
+        var model = domainObject.getModel();
+        return model.persisted === undefined || model.modified > model.persisted;
     }
 
-    return TransactingMutationListener;
-});
+    var mutationTopic = topic('mutation');
+    mutationTopic.listen(function (domainObject) {
+        var persistence = domainObject.getCapability('persistence');
+        var wasActive = transactionService.isActive();
+        cacheService.put(domainObject.getId(), domainObject.getModel());
+
+        if (hasChanged(domainObject)) {
+
+            if (!wasActive) {
+                transactionService.startTransaction();
+            }
+
+            transactionService.addToTransaction(
+                persistence.persist.bind(persistence),
+                persistence.refresh.bind(persistence)
+            );
+
+            if (!wasActive) {
+                transactionService.commit();
+            }
+        }
+    });
+}
+
+var bindingVariable = TransactingMutationListener;
+export default bindingVariable;

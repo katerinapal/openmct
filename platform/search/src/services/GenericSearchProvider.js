@@ -1,3 +1,4 @@
+import objectUtils from "..\\..\\..\\..\\src\\api\\objects\\object-utils.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -24,275 +25,269 @@
 /**
  * Module defining GenericSearchProvider. Created by shale on 07/16/2015.
  */
-define([
-    '../../../../src/api/objects/object-utils',
-    'lodash'
-], function (
-    objectUtils,
-    _
+;
+
+/**
+ * A search service which searches through domain objects in
+ * the filetree without using external search implementations.
+ *
+ * @constructor
+ * @param $q Angular's $q, for promise consolidation.
+ * @param $log Anglar's $log, for logging.
+ * @param {ModelService} modelService the model service.
+ * @param {WorkerService} workerService the workerService.
+ * @param {TopicService} topic the topic service.
+ * @param {Array} ROOTS An array of object Ids to begin indexing.
+ */
+function GenericSearchProvider($q, $log, modelService, workerService, topic, ROOTS, openmct) {
+    var provider = this;
+    this.$q = $q;
+    this.$log = $log;
+    this.modelService = modelService;
+    this.openmct = openmct;
+
+    this.indexedIds = {};
+    this.idsToIndex = [];
+    this.pendingIndex = {};
+    this.pendingRequests = 0;
+
+    this.pendingQueries = {};
+
+    this.worker = this.startWorker(workerService);
+    this.indexOnMutation(topic);
+
+    ROOTS.forEach(function indexRoot(rootId) {
+        provider.scheduleForIndexing(rootId);
+    });
+
+
+}
+
+/**
+ * Maximum number of concurrent index requests to allow.
+ */
+GenericSearchProvider.prototype.MAX_CONCURRENT_REQUESTS = 100;
+
+/**
+ * Query the search provider for results.
+ *
+ * @param {String} input the string to search by.
+ * @param {Number} maxResults max number of results to return.
+ * @returns {Promise} a promise for a modelResults object.
+ */
+GenericSearchProvider.prototype.query = function (
+    input,
+    maxResults
 ) {
 
-    /**
-     * A search service which searches through domain objects in
-     * the filetree without using external search implementations.
-     *
-     * @constructor
-     * @param $q Angular's $q, for promise consolidation.
-     * @param $log Anglar's $log, for logging.
-     * @param {ModelService} modelService the model service.
-     * @param {WorkerService} workerService the workerService.
-     * @param {TopicService} topic the topic service.
-     * @param {Array} ROOTS An array of object Ids to begin indexing.
-     */
-    function GenericSearchProvider($q, $log, modelService, workerService, topic, ROOTS, openmct) {
-        var provider = this;
-        this.$q = $q;
-        this.$log = $log;
-        this.modelService = modelService;
-        this.openmct = openmct;
+    var queryId = this.dispatchSearch(input, maxResults),
+        pendingQuery = this.$q.defer();
 
-        this.indexedIds = {};
-        this.idsToIndex = [];
-        this.pendingIndex = {};
-        this.pendingRequests = 0;
+    this.pendingQueries[queryId] = pendingQuery;
 
-        this.pendingQueries = {};
+    return pendingQuery.promise;
+};
 
-        this.worker = this.startWorker(workerService);
-        this.indexOnMutation(topic);
+/**
+ * Creates a search worker and attaches handlers.
+ *
+ * @private
+ * @param workerService
+ * @returns worker the created search worker.
+ */
+GenericSearchProvider.prototype.startWorker = function (workerService) {
+    var worker = workerService.run('genericSearchWorker'),
+        provider = this;
 
-        ROOTS.forEach(function indexRoot(rootId) {
-            provider.scheduleForIndexing(rootId);
+    worker.addEventListener('message', function (messageEvent) {
+        provider.onWorkerMessage(messageEvent);
+    });
+
+    return worker;
+};
+
+/**
+ * Listen to the mutation topic and re-index objects when they are
+ * mutated.
+ *
+ * @private
+ * @param topic the topicService.
+ */
+GenericSearchProvider.prototype.indexOnMutation = function (topic) {
+    var mutationTopic = topic('mutation'),
+        provider = this;
+
+    mutationTopic.listen(function (mutatedObject) {
+        var editor = mutatedObject.getCapability('editor');
+        if (!editor || !editor.inEditContext()) {
+            provider.index(
+                mutatedObject.getId(),
+                mutatedObject.getModel()
+            );
+        }
+    });
+};
+
+/**
+ * Schedule an id to be indexed at a later date.  If there are less
+ * pending requests then allowed, will kick off an indexing request.
+ *
+ * @private
+ * @param {String} id to be indexed.
+ */
+GenericSearchProvider.prototype.scheduleForIndexing = function (id) {
+    if (!this.indexedIds[id] && !this.pendingIndex[id]) {
+        this.indexedIds[id] = true;
+        this.pendingIndex[id] = true;
+        this.idsToIndex.push(id);
+    }
+    this.keepIndexing();
+};
+
+/**
+ * If there are less pending requests than concurrent requests, keep
+ * firing requests.
+ *
+ * @private
+ */
+GenericSearchProvider.prototype.keepIndexing = function () {
+    while (this.pendingRequests < this.MAX_CONCURRENT_REQUESTS &&
+        this.idsToIndex.length
+        ) {
+        this.beginIndexRequest();
+    }
+};
+
+/**
+ * Pass an id and model to the worker to be indexed.  If the model has
+ * composition, schedule those ids for later indexing.
+ *
+ * @private
+ * @param id a model id
+ * @param model a model
+ */
+GenericSearchProvider.prototype.index = function (id, model) {
+    var provider = this;
+
+    if (id !== 'ROOT') {
+        this.worker.postMessage({
+            request: 'index',
+            model: model,
+            id: id
         });
-
-
     }
 
-    /**
-     * Maximum number of concurrent index requests to allow.
-     */
-    GenericSearchProvider.prototype.MAX_CONCURRENT_REQUESTS = 100;
+    var domainObject = objectUtils.toNewFormat(model, id);
+    var composition = _.find(this.openmct.composition.registry, function (p) {
+        return p.appliesTo(domainObject);
+    });
 
-    /**
-     * Query the search provider for results.
-     *
-     * @param {String} input the string to search by.
-     * @param {Number} maxResults max number of results to return.
-     * @returns {Promise} a promise for a modelResults object.
-     */
-    GenericSearchProvider.prototype.query = function (
-        input,
-        maxResults
-    ) {
+    if (!composition) {
+        return;
+    }
 
-        var queryId = this.dispatchSearch(input, maxResults),
-            pendingQuery = this.$q.defer();
-
-        this.pendingQueries[queryId] = pendingQuery;
-
-        return pendingQuery.promise;
-    };
-
-    /**
-     * Creates a search worker and attaches handlers.
-     *
-     * @private
-     * @param workerService
-     * @returns worker the created search worker.
-     */
-    GenericSearchProvider.prototype.startWorker = function (workerService) {
-        var worker = workerService.run('genericSearchWorker'),
-            provider = this;
-
-        worker.addEventListener('message', function (messageEvent) {
-            provider.onWorkerMessage(messageEvent);
+    composition.load(domainObject)
+        .then(function (children) {
+            children.forEach(function (child) {
+                provider.scheduleForIndexing(objectUtils.makeKeyString(child));
+            });
         });
+};
 
-        return worker;
-    };
+/**
+ * Pulls an id from the indexing queue, loads it from the model service,
+ * and indexes it.  Upon completion, tells the provider to keep
+ * indexing.
+ *
+ * @private
+ */
+GenericSearchProvider.prototype.beginIndexRequest = function () {
+    var idToIndex = this.idsToIndex.shift(),
+        provider = this;
 
-    /**
-     * Listen to the mutation topic and re-index objects when they are
-     * mutated.
-     *
-     * @private
-     * @param topic the topicService.
-     */
-    GenericSearchProvider.prototype.indexOnMutation = function (topic) {
-        var mutationTopic = topic('mutation'),
-            provider = this;
-
-        mutationTopic.listen(function (mutatedObject) {
-            var editor = mutatedObject.getCapability('editor');
-            if (!editor || !editor.inEditContext()) {
-                provider.index(
-                    mutatedObject.getId(),
-                    mutatedObject.getModel()
-                );
+    this.pendingRequests += 1;
+    this.modelService
+        .getModels([idToIndex])
+        .then(function (models) {
+            delete provider.pendingIndex[idToIndex];
+            if (models[idToIndex]) {
+                provider.index(idToIndex, models[idToIndex]);
             }
+        }, function () {
+            provider
+                .$log
+                .warn('Failed to index domain object ' + idToIndex);
+        })
+        .then(function () {
+            setTimeout(function () {
+                provider.pendingRequests -= 1;
+                provider.keepIndexing();
+            }, 0);
         });
-    };
+};
 
-    /**
-     * Schedule an id to be indexed at a later date.  If there are less
-     * pending requests then allowed, will kick off an indexing request.
-     *
-     * @private
-     * @param {String} id to be indexed.
-     */
-    GenericSearchProvider.prototype.scheduleForIndexing = function (id) {
-        if (!this.indexedIds[id] && !this.pendingIndex[id]) {
-            this.indexedIds[id] = true;
-            this.pendingIndex[id] = true;
-            this.idsToIndex.push(id);
-        }
-        this.keepIndexing();
-    };
+/**
+ * Handle messages from the worker.  Only really knows how to handle search
+ * results, which are parsed, transformed into a modelResult object, which
+ * is used to resolve the corresponding promise.
+ * @private
+ */
+GenericSearchProvider.prototype.onWorkerMessage = function (event) {
+    if (event.data.request !== 'search') {
+        return;
+    }
 
-    /**
-     * If there are less pending requests than concurrent requests, keep
-     * firing requests.
-     *
-     * @private
-     */
-    GenericSearchProvider.prototype.keepIndexing = function () {
-        while (this.pendingRequests < this.MAX_CONCURRENT_REQUESTS &&
-            this.idsToIndex.length
-            ) {
-            this.beginIndexRequest();
-        }
-    };
+    var pendingQuery = this.pendingQueries[event.data.queryId],
+        modelResults = {
+            total: event.data.total
+        };
 
-    /**
-     * Pass an id and model to the worker to be indexed.  If the model has
-     * composition, schedule those ids for later indexing.
-     *
-     * @private
-     * @param id a model id
-     * @param model a model
-     */
-    GenericSearchProvider.prototype.index = function (id, model) {
-        var provider = this;
+    modelResults.hits = event.data.results.map(function (hit) {
+        return {
+            id: hit.item.id,
+            model: hit.item.model,
+            score: hit.matchCount
+        };
+    });
 
-        if (id !== 'ROOT') {
-            this.worker.postMessage({
-                request: 'index',
-                model: model,
-                id: id
-            });
-        }
+    pendingQuery.resolve(modelResults);
+    delete this.pendingQueries[event.data.queryId];
+};
 
-        var domainObject = objectUtils.toNewFormat(model, id);
-        var composition = _.find(this.openmct.composition.registry, function (p) {
-            return p.appliesTo(domainObject);
-        });
+/**
+ * @private
+ * @returns {Number} a unique, unused query Id.
+ */
+GenericSearchProvider.prototype.makeQueryId = function () {
+    var queryId = Math.ceil(Math.random() * 100000);
+    while (this.pendingQueries[queryId]) {
+        queryId = Math.ceil(Math.random() * 100000);
+    }
+    return queryId;
+};
 
-        if (!composition) {
-            return;
-        }
+/**
+ * Dispatch a search query to the worker and return a queryId.
+ *
+ * @private
+ * @returns {Number} a unique query Id for the query.
+ */
+GenericSearchProvider.prototype.dispatchSearch = function (
+    searchInput,
+    maxResults
+) {
+    var queryId = this.makeQueryId();
 
-        composition.load(domainObject)
-            .then(function (children) {
-                children.forEach(function (child) {
-                    provider.scheduleForIndexing(objectUtils.makeKeyString(child));
-                });
-            });
-    };
+    this.worker.postMessage({
+        request: 'search',
+        input: searchInput,
+        maxResults: maxResults,
+        queryId: queryId
+    });
 
-    /**
-     * Pulls an id from the indexing queue, loads it from the model service,
-     * and indexes it.  Upon completion, tells the provider to keep
-     * indexing.
-     *
-     * @private
-     */
-    GenericSearchProvider.prototype.beginIndexRequest = function () {
-        var idToIndex = this.idsToIndex.shift(),
-            provider = this;
-
-        this.pendingRequests += 1;
-        this.modelService
-            .getModels([idToIndex])
-            .then(function (models) {
-                delete provider.pendingIndex[idToIndex];
-                if (models[idToIndex]) {
-                    provider.index(idToIndex, models[idToIndex]);
-                }
-            }, function () {
-                provider
-                    .$log
-                    .warn('Failed to index domain object ' + idToIndex);
-            })
-            .then(function () {
-                setTimeout(function () {
-                    provider.pendingRequests -= 1;
-                    provider.keepIndexing();
-                }, 0);
-            });
-    };
-
-    /**
-     * Handle messages from the worker.  Only really knows how to handle search
-     * results, which are parsed, transformed into a modelResult object, which
-     * is used to resolve the corresponding promise.
-     * @private
-     */
-    GenericSearchProvider.prototype.onWorkerMessage = function (event) {
-        if (event.data.request !== 'search') {
-            return;
-        }
-
-        var pendingQuery = this.pendingQueries[event.data.queryId],
-            modelResults = {
-                total: event.data.total
-            };
-
-        modelResults.hits = event.data.results.map(function (hit) {
-            return {
-                id: hit.item.id,
-                model: hit.item.model,
-                score: hit.matchCount
-            };
-        });
-
-        pendingQuery.resolve(modelResults);
-        delete this.pendingQueries[event.data.queryId];
-    };
-
-    /**
-     * @private
-     * @returns {Number} a unique, unused query Id.
-     */
-    GenericSearchProvider.prototype.makeQueryId = function () {
-        var queryId = Math.ceil(Math.random() * 100000);
-        while (this.pendingQueries[queryId]) {
-            queryId = Math.ceil(Math.random() * 100000);
-        }
-        return queryId;
-    };
-
-    /**
-     * Dispatch a search query to the worker and return a queryId.
-     *
-     * @private
-     * @returns {Number} a unique query Id for the query.
-     */
-    GenericSearchProvider.prototype.dispatchSearch = function (
-        searchInput,
-        maxResults
-    ) {
-        var queryId = this.makeQueryId();
-
-        this.worker.postMessage({
-            request: 'search',
-            input: searchInput,
-            maxResults: maxResults,
-            queryId: queryId
-        });
-
-        return queryId;
-    };
+    return queryId;
+};
 
 
-    return GenericSearchProvider;
-});
+var bindingVariable = GenericSearchProvider;
+export default bindingVariable;

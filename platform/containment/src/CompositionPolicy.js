@@ -25,45 +25,42 @@
  * can be contained within which other objects.
  * @namespace platform/containment
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Determines whether a given object can contain a candidate child object.
-         * @constructor
-         * @memberof platform/containment
-         * @implements {Policy.<DomainObjectImpl, DomainObjectImpl>}
-         */
-        function CompositionPolicy() {
-        }
+/**
+ * Determines whether a given object can contain a candidate child object.
+ * @constructor
+ * @memberof platform/containment
+ * @implements {Policy.<DomainObjectImpl, DomainObjectImpl>}
+ */
+function CompositionPolicy() {
+}
 
-        CompositionPolicy.prototype.allow = function (parent, child) {
-            var parentDef = parent.getCapability('type').getDefinition();
+CompositionPolicy.prototype.allow = function (parent, child) {
+    var parentDef = parent.getCapability('type').getDefinition();
 
-            // A parent without containment rules can contain anything.
-            if (!parentDef.contains) {
-                return true;
-            }
-
-            // If any containment rule matches context type, the candidate
-            // can contain this type.
-            return parentDef.contains.some(function (c) {
-                // Simple containment rules are supported typeKeys.
-                if (typeof c === 'string') {
-                    return c === child.getCapability('type').getKey();
-                }
-                // More complicated rules require context to have all specified
-                // capabilities.
-                if (!Array.isArray(c.has)) {
-                    c.has = [c.has];
-                }
-                return c.has.every(function (capability) {
-                    return child.hasCapability(capability);
-                });
-            });
-        };
-
-        return CompositionPolicy;
+    // A parent without containment rules can contain anything.
+    if (!parentDef.contains) {
+        return true;
     }
-);
+
+    // If any containment rule matches context type, the candidate
+    // can contain this type.
+    return parentDef.contains.some(function (c) {
+        // Simple containment rules are supported typeKeys.
+        if (typeof c === 'string') {
+            return c === child.getCapability('type').getKey();
+        }
+        // More complicated rules require context to have all specified
+        // capabilities.
+        if (!Array.isArray(c.has)) {
+            c.has = [c.has];
+        }
+        return c.has.every(function (capability) {
+            return child.hasCapability(capability);
+        });
+    });
+};
+
+var bindingVariable = CompositionPolicy;
+export default bindingVariable;

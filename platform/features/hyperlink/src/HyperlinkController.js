@@ -26,33 +26,29 @@
  create a new tab to open the link in
  * @namespace platform/features/hyperlink
  */
-define(
-    [],
-    function () {
-        function HyperlinkController($scope) {
-            this.$scope = $scope;
-        }
+;
+function HyperlinkController($scope) {
+    this.$scope = $scope;
+}
 
-        /**Function to analyze the location in which to open the hyperlink
-        @returns true if the hyperlink is chosen to open in a different tab, false if the same tab
-        **/
-        HyperlinkController.prototype.openNewTab = function () {
-            if (this.$scope.domainObject.getModel().openNewTab === "thisTab") {
-                return false;
-            } else {
-                return true;
-            }
-        };
-        /**Function to specify the format in which the hyperlink should be created
-        @returns true if the hyperlink is chosen to be created as a button, false if a link
-        **/
-        HyperlinkController.prototype.isButton = function () {
-            if (this.$scope.domainObject.getModel().displayFormat === "link") {
-                return false;
-            }
-            return true;
-        };
-        return HyperlinkController;
+/**Function to analyze the location in which to open the hyperlink
+@returns true if the hyperlink is chosen to open in a different tab, false if the same tab
+**/
+HyperlinkController.prototype.openNewTab = function () {
+    if (this.$scope.domainObject.getModel().openNewTab === "thisTab") {
+        return false;
+    } else {
+        return true;
     }
-
-  );
+};
+/**Function to specify the format in which the hyperlink should be created
+@returns true if the hyperlink is chosen to be created as a button, false if a link
+**/
+HyperlinkController.prototype.isButton = function () {
+    if (this.$scope.domainObject.getModel().displayFormat === "link") {
+        return false;
+    }
+    return true;
+};
+var bindingVariable = HyperlinkController;
+export default bindingVariable;

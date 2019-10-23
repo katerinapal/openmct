@@ -20,32 +20,29 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Defines composition policy for Display Layout objects.
-         * They cannot contain folders.
-         * @constructor
-         * @memberof platform/features/layout
-         * @implements {Policy.<View, DomainObject>}
-         */
-        function LayoutCompositionPolicy() {
-        }
+/**
+ * Defines composition policy for Display Layout objects.
+ * They cannot contain folders.
+ * @constructor
+ * @memberof platform/features/layout
+ * @implements {Policy.<View, DomainObject>}
+ */
+function LayoutCompositionPolicy() {
+}
 
-        LayoutCompositionPolicy.prototype.allow = function (parent, child) {
-            var parentType = parent.getCapability('type');
-            if (parentType.instanceOf('layout') &&
-                child.getCapability('type').instanceOf('folder')) {
+LayoutCompositionPolicy.prototype.allow = function (parent, child) {
+    var parentType = parent.getCapability('type');
+    if (parentType.instanceOf('layout') &&
+        child.getCapability('type').instanceOf('folder')) {
 
-                return false;
-            }
-
-            return true;
-        };
-
-        return LayoutCompositionPolicy;
+        return false;
     }
-);
+
+    return true;
+};
+
+var bindingVariable = LayoutCompositionPolicy;
+export default bindingVariable;
 

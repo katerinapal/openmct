@@ -23,7 +23,7 @@
 /**
  * Constants used by the framework layer.
  */
-define({
+export default {
     MODULE_NAME: "OpenMCTWeb",
     BUNDLE_FILE: "bundle.json",
     SEPARATOR: "/",
@@ -45,4 +45,4 @@ define({
         "mandatory": Number.POSITIVE_INFINITY
     },
     DEFAULT_PRIORITY: 0
-});
+};;

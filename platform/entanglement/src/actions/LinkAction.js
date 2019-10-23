@@ -1,3 +1,4 @@
+import AbstractComposeAction from ".\\AbstractComposeAction.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,29 +21,26 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./AbstractComposeAction'],
-    function (AbstractComposeAction) {
+;
 
-        /**
-         * The LinkAction is available from context menus and allows a user to
-         * link an object to another location of their choosing.
-         *
-         * @implements {Action}
-         * @constructor
-         * @memberof platform/entanglement
-         */
-        function LinkAction(policyService, locationService, linkService, context) {
-            AbstractComposeAction.apply(
-                this,
-                [policyService, locationService, linkService, context, "Link"]
-            );
-        }
+/**
+ * The LinkAction is available from context menus and allows a user to
+ * link an object to another location of their choosing.
+ *
+ * @implements {Action}
+ * @constructor
+ * @memberof platform/entanglement
+ */
+function LinkAction(policyService, locationService, linkService, context) {
+    AbstractComposeAction.apply(
+        this,
+        [policyService, locationService, linkService, context, "Link"]
+    );
+}
 
-        LinkAction.prototype = Object.create(AbstractComposeAction.prototype);
-        LinkAction.appliesTo = AbstractComposeAction.appliesTo;
+LinkAction.prototype = Object.create(AbstractComposeAction.prototype);
+LinkAction.appliesTo = AbstractComposeAction.appliesTo;
 
-        return LinkAction;
-    }
-);
+var bindingVariable = LinkAction;
+export default bindingVariable;
 

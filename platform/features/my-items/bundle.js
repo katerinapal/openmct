@@ -1,3 +1,4 @@
+import legacyRegistry from "..\\..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,32 +21,25 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'legacyRegistry'
-], function (
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/features/my-items", {
-        "name": "My Items",
-        "description": "Defines a root named My Items",
-        "extensions": {
-            "roots": [
-                {
-                    "id": "mine"
+legacyRegistry.register("platform/features/my-items", {
+    "name": "My Items",
+    "description": "Defines a root named My Items",
+    "extensions": {
+        "roots": [
+            {
+                "id": "mine"
+            }
+        ],
+        "models": [
+            {
+                "id": "mine",
+                "model": {
+                    "name": "My Items",
+                    "type": "folder",
+                    "composition": [],
+                    "location": "ROOT"
                 }
-            ],
-            "models": [
-                {
-                    "id": "mine",
-                    "model": {
-                        "name": "My Items",
-                        "type": "folder",
-                        "composition": [],
-                        "location": "ROOT"
-                    }
-                }
-            ]
-        }
-    });
+            }
+        ]
+    }
 });

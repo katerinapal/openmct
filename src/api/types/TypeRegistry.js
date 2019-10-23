@@ -1,3 +1,4 @@
+import Type from ".\\Type.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,84 +22,86 @@
  *****************************************************************************/
 /*global console*/
 
-define(['./Type'], function (Type) {
-    /**
-     * @typedef TypeDefinition
-     * @memberof module:openmct.TypeRegistry~
-     * @property {string} label the name for this type of object
-     * @property {string} description a longer-form description of this type
-     * @property {function (object)} [initialize] a function which initializes
-     *           the model for new domain objects of this type
-     * @property {boolean} [creatable] true if users should be allowed to
-     *           create this type (default: false)
-     * @property {string} [cssClass] the CSS class to apply for icons
-     */
+;
 
-    /**
-     * A TypeRegistry maintains the definitions for different types
-     * that domain objects may have.
-     * @interface TypeRegistry
-     * @memberof module:openmct
-     */
-    function TypeRegistry() {
-        this.types = {};
-    }
 
-    /**
-     * Register a new object type.
-     *
-     * @param {string} typeKey a string identifier for this type
-     * @param {module:openmct.Type} type the type to add
-     * @method addType
-     * @memberof module:openmct.TypeRegistry#
-     */
-    TypeRegistry.prototype.addType = function (typeKey, typeDef) {
-        this.standardizeType(typeDef);
-        this.types[typeKey] = new Type(typeDef);
-    };
+/**
+ * @typedef TypeDefinition
+ * @memberof module:openmct.TypeRegistry~
+ * @property {string} label the name for this type of object
+ * @property {string} description a longer-form description of this type
+ * @property {function (object)} [initialize] a function which initializes
+ *           the model for new domain objects of this type
+ * @property {boolean} [creatable] true if users should be allowed to
+ *           create this type (default: false)
+ * @property {string} [cssClass] the CSS class to apply for icons
+ */
 
-    /**
-     * Takes a typeDef, standardizes it, and logs warnings about unsupported
-     * usage.
-     * @private
-     */
-    TypeRegistry.prototype.standardizeType = function (typeDef) {
-        if (typeDef.hasOwnProperty('label')) {
-            console.warn(
-                'DEPRECATION WARNING typeDef: ' + typeDef.label + '.  ' +
-                '`label` is deprecated in type definitions.  Please use ' +
-                '`name` instead.  This will cause errors in a future version ' +
-                'of Open MCT.  For more information, see ' +
-                'https://github.com/nasa/openmct/issues/1568');
-            if (!typeDef.name) {
-                typeDef.name = typeDef.label;
-            }
-            delete typeDef.label;
+/**
+ * A TypeRegistry maintains the definitions for different types
+ * that domain objects may have.
+ * @interface TypeRegistry
+ * @memberof module:openmct
+ */
+function TypeRegistry() {
+    this.types = {};
+}
+
+/**
+ * Register a new object type.
+ *
+ * @param {string} typeKey a string identifier for this type
+ * @param {module:openmct.Type} type the type to add
+ * @method addType
+ * @memberof module:openmct.TypeRegistry#
+ */
+TypeRegistry.prototype.addType = function (typeKey, typeDef) {
+    this.standardizeType(typeDef);
+    this.types[typeKey] = new Type(typeDef);
+};
+
+/**
+ * Takes a typeDef, standardizes it, and logs warnings about unsupported
+ * usage.
+ * @private
+ */
+TypeRegistry.prototype.standardizeType = function (typeDef) {
+    if (typeDef.hasOwnProperty('label')) {
+        console.warn(
+            'DEPRECATION WARNING typeDef: ' + typeDef.label + '.  ' +
+            '`label` is deprecated in type definitions.  Please use ' +
+            '`name` instead.  This will cause errors in a future version ' +
+            'of Open MCT.  For more information, see ' +
+            'https://github.com/nasa/openmct/issues/1568');
+        if (!typeDef.name) {
+            typeDef.name = typeDef.label;
         }
-    };
+        delete typeDef.label;
+    }
+};
 
-    /**
-     * List keys for all registered types.
-     * @method listKeys
-     * @memberof module:openmct.TypeRegistry#
-     * @returns {string[]} all registered type keys
-     */
-    TypeRegistry.prototype.listKeys = function () {
-        return Object.keys(this.types);
-    };
+/**
+ * List keys for all registered types.
+ * @method listKeys
+ * @memberof module:openmct.TypeRegistry#
+ * @returns {string[]} all registered type keys
+ */
+TypeRegistry.prototype.listKeys = function () {
+    return Object.keys(this.types);
+};
 
-    /**
-     * Retrieve a registered type by its key.
-     * @method get
-     * @param {string} typeKey the key for this type
-     * @memberof module:openmct.TypeRegistry#
-     * @returns {module:openmct.Type} the registered type
-     */
-    TypeRegistry.prototype.get = function (typeKey) {
-        return this.types[typeKey];
-    };
+/**
+ * Retrieve a registered type by its key.
+ * @method get
+ * @param {string} typeKey the key for this type
+ * @memberof module:openmct.TypeRegistry#
+ * @returns {module:openmct.Type} the registered type
+ */
+TypeRegistry.prototype.get = function (typeKey) {
+    return this.types[typeKey];
+};
 
-    return TypeRegistry;
-});
+var bindingVariable = TypeRegistry;
+export default bindingVariable;
 
 

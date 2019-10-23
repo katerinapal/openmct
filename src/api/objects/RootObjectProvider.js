@@ -20,28 +20,26 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-], function (
-) {
+;
 
-    function RootObjectProvider(rootRegistry) {
-        this.rootRegistry = rootRegistry;
-    }
+function RootObjectProvider(rootRegistry) {
+    this.rootRegistry = rootRegistry;
+}
 
-    RootObjectProvider.prototype.get = function () {
-        return this.rootRegistry.getRoots()
-            .then(function (roots) {
-                return {
-                    identifier: {
-                        key: "ROOT",
-                        namespace: ""
-                    },
-                    name: 'The root object',
-                    type: 'root',
-                    composition: roots
-                };
-            });
-    };
+RootObjectProvider.prototype.get = function () {
+    return this.rootRegistry.getRoots()
+        .then(function (roots) {
+            return {
+                identifier: {
+                    key: "ROOT",
+                    namespace: ""
+                },
+                name: 'The root object',
+                type: 'root',
+                composition: roots
+            };
+        });
+};
 
-    return RootObjectProvider;
-});
+var bindingVariable = RootObjectProvider;
+export default bindingVariable;

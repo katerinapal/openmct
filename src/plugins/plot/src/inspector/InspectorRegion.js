@@ -1,3 +1,4 @@
+import Region from ".\\Region.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,48 +22,43 @@
  *****************************************************************************/
 
 
-define(
-    [
-        './Region'
-    ],
-    function (Region) {
+;
 
-        /**
-         * Defines the a default Inspector region. Captured in a class to
-         * allow for modular extension and customization of regions based on
-         * the typical case.
-         * @memberOf platform/commonUI/regions
-         * @constructor
-         */
-        function InspectorRegion() {
-            Region.call(this, {'name': 'Inspector'});
+/**
+ * Defines the a default Inspector region. Captured in a class to
+ * allow for modular extension and customization of regions based on
+ * the typical case.
+ * @memberOf platform/commonUI/regions
+ * @constructor
+ */
+function InspectorRegion() {
+    Region.call(this, {'name': 'Inspector'});
 
-            this.buildRegion();
+    this.buildRegion();
+}
+
+InspectorRegion.prototype = Object.create(Region.prototype);
+InspectorRegion.prototype.constructor = Region;
+
+/**
+ * @private
+ */
+InspectorRegion.prototype.buildRegion = function () {
+    var metadataRegion = {
+        name: 'metadata',
+        title: 'Metadata Region',
+        // Which modes should the region part be visible in? If
+        // nothing provided here, then assumed that part is visible
+        // in both. The visibility or otherwise of a region part
+        // should be decided by a policy. In this case, 'modes' is a
+        // shortcut that is used by the EditableRegionPolicy.
+        modes: ['browse', 'edit'],
+        content: {
+            key: 'object-properties'
         }
+    };
+    this.addRegion(new Region(metadataRegion), 0);
+};
 
-        InspectorRegion.prototype = Object.create(Region.prototype);
-        InspectorRegion.prototype.constructor = Region;
-
-        /**
-         * @private
-         */
-        InspectorRegion.prototype.buildRegion = function () {
-            var metadataRegion = {
-                name: 'metadata',
-                title: 'Metadata Region',
-                // Which modes should the region part be visible in? If
-                // nothing provided here, then assumed that part is visible
-                // in both. The visibility or otherwise of a region part
-                // should be decided by a policy. In this case, 'modes' is a
-                // shortcut that is used by the EditableRegionPolicy.
-                modes: ['browse', 'edit'],
-                content: {
-                    key: 'object-properties'
-                }
-            };
-            this.addRegion(new Region(metadataRegion), 0);
-        };
-
-        return InspectorRegion;
-    }
-);
+var bindingVariable = InspectorRegion;
+export default bindingVariable;

@@ -23,42 +23,39 @@
 /**
  * Module defining FullscreenAction. Created by vwoeltje on 11/18/14.
  */
-define(
-    ["screenfull"],
-    function (screenfull) {
+;
 
-        var ENTER_FULLSCREEN = "Enter full screen mode",
-            EXIT_FULLSCREEN = "Exit full screen mode";
+var ENTER_FULLSCREEN = "Enter full screen mode",
+    EXIT_FULLSCREEN = "Exit full screen mode";
 
-        /**
-         * The fullscreen action toggles between fullscreen display
-         * and regular in-window display.
-         * @memberof platform/commonUI/browse
-         * @constructor
-         * @implements {Action}
-         */
-        function FullscreenAction(context) {
-            this.context = context;
-        }
+/**
+ * The fullscreen action toggles between fullscreen display
+ * and regular in-window display.
+ * @memberof platform/commonUI/browse
+ * @constructor
+ * @implements {Action}
+ */
+function FullscreenAction(context) {
+    this.context = context;
+}
 
-        FullscreenAction.prototype.perform = function () {
-            screenfull.toggle();
-        };
+FullscreenAction.prototype.perform = function () {
+    screenfull.toggle();
+};
 
-        FullscreenAction.prototype.getMetadata = function () {
-            // We override getMetadata, because the icon cssClass and
-            // description need to be determined at run-time
-            // based on whether or not we are currently
-            // full screen.
-            var metadata = Object.create(FullscreenAction);
-            metadata.cssClass = screenfull.isFullscreen ? "icon-fullscreen-expand" : "icon-fullscreen-collapse";
-            metadata.description = screenfull.isFullscreen ?
-                EXIT_FULLSCREEN : ENTER_FULLSCREEN;
-            metadata.group = "windowing";
-            metadata.context = this.context;
-            return metadata;
-        };
+FullscreenAction.prototype.getMetadata = function () {
+    // We override getMetadata, because the icon cssClass and
+    // description need to be determined at run-time
+    // based on whether or not we are currently
+    // full screen.
+    var metadata = Object.create(FullscreenAction);
+    metadata.cssClass = screenfull.isFullscreen ? "icon-fullscreen-expand" : "icon-fullscreen-collapse";
+    metadata.description = screenfull.isFullscreen ?
+        EXIT_FULLSCREEN : ENTER_FULLSCREEN;
+    metadata.group = "windowing";
+    metadata.context = this.context;
+    return metadata;
+};
 
-        return FullscreenAction;
-    }
-);
+var bindingVariable = FullscreenAction;
+export default bindingVariable;

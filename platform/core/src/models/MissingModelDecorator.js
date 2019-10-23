@@ -20,42 +20,39 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Adds placeholder domain object models for any models which
-         * fail to load from the underlying model service.
-         * @constructor
-         * @memberof platform/core
-         * @param {ModelService} modelService this service to decorate
-         * @implements {ModelService}
-         */
-        function MissingModelDecorator(modelService) {
-            this.modelService = modelService;
-        }
+/**
+ * Adds placeholder domain object models for any models which
+ * fail to load from the underlying model service.
+ * @constructor
+ * @memberof platform/core
+ * @param {ModelService} modelService this service to decorate
+ * @implements {ModelService}
+ */
+function MissingModelDecorator(modelService) {
+    this.modelService = modelService;
+}
 
-        function missingModel(id) {
-            return {
-                type: "unknown",
-                name: "Missing: " + id
-            };
-        }
+function missingModel(id) {
+    return {
+        type: "unknown",
+        name: "Missing: " + id
+    };
+}
 
-        MissingModelDecorator.prototype.getModels = function (ids) {
-            function addMissingModels(models) {
-                var result = {};
-                ids.forEach(function (id) {
-                    result[id] = models[id] || missingModel(id);
-                });
-                return result;
-            }
-
-            return this.modelService.getModels(ids).then(addMissingModels);
-        };
-
-        return MissingModelDecorator;
+MissingModelDecorator.prototype.getModels = function (ids) {
+    function addMissingModels(models) {
+        var result = {};
+        ids.forEach(function (id) {
+            result[id] = models[id] || missingModel(id);
+        });
+        return result;
     }
-);
+
+    return this.modelService.getModels(ids).then(addMissingModels);
+};
+
+var bindingVariable = MissingModelDecorator;
+export default bindingVariable;
 

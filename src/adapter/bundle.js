@@ -1,3 +1,15 @@
+import legacyRegistry from "..\\legacyRegistry.js";
+import ActionDialogDecorator from ".\\actions\\ActionDialogDecorator.js";
+import AdapterCapability from ".\\capabilities\\AdapterCapability.js";
+import MCTView from ".\\directives\\MCTView.js";
+import Instantiate from ".\\services\\Instantiate.js";
+import MissingModelCompatibilityDecorator from ".\\services\\MissingModelCompatibilityDecorator.js";
+import APICapabilityDecorator from ".\\capabilities\\APICapabilityDecorator.js";
+import AdapterCompositionPolicy from ".\\policies\\AdapterCompositionPolicy.js";
+import AdaptedViewPolicy from ".\\policies\\AdaptedViewPolicy.js";
+import AlternateCompositionInitializer from ".\\runs\\AlternateCompositionInitializer.js";
+import TimeSettingsURLHandler from ".\\runs\\TimeSettingsURLHandler.js";
+import TypeDeprecationChecker from ".\\runs\\TypeDeprecationChecker.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,146 +32,118 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'legacyRegistry',
-    './actions/ActionDialogDecorator',
-    './capabilities/AdapterCapability',
-    './directives/MCTView',
-    './services/Instantiate',
-    './services/MissingModelCompatibilityDecorator',
-    './capabilities/APICapabilityDecorator',
-    './policies/AdapterCompositionPolicy',
-    './policies/AdaptedViewPolicy',
-    './runs/AlternateCompositionInitializer',
-    './runs/TimeSettingsURLHandler',
-    './runs/TypeDeprecationChecker'
-], function (
-    legacyRegistry,
-    ActionDialogDecorator,
-    AdapterCapability,
-    MCTView,
-    Instantiate,
-    MissingModelCompatibilityDecorator,
-    APICapabilityDecorator,
-    AdapterCompositionPolicy,
-    AdaptedViewPolicy,
-    AlternateCompositionInitializer,
-    TimeSettingsURLHandler,
-    TypeDeprecationChecker
-) {
-    legacyRegistry.register('src/adapter', {
-        "extensions": {
-            "directives": [
-                {
-                    key: "mctView",
-                    implementation: MCTView,
-                    depends: ["openmct"]
-                }
-            ],
-            capabilities: [
-                {
-                    key: "adapter",
-                    implementation: AdapterCapability
-                }
-            ],
-            services: [
-                {
-                    key: "instantiate",
-                    priority: "mandatory",
-                    implementation: Instantiate,
-                    depends: [
-                        "capabilityService",
-                        "identifierService",
-                        "cacheService"
-                    ]
-                }
-            ],
-            components: [
-                {
-                    type: "decorator",
-                    provides: "capabilityService",
-                    implementation: APICapabilityDecorator,
-                    depends: [
-                        "$injector"
-                    ]
+legacyRegistry.register('src/adapter', {
+    "extensions": {
+        "directives": [
+            {
+                key: "mctView",
+                implementation: MCTView,
+                depends: ["openmct"]
+            }
+        ],
+        capabilities: [
+            {
+                key: "adapter",
+                implementation: AdapterCapability
+            }
+        ],
+        services: [
+            {
+                key: "instantiate",
+                priority: "mandatory",
+                implementation: Instantiate,
+                depends: [
+                    "capabilityService",
+                    "identifierService",
+                    "cacheService"
+                ]
+            }
+        ],
+        components: [
+            {
+                type: "decorator",
+                provides: "capabilityService",
+                implementation: APICapabilityDecorator,
+                depends: [
+                    "$injector"
+                ]
+            },
+            {
+                type: "decorator",
+                provides: "actionService",
+                implementation: ActionDialogDecorator,
+                depends: ["openmct"]
+            },
+            {
+                type: "decorator",
+                provides: "modelService",
+                implementation: MissingModelCompatibilityDecorator,
+                depends: ["openmct"]
+            }
+        ],
+        policies: [
+            {
+                category: "composition",
+                implementation: AdapterCompositionPolicy,
+                depends: ["openmct"]
+            },
+            {
+                category: "view",
+                implementation: AdaptedViewPolicy,
+                depends: ["openmct"]
+            }
+        ],
+        runs: [
+            {
+                implementation: TypeDeprecationChecker,
+                depends: ["types[]"]
+            },
+            {
+                implementation: AlternateCompositionInitializer,
+                depends: ["openmct"]
+            },
+            {
+                implementation: function (openmct, $location, $rootScope) {
+                    return new TimeSettingsURLHandler(
+                        openmct.time,
+                        $location,
+                        $rootScope
+                    );
                 },
-                {
-                    type: "decorator",
-                    provides: "actionService",
-                    implementation: ActionDialogDecorator,
-                    depends: ["openmct"]
-                },
-                {
-                    type: "decorator",
-                    provides: "modelService",
-                    implementation: MissingModelCompatibilityDecorator,
-                    depends: ["openmct"]
-                }
-            ],
-            policies: [
-                {
-                    category: "composition",
-                    implementation: AdapterCompositionPolicy,
-                    depends: ["openmct"]
-                },
-                {
-                    category: "view",
-                    implementation: AdaptedViewPolicy,
-                    depends: ["openmct"]
-                }
-            ],
-            runs: [
-                {
-                    implementation: TypeDeprecationChecker,
-                    depends: ["types[]"]
-                },
-                {
-                    implementation: AlternateCompositionInitializer,
-                    depends: ["openmct"]
-                },
-                {
-                    implementation: function (openmct, $location, $rootScope) {
-                        return new TimeSettingsURLHandler(
-                            openmct.time,
-                            $location,
-                            $rootScope
-                        );
-                    },
-                    depends: ["openmct", "$location", "$rootScope"]
-                }
-            ],
-            licenses: [
-                {
-                    "name": "almond",
-                    "version": "0.3.3",
-                    "description": "Lightweight RequireJS replacement for builds",
-                    "author": "jQuery Foundation",
-                    "website": "https://github.com/requirejs/almond",
-                    "copyright": "Copyright jQuery Foundation and other contributors, https://jquery.org/",
-                    "license": "license-mit",
-                    "link": "https://github.com/requirejs/almond/blob/master/LICENSE"
-                },
-                {
-                    "name": "lodash",
-                    "version": "3.10.1",
-                    "description": "Utility functions",
-                    "author": "Dojo Foundation",
-                    "website": "https://lodash.com",
-                    "copyright": "Copyright 2012-2015 The Dojo Foundation",
-                    "license": "license-mit",
-                    "link": "https://raw.githubusercontent.com/lodash/lodash/3.10.1/LICENSE"
-                },
-                {
-                    "name": "EventEmitter3",
-                    "version": "1.2.0",
-                    "description": "Event-driven programming support",
-                    "author": "Arnout Kazemier",
-                    "website": "https://github.com/primus/eventemitter3",
-                    "copyright": "Copyright (c) 2014 Arnout Kazemier",
-                    "license": "license-mit",
-                    "link": "https://github.com/primus/eventemitter3/blob/1.2.0/LICENSE"
-                }
-            ]
-        }
-    });
+                depends: ["openmct", "$location", "$rootScope"]
+            }
+        ],
+        licenses: [
+            {
+                "name": "almond",
+                "version": "0.3.3",
+                "description": "Lightweight RequireJS replacement for builds",
+                "author": "jQuery Foundation",
+                "website": "https://github.com/requirejs/almond",
+                "copyright": "Copyright jQuery Foundation and other contributors, https://jquery.org/",
+                "license": "license-mit",
+                "link": "https://github.com/requirejs/almond/blob/master/LICENSE"
+            },
+            {
+                "name": "lodash",
+                "version": "3.10.1",
+                "description": "Utility functions",
+                "author": "Dojo Foundation",
+                "website": "https://lodash.com",
+                "copyright": "Copyright 2012-2015 The Dojo Foundation",
+                "license": "license-mit",
+                "link": "https://raw.githubusercontent.com/lodash/lodash/3.10.1/LICENSE"
+            },
+            {
+                "name": "EventEmitter3",
+                "version": "1.2.0",
+                "description": "Event-driven programming support",
+                "author": "Arnout Kazemier",
+                "website": "https://github.com/primus/eventemitter3",
+                "copyright": "Copyright (c) 2014 Arnout Kazemier",
+                "license": "license-mit",
+                "link": "https://github.com/primus/eventemitter3/blob/1.2.0/LICENSE"
+            }
+        ]
+    }
 });

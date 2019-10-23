@@ -23,57 +23,54 @@
 /**
  * Module defining EditActionController. Created by vwoeltje on 11/17/14.
  */
-define(
-    [],
-    function () {
+;
 
-        var SAVE_ACTION_CONTEXT = { category: 'save' };
-        var OTHERS_ACTION_CONTEXT = { category: 'conclude-editing' };
+var SAVE_ACTION_CONTEXT = { category: 'save' };
+var OTHERS_ACTION_CONTEXT = { category: 'conclude-editing' };
 
-        /**
-         * Controller which supplies action instances for Save/Cancel.
-         * @memberof platform/commonUI/edit
-         * @constructor
-         */
-        function EditActionController($scope) {
+/**
+ * Controller which supplies action instances for Save/Cancel.
+ * @memberof platform/commonUI/edit
+ * @constructor
+ */
+function EditActionController($scope) {
 
-            function actionToMenuOption(action) {
-                return {
-                    key: action,
-                    name: action.getMetadata().name,
-                    cssClass: action.getMetadata().cssClass
-                };
-            }
-
-            // Maintain all "conclude-editing" and "save" actions in the
-            // present context.
-            function updateActions() {
-                $scope.saveActions = $scope.action ?
-                        $scope.action.getActions(SAVE_ACTION_CONTEXT) :
-                        [];
-
-                $scope.saveActionsAsMenuOptions = $scope.saveActions.map(actionToMenuOption);
-
-                $scope.saveActionMenuClickHandler = function (clickedAction) {
-                    clickedAction.perform();
-                };
-
-                $scope.otherEditActions = $scope.action ?
-                        $scope.action.getActions(OTHERS_ACTION_CONTEXT) :
-                        [];
-
-                // Required because Angular does not allow 'bind'
-                // in expressions.
-                $scope.actionPerformer = function (action) {
-                    return action.perform.bind(action);
-                };
-            }
-
-            // Update set of actions whenever the action capability
-            // changes or becomes available.
-            $scope.$watch("action", updateActions);
-        }
-
-        return EditActionController;
+    function actionToMenuOption(action) {
+        return {
+            key: action,
+            name: action.getMetadata().name,
+            cssClass: action.getMetadata().cssClass
+        };
     }
-);
+
+    // Maintain all "conclude-editing" and "save" actions in the
+    // present context.
+    function updateActions() {
+        $scope.saveActions = $scope.action ?
+                $scope.action.getActions(SAVE_ACTION_CONTEXT) :
+                [];
+
+        $scope.saveActionsAsMenuOptions = $scope.saveActions.map(actionToMenuOption);
+
+        $scope.saveActionMenuClickHandler = function (clickedAction) {
+            clickedAction.perform();
+        };
+
+        $scope.otherEditActions = $scope.action ?
+                $scope.action.getActions(OTHERS_ACTION_CONTEXT) :
+                [];
+
+        // Required because Angular does not allow 'bind'
+        // in expressions.
+        $scope.actionPerformer = function (action) {
+            return action.perform.bind(action);
+        };
+    }
+
+    // Update set of actions whenever the action capability
+    // changes or becomes available.
+    $scope.$watch("action", updateActions);
+}
+
+var bindingVariable = EditActionController;
+export default bindingVariable;

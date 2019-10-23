@@ -23,37 +23,34 @@
 /**
  * Module defining MenuArrowController. Created by shale on 06/30/2015.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * A left-click on the menu arrow should display a
-         * context menu. This controller launches the context
-         * menu.
-         * @memberof platform/commonUI/browse
-         * @constructor
-         */
-        function MenuArrowController($scope) {
-            this.$scope = $scope;
-        }
+/**
+ * A left-click on the menu arrow should display a
+ * context menu. This controller launches the context
+ * menu.
+ * @memberof platform/commonUI/browse
+ * @constructor
+ */
+function MenuArrowController($scope) {
+    this.$scope = $scope;
+}
 
-        /**
-         * Show a context menu for the domain object in this scope.
-         *
-         * @param event the browser event which caused this (used to
-         *        position the menu)
-         */
-        MenuArrowController.prototype.showMenu = function (event) {
-            var actionContext = {
-                key: 'menu',
-                domainObject: this.$scope.domainObject,
-                event: event
-            };
+/**
+ * Show a context menu for the domain object in this scope.
+ *
+ * @param event the browser event which caused this (used to
+ *        position the menu)
+ */
+MenuArrowController.prototype.showMenu = function (event) {
+    var actionContext = {
+        key: 'menu',
+        domainObject: this.$scope.domainObject,
+        event: event
+    };
 
-            this.$scope.domainObject.getCapability('action').perform(actionContext);
-        };
+    this.$scope.domainObject.getCapability('action').perform(actionContext);
+};
 
-        return MenuArrowController;
-    }
-);
+var bindingVariable = MenuArrowController;
+export default bindingVariable;

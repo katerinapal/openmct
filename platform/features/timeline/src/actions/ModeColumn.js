@@ -20,33 +20,33 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * A column showing relationships to activity modes.
-     * @constructor
-     * @param {number} index the zero-based index of the composition
-     *        element associated with this column
-     * @param idMap an object containing key value pairs, where keys
-     *        are domain object identifiers and values are whatever
-     *        should appear in CSV output in their place
-     * @implements {platform/features/timeline.TimelineCSVColumn}
-     */
-    function ModeColumn(index, idMap) {
-        this.index = index;
-        this.idMap = idMap;
-    }
+/**
+ * A column showing relationships to activity modes.
+ * @constructor
+ * @param {number} index the zero-based index of the composition
+ *        element associated with this column
+ * @param idMap an object containing key value pairs, where keys
+ *        are domain object identifiers and values are whatever
+ *        should appear in CSV output in their place
+ * @implements {platform/features/timeline.TimelineCSVColumn}
+ */
+function ModeColumn(index, idMap) {
+    this.index = index;
+    this.idMap = idMap;
+}
 
-    ModeColumn.prototype.name = function () {
-        return "Activity Mode " + (this.index + 1);
-    };
+ModeColumn.prototype.name = function () {
+    return "Activity Mode " + (this.index + 1);
+};
 
-    ModeColumn.prototype.value = function (domainObject) {
-        var model = domainObject.getModel(),
-            modes = (model.relationships || {}).modes || [];
-        return modes.length > this.index ?
-            this.idMap[modes[this.index]] : "";
-    };
+ModeColumn.prototype.value = function (domainObject) {
+    var model = domainObject.getModel(),
+        modes = (model.relationships || {}).modes || [];
+    return modes.length > this.index ?
+        this.idMap[modes[this.index]] : "";
+};
 
-    return ModeColumn;
-});
+var bindingVariable = ModeColumn;
+export default bindingVariable;

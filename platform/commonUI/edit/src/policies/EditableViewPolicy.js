@@ -20,30 +20,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Policy controlling which views should be visible in Edit mode.
-         * @memberof platform/commonUI/edit
-         * @constructor
-         * @implements {Policy.<View, DomainObject>}
-         */
-        function EditableViewPolicy() {
-        }
+/**
+ * Policy controlling which views should be visible in Edit mode.
+ * @memberof platform/commonUI/edit
+ * @constructor
+ * @implements {Policy.<View, DomainObject>}
+ */
+function EditableViewPolicy() {
+}
 
-        EditableViewPolicy.prototype.allow = function (view, domainObject) {
-            // If a view is flagged as non-editable, only allow it
-            // while we're not in Edit mode.
-            if ((view || {}).editable === false) {
-                return !(domainObject.hasCapability('editor') && domainObject.getCapability('editor').inEditContext());
-            }
-
-            // Like all policies, allow by default.
-            return true;
-        };
-
-        return EditableViewPolicy;
+EditableViewPolicy.prototype.allow = function (view, domainObject) {
+    // If a view is flagged as non-editable, only allow it
+    // while we're not in Edit mode.
+    if ((view || {}).editable === false) {
+        return !(domainObject.hasCapability('editor') && domainObject.getCapability('editor').inEditContext());
     }
-);
+
+    // Like all policies, allow by default.
+    return true;
+};
+
+var bindingVariable = EditableViewPolicy;
+export default bindingVariable;

@@ -1,3 +1,5 @@
+import LegacyObjectAPIInterceptor from ".\\LegacyObjectAPIInterceptor.js";
+import legacyRegistry from "..\\..\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,31 +23,23 @@
  *****************************************************************************/
 /*global define*/
 
-define([
-    './LegacyObjectAPIInterceptor',
-    'legacyRegistry'
-], function (
-    LegacyObjectAPIInterceptor,
-    legacyRegistry
-) {
-    legacyRegistry.register('src/api/objects', {
-        name: 'Object API',
-        description: 'The public Objects API',
-        extensions: {
-            components: [
-                {
-                    provides: "objectService",
-                    type: "decorator",
-                    priority: "mandatory",
-                    implementation: LegacyObjectAPIInterceptor,
-                    depends: [
-                        "openmct",
-                        "roots[]",
-                        "instantiate",
-                        "topic"
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register('src/api/objects', {
+    name: 'Object API',
+    description: 'The public Objects API',
+    extensions: {
+        components: [
+            {
+                provides: "objectService",
+                type: "decorator",
+                priority: "mandatory",
+                implementation: LegacyObjectAPIInterceptor,
+                depends: [
+                    "openmct",
+                    "roots[]",
+                    "instantiate",
+                    "topic"
+                ]
+            }
+        ]
+    }
 });

@@ -23,51 +23,48 @@
 /**
  * Module defining FrameworkInitializer. Created by vwoeltje on 11/3/14.
  */
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Responsible for managing the four stages of framework
-         * initialization:
-         *
-         * * Loading bundle metadata (JSON files)
-         * * Resolving extension implementations with Require
-         * * Registering extensions with Angular
-         * * Bootstrapping the Angular application.
-         *
-         * @memberof platform/framework
-         * @constructor
-         * @param {platform/framework.BundleLoader} loader
-         * @param {platform/framework.BundleResolver} resolver
-         * @param {platform/framework.ExtensionRegistrar} registrar
-         * @param {platform/framework.ApplicationBootstrapper} bootstrapper
-         */
-        function FrameworkInitializer(loader, resolver, registrar, bootstrapper) {
-            this.loader = loader;
-            this.resolver = resolver;
-            this.registrar = registrar;
-            this.bootstrapper = bootstrapper;
-        }
+/**
+ * Responsible for managing the four stages of framework
+ * initialization:
+ *
+ * * Loading bundle metadata (JSON files)
+ * * Resolving extension implementations with Require
+ * * Registering extensions with Angular
+ * * Bootstrapping the Angular application.
+ *
+ * @memberof platform/framework
+ * @constructor
+ * @param {platform/framework.BundleLoader} loader
+ * @param {platform/framework.BundleResolver} resolver
+ * @param {platform/framework.ExtensionRegistrar} registrar
+ * @param {platform/framework.ApplicationBootstrapper} bootstrapper
+ */
+function FrameworkInitializer(loader, resolver, registrar, bootstrapper) {
+    this.loader = loader;
+    this.resolver = resolver;
+    this.registrar = registrar;
+    this.bootstrapper = bootstrapper;
+}
 
-        function bind(method, thisArg) {
-            return function () {
-                return method.apply(thisArg, arguments);
-            };
-        }
+function bind(method, thisArg) {
+    return function () {
+        return method.apply(thisArg, arguments);
+    };
+}
 
-        /**
-         * Run the application defined by this set of bundles.
-         * @param bundleList
-         * @returns {*}
-         */
-        FrameworkInitializer.prototype.runApplication = function () {
-            return this.loader.loadBundles([])
-                .then(bind(this.resolver.resolveBundles, this.resolver))
-                .then(bind(this.registrar.registerExtensions, this.registrar))
-                .then(bind(this.bootstrapper.bootstrap, this.bootstrapper));
-        };
+/**
+ * Run the application defined by this set of bundles.
+ * @param bundleList
+ * @returns {*}
+ */
+FrameworkInitializer.prototype.runApplication = function () {
+    return this.loader.loadBundles([])
+        .then(bind(this.resolver.resolveBundles, this.resolver))
+        .then(bind(this.registrar.registerExtensions, this.registrar))
+        .then(bind(this.bootstrapper.bootstrap, this.bootstrapper));
+};
 
-        return FrameworkInitializer;
-    }
-);
+var bindingVariable = FrameworkInitializer;
+export default bindingVariable;

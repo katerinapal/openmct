@@ -118,11 +118,10 @@ requirejs.config({
     // we have to kickoff jasmine, as it is asynchronous
     callback: function () {
         var args = [].slice.apply(arguments);
-        require(['es6-promise'], function (es6Promise) {
-            if (!window.Promise) {
-                window.Promise = es6Promise.Promise;
-            }
-            window.__karma__.start.apply(window.__karma__, args);
-        });
+        ;
     }
 });
+if (!window.Promise) {
+    window.Promise = es6Promise.Promise;
+}
+window.__karma__.start.apply(window.__karma__, args);

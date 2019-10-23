@@ -20,31 +20,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Provides data to populate resource graphs associated
-         * with activities in a timeline view.
-         * This is a placeholder until WTD-918.
-         * @constructor
-         */
-        function ActivityUtilization() {
-            return {
-                getPointCount: function () {
-                    return 0;
-                },
-                getDomainValue: function () {
-                    return 0;
-                },
-                getRangeValue: function () {
-                    return 0;
-                }
-            };
+/**
+ * Provides data to populate resource graphs associated
+ * with activities in a timeline view.
+ * This is a placeholder until WTD-918.
+ * @constructor
+ */
+function ActivityUtilization() {
+    return {
+        getPointCount: function () {
+            return 0;
+        },
+        getDomainValue: function () {
+            return 0;
+        },
+        getRangeValue: function () {
+            return 0;
         }
+    };
+}
 
-        return ActivityUtilization;
-    }
-
-);
+var bindingVariable = ActivityUtilization;
+export default bindingVariable;

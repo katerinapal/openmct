@@ -21,63 +21,60 @@
  *****************************************************************************/
 
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller to provide the ability to show/hide the tree in
-         * Browse mode.
-         * @constructor
-         * @memberof platform/commonUI/browse
-         */
-        function PaneController($scope, agentService, $window, $location, $attrs) {
-            var self = this;
-            this.agentService = agentService;
-            var hideParameterPresent = $location.search().hasOwnProperty($attrs.hideParameter);
+/**
+ * Controller to provide the ability to show/hide the tree in
+ * Browse mode.
+ * @constructor
+ * @memberof platform/commonUI/browse
+ */
+function PaneController($scope, agentService, $window, $location, $attrs) {
+    var self = this;
+    this.agentService = agentService;
+    var hideParameterPresent = $location.search().hasOwnProperty($attrs.hideParameter);
 
-            if ($attrs.hideParameter && hideParameterPresent) {
-                this.state = false;
-                $location.search($attrs.hideParameter, undefined);
-            } else {
-                this.state = true;
-            }
-
-            /**
-             * Callback to invoke when any selection occurs in the tree.
-             * This controller can be passed in as the `parameters` object
-             * to the tree representation.
-             *
-             * @property {Function} callback
-             * @memberof platform/commonUI/browse.PaneController#
-             */
-            this.callback = function () {
-                // Note that, since this is a callback to pass, this is not
-                // declared as a method but as a property which happens to
-                // be a function.
-                if (agentService.isPhone() && agentService.isPortrait()) {
-                    // On phones, trees should collapse in portrait mode
-                    // when something is navigated-to.
-                    self.state = false;
-                }
-            };
-        }
-
-        /**
-         * Toggle the visibility of the pane.
-         */
-        PaneController.prototype.toggle = function () {
-            this.state = !this.state;
-        };
-
-        /**
-         * Get the desired visibility state of the pane.
-         * @returns {boolean} true when visible
-         */
-        PaneController.prototype.visible = function () {
-            return !!this.state;
-        };
-
-        return PaneController;
+    if ($attrs.hideParameter && hideParameterPresent) {
+        this.state = false;
+        $location.search($attrs.hideParameter, undefined);
+    } else {
+        this.state = true;
     }
-);
+
+    /**
+     * Callback to invoke when any selection occurs in the tree.
+     * This controller can be passed in as the `parameters` object
+     * to the tree representation.
+     *
+     * @property {Function} callback
+     * @memberof platform/commonUI/browse.PaneController#
+     */
+    this.callback = function () {
+        // Note that, since this is a callback to pass, this is not
+        // declared as a method but as a property which happens to
+        // be a function.
+        if (agentService.isPhone() && agentService.isPortrait()) {
+            // On phones, trees should collapse in portrait mode
+            // when something is navigated-to.
+            self.state = false;
+        }
+    };
+}
+
+/**
+ * Toggle the visibility of the pane.
+ */
+PaneController.prototype.toggle = function () {
+    this.state = !this.state;
+};
+
+/**
+ * Get the desired visibility state of the pane.
+ * @returns {boolean} true when visible
+ */
+PaneController.prototype.visible = function () {
+    return !!this.state;
+};
+
+var bindingVariable = PaneController;
+export default bindingVariable;

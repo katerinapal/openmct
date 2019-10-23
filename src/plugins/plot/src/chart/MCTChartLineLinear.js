@@ -1,3 +1,4 @@
+import MCTChartSeriesElement from ".\\MCTChartSeriesElement.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -21,20 +22,14 @@
  *****************************************************************************/
 /*global define*/
 
-define([
-    './MCTChartSeriesElement'
-], function (
-    MCTChartSeriesElement
-) {
+;
 
-    var MCTChartLineLinear = MCTChartSeriesElement.extend({
-        addPoint: function (point, start, count) {
-            this.buffer[start] = point.x;
-            this.buffer[start + 1] = point.y;
-        }
-    });
-
-    return MCTChartLineLinear;
-
+var MCTChartLineLinear = MCTChartSeriesElement.extend({
+    addPoint: function (point, start, count) {
+        this.buffer[start] = point.x;
+        this.buffer[start + 1] = point.y;
+    }
 });
+
+export default MCTChartLineLinear;
 

@@ -20,45 +20,42 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'zepto',
-    'text!../../res/templates/tree/toggle.html'
-], function ($, toggleTemplate) {
-    function ToggleView(state) {
-        this.expanded = !!state;
-        this.callbacks = [];
-        this.el = $(toggleTemplate);
-        this.el.on('click', function () {
-            this.value(!this.expanded);
-        }.bind(this));
+;
+function ToggleView(state) {
+    this.expanded = !!state;
+    this.callbacks = [];
+    this.el = $(toggleTemplate);
+    this.el.on('click', function () {
+        this.value(!this.expanded);
+    }.bind(this));
+}
+
+ToggleView.prototype.value = function (state) {
+    this.expanded = state;
+
+    if (state) {
+        this.el.addClass('expanded');
+    } else {
+        this.el.removeClass('expanded');
     }
 
-    ToggleView.prototype.value = function (state) {
-        this.expanded = state;
+    this.callbacks.forEach(function (callback) {
+        callback(state);
+    });
+};
 
-        if (state) {
-            this.el.addClass('expanded');
-        } else {
-            this.el.removeClass('expanded');
-        }
-
-        this.callbacks.forEach(function (callback) {
-            callback(state);
+ToggleView.prototype.observe = function (callback) {
+    this.callbacks.push(callback);
+    return function () {
+        this.callbacks = this.callbacks.filter(function (c) {
+            return c !== callback;
         });
-    };
+    }.bind(this);
+};
 
-    ToggleView.prototype.observe = function (callback) {
-        this.callbacks.push(callback);
-        return function () {
-            this.callbacks = this.callbacks.filter(function (c) {
-                return c !== callback;
-            });
-        }.bind(this);
-    };
+ToggleView.prototype.elements = function () {
+    return this.el;
+};
 
-    ToggleView.prototype.elements = function () {
-        return this.el;
-    };
-
-    return ToggleView;
-});
+var bindingVariable = ToggleView;
+export default bindingVariable;

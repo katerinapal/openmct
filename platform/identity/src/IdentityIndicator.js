@@ -20,39 +20,36 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Indicator showing the currently logged-in user.
-         * @constructor
-         * @memberof platform/identity
-         * @implements {Indicator}
-         * @param {IdentityService} identityService the identity service
-         */
-        function IdentityIndicator(identityService) {
-            // Track the current connection state
-            var self = this;
+/**
+ * Indicator showing the currently logged-in user.
+ * @constructor
+ * @memberof platform/identity
+ * @implements {Indicator}
+ * @param {IdentityService} identityService the identity service
+ */
+function IdentityIndicator(identityService) {
+    // Track the current connection state
+    var self = this;
 
-            identityService.getUser().then(function (user) {
-                if (user && user.key) {
-                    self.text = user.name || user.key;
-                    self.description = "Logged in as " + user.key;
-                }
-            });
+    identityService.getUser().then(function (user) {
+        if (user && user.key) {
+            self.text = user.name || user.key;
+            self.description = "Logged in as " + user.key;
         }
+    });
+}
 
-        IdentityIndicator.prototype.getCssClass = function () {
-            return this.text && "icon-person";
-        };
-        IdentityIndicator.prototype.getText = function () {
-            return this.text;
-        };
-        IdentityIndicator.prototype.getDescription = function () {
-            return this.description;
-        };
+IdentityIndicator.prototype.getCssClass = function () {
+    return this.text && "icon-person";
+};
+IdentityIndicator.prototype.getText = function () {
+    return this.text;
+};
+IdentityIndicator.prototype.getDescription = function () {
+    return this.description;
+};
 
-        return IdentityIndicator;
-    }
-);
+var bindingVariable = IdentityIndicator;
+export default bindingVariable;

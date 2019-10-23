@@ -20,44 +20,40 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'moment'
-], function (
-    moment
-) {
+;
 
-    var DATE_FORMAT = "HH:mm:ss",
-        DATE_FORMATS = [
-            DATE_FORMAT
-        ];
+var DATE_FORMAT = "HH:mm:ss",
+    DATE_FORMATS = [
+        DATE_FORMAT
+    ];
 
 
-    /**
-     * Formatter for duration. Uses moment to produce a date from a given
-     * value, but output is formatted to display only time. Can be used for
-     * specifying a time duration. For specifying duration, it's best to
-     * specify a date of January 1, 1970, as the ms offset will equal the
-     * duration represented by the time.
-     *
-     * @implements {Format}
-     * @constructor
-     * @memberof platform/commonUI/formats
-     */
-    function DurationFormat() {
-        this.key = "duration";
-    }
+/**
+ * Formatter for duration. Uses moment to produce a date from a given
+ * value, but output is formatted to display only time. Can be used for
+ * specifying a time duration. For specifying duration, it's best to
+ * specify a date of January 1, 1970, as the ms offset will equal the
+ * duration represented by the time.
+ *
+ * @implements {Format}
+ * @constructor
+ * @memberof platform/commonUI/formats
+ */
+function DurationFormat() {
+    this.key = "duration";
+}
 
-    DurationFormat.prototype.format = function (value) {
-        return moment.utc(value).format(DATE_FORMAT);
-    };
+DurationFormat.prototype.format = function (value) {
+    return moment.utc(value).format(DATE_FORMAT);
+};
 
-    DurationFormat.prototype.parse = function (text) {
-        return moment.duration(text).asMilliseconds();
-    };
+DurationFormat.prototype.parse = function (text) {
+    return moment.duration(text).asMilliseconds();
+};
 
-    DurationFormat.prototype.validate = function (text) {
-        return moment.utc(text, DATE_FORMATS).isValid();
-    };
+DurationFormat.prototype.validate = function (text) {
+    return moment.utc(text, DATE_FORMATS).isValid();
+};
 
-    return DurationFormat;
-});
+var bindingVariable = DurationFormat;
+export default bindingVariable;

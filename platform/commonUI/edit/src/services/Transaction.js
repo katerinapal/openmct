@@ -19,78 +19,78 @@
  * this source code distribution or the Licensing information page available
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
-define([], function () {
-    /**
-     * A Transaction represents a set of changes that are intended to
-     * be kept or discarded as a unit.
-     * @param $log Angular's `$log` service, for logging messages
-     * @constructor
-     * @memberof platform/commonUI/edit/services
-     */
-    function Transaction($log) {
-        this.$log = $log;
-        this.callbacks = [];
-    }
+;
+/**
+ * A Transaction represents a set of changes that are intended to
+ * be kept or discarded as a unit.
+ * @param $log Angular's `$log` service, for logging messages
+ * @constructor
+ * @memberof platform/commonUI/edit/services
+ */
+function Transaction($log) {
+    this.$log = $log;
+    this.callbacks = [];
+}
 
-    /**
-     * Add a change to the current transaction, as expressed by functions
-     * to either keep or discard the change.
-     * @param {Function} commit called when the transaction is committed
-     * @param {Function} cancel called when the transaction is cancelled
-     * @returns {Function) a function which may be called to remove this
-     *          pair of callbacks from the transaction
-     */
-    Transaction.prototype.add = function (commit, cancel) {
-        var callback = { commit: commit, cancel: cancel };
-        this.callbacks.push(callback);
-        return function () {
-            this.callbacks = this.callbacks.filter(function (c) {
-                return c !== callback;
-            });
-        }.bind(this);
-    };
+/**
+ * Add a change to the current transaction, as expressed by functions
+ * to either keep or discard the change.
+ * @param {Function} commit called when the transaction is committed
+ * @param {Function} cancel called when the transaction is cancelled
+ * @returns {Function) a function which may be called to remove this
+ *          pair of callbacks from the transaction
+ */
+Transaction.prototype.add = function (commit, cancel) {
+    var callback = { commit: commit, cancel: cancel };
+    this.callbacks.push(callback);
+    return function () {
+        this.callbacks = this.callbacks.filter(function (c) {
+            return c !== callback;
+        });
+    }.bind(this);
+};
 
-    /**
-     * Get the number of changes in the current transaction.
-     * @returns {number} the size of the current transaction
-     */
-    Transaction.prototype.size = function () {
-        return this.callbacks.length;
-    };
+/**
+ * Get the number of changes in the current transaction.
+ * @returns {number} the size of the current transaction
+ */
+Transaction.prototype.size = function () {
+    return this.callbacks.length;
+};
 
-    /**
-     * Keep all changes associated with this transaction.
-     * @method {platform/commonUI/edit/services.Transaction#commit}
-     * @returns {Promise} a promise which will resolve when all callbacks
-     *          have been handled.
-     */
+/**
+ * Keep all changes associated with this transaction.
+ * @method {platform/commonUI/edit/services.Transaction#commit}
+ * @returns {Promise} a promise which will resolve when all callbacks
+ *          have been handled.
+ */
 
-    /**
-     * Discard all changes associated with this transaction.
-     * @method {platform/commonUI/edit/services.Transaction#cancel}
-     * @returns {Promise} a promise which will resolve when all callbacks
-     *          have been handled.
-     */
+/**
+ * Discard all changes associated with this transaction.
+ * @method {platform/commonUI/edit/services.Transaction#cancel}
+ * @returns {Promise} a promise which will resolve when all callbacks
+ *          have been handled.
+ */
 
-    ['commit', 'cancel'].forEach(function (method) {
-        Transaction.prototype[method] = function () {
-            var promises = [];
-            var callback;
+['commit', 'cancel'].forEach(function (method) {
+    Transaction.prototype[method] = function () {
+        var promises = [];
+        var callback;
 
-            while (this.callbacks.length > 0) {
-                callback = this.callbacks.shift();
-                try {
-                    promises.push(callback[method]());
-                } catch (e) {
-                    this.$log
-                        .error("Error trying to " + method + " transaction.");
-                }
+        while (this.callbacks.length > 0) {
+            callback = this.callbacks.shift();
+            try {
+                promises.push(callback[method]());
+            } catch (e) {
+                this.$log
+                    .error("Error trying to " + method + " transaction.");
             }
+        }
 
-            return Promise.all(promises);
-        };
-    });
-
-
-    return Transaction;
+        return Promise.all(promises);
+    };
 });
+
+
+var bindingVariable = Transaction;
+export default bindingVariable;

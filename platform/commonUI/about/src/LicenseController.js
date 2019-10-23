@@ -20,29 +20,26 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Provides extension-introduced licenses information to the
-         * licenses route.
-         * @memberof platform/commonUI/about
-         * @constructor
-         */
-        function LicenseController(licenses) {
-            this.licenseDefinitions = licenses;
-        }
+/**
+ * Provides extension-introduced licenses information to the
+ * licenses route.
+ * @memberof platform/commonUI/about
+ * @constructor
+ */
+function LicenseController(licenses) {
+    this.licenseDefinitions = licenses;
+}
 
-        /**
-         * Get license information.
-         * @returns {Array} license extensions
-         * @memberof platform/commonUI/about.LicenseController#
-         */
-        LicenseController.prototype.licenses = function () {
-            return this.licenseDefinitions;
-        };
+/**
+ * Get license information.
+ * @returns {Array} license extensions
+ * @memberof platform/commonUI/about.LicenseController#
+ */
+LicenseController.prototype.licenses = function () {
+    return this.licenseDefinitions;
+};
 
-        return LicenseController;
-    }
-);
+var bindingVariable = LicenseController;
+export default bindingVariable;

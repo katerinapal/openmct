@@ -1,3 +1,4 @@
+import UTCTimeSystem from ".\\UTCTimeSystem.js";
 /*****************************************************************************
  * Open MCT Web, Copyright (c) 2014-2015, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,29 +21,27 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['./UTCTimeSystem'], function (UTCTimeSystem) {
-    describe("The UTCTimeSystem class", function () {
-        var timeSystem,
-            mockTimeout;
+describe("The UTCTimeSystem class", function () {
+    var timeSystem,
+        mockTimeout;
 
-        beforeEach(function () {
-            mockTimeout = jasmine.createSpy("timeout");
-            timeSystem = new UTCTimeSystem(mockTimeout);
-        });
+    beforeEach(function () {
+        mockTimeout = jasmine.createSpy("timeout");
+        timeSystem = new UTCTimeSystem(mockTimeout);
+    });
 
-        it("Uses the UTC time format", function () {
-            expect(timeSystem.timeFormat).toBe('utc');
-        });
+    it("Uses the UTC time format", function () {
+        expect(timeSystem.timeFormat).toBe('utc');
+    });
 
-        it("is UTC based", function () {
-            expect(timeSystem.isUTCBased).toBe(true);
-        });
+    it("is UTC based", function () {
+        expect(timeSystem.isUTCBased).toBe(true);
+    });
 
-        it("defines expected metadata", function () {
-            expect(timeSystem.key).toBeDefined();
-            expect(timeSystem.name).toBeDefined();
-            expect(timeSystem.cssClass).toBeDefined();
-            expect(timeSystem.durationFormat).toBeDefined();
-        });
+    it("defines expected metadata", function () {
+        expect(timeSystem.key).toBeDefined();
+        expect(timeSystem.name).toBeDefined();
+        expect(timeSystem.cssClass).toBeDefined();
+        expect(timeSystem.durationFormat).toBeDefined();
     });
 });

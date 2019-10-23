@@ -20,41 +20,38 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * Controller which support the Values view of Activity Modes.
-         * @constructor
-         * @param {Array} resources definitions for extensions of
-         *        category `resources`
-         */
-        function ActivityModeValuesController(resources) {
-            var metadata = {};
+/**
+ * Controller which support the Values view of Activity Modes.
+ * @constructor
+ * @param {Array} resources definitions for extensions of
+ *        category `resources`
+ */
+function ActivityModeValuesController(resources) {
+    var metadata = {};
 
-            // Store metadata for a specific resource type
-            function storeMetadata(resource) {
-                var key = (resource || {}).key;
-                if (key) {
-                    metadata[key] = resource;
-                }
-            }
-
-            // Populate the lookup table to resource metadata
-            resources.forEach(storeMetadata);
-
-            return {
-                /**
-                 * Look up metadata associated with the specified
-                 * resource type.
-                 */
-                metadata: function (key) {
-                    return metadata[key];
-                }
-            };
+    // Store metadata for a specific resource type
+    function storeMetadata(resource) {
+        var key = (resource || {}).key;
+        if (key) {
+            metadata[key] = resource;
         }
-
-        return ActivityModeValuesController;
     }
-);
+
+    // Populate the lookup table to resource metadata
+    resources.forEach(storeMetadata);
+
+    return {
+        /**
+         * Look up metadata associated with the specified
+         * resource type.
+         */
+        metadata: function (key) {
+            return metadata[key];
+        }
+    };
+}
+
+var bindingVariable = ActivityModeValuesController;
+export default bindingVariable;

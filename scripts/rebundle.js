@@ -1,7 +1,7 @@
 // Temporary utility script to rewrite bundle.json
 // files as bundle.js files.
 
-var glob = require('glob'),
+export var glob = require('glob'),
     fs = require('fs'),
     path = require('path'),
     _ = require('lodash'),

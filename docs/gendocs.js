@@ -1,3 +1,7 @@
+import { glob } from "..\\scripts\\rebundle.js";
+import { options } from "..\\gulpfile.js";
+import { fs } from "..\\gulpfile.js";
+import { path } from "..\\gulpfile.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space

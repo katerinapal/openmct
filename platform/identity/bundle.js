@@ -1,3 +1,8 @@
+import IdentityAggregator from ".\\src\\IdentityAggregator.js";
+import IdentityProvider from ".\\src\\IdentityProvider.js";
+import IdentityCreationDecorator from ".\\src\\IdentityCreationDecorator.js";
+import IdentityIndicator from ".\\src\\IdentityIndicator.js";
+import legacyRegistry from "..\\..\\src\\legacyRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,67 +25,52 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    "./src/IdentityAggregator",
-    "./src/IdentityProvider",
-    "./src/IdentityCreationDecorator",
-    "./src/IdentityIndicator",
-    'legacyRegistry'
-], function (
-    IdentityAggregator,
-    IdentityProvider,
-    IdentityCreationDecorator,
-    IdentityIndicator,
-    legacyRegistry
-) {
-
-    legacyRegistry.register("platform/identity", {
-        "extensions": {
-            "components": [
-                {
-                    "implementation": IdentityAggregator,
-                    "type": "aggregator",
-                    "provides": "identityService",
-                    "depends": [
-                        "$q"
-                    ]
-                },
-                {
-                    "implementation": IdentityProvider,
-                    "type": "provider",
-                    "provides": "identityService",
-                    "depends": [
-                        "$q"
-                    ],
-                    "priority": "fallback"
-                },
-                {
-                    "type": "decorator",
-                    "provides": "creationService",
-                    "implementation": IdentityCreationDecorator,
-                    "depends": [
-                        "identityService"
-                    ]
-                }
-            ],
-            "indicators": [
-                {
-                    "implementation": IdentityIndicator,
-                    "depends": [
-                        "identityService"
-                    ]
-                }
-            ],
-            "types": [
-                {
-                    "properties": [
-                        {
-                            "key": "creator",
-                            "name": "Creator"
-                        }
-                    ]
-                }
-            ]
-        }
-    });
+legacyRegistry.register("platform/identity", {
+    "extensions": {
+        "components": [
+            {
+                "implementation": IdentityAggregator,
+                "type": "aggregator",
+                "provides": "identityService",
+                "depends": [
+                    "$q"
+                ]
+            },
+            {
+                "implementation": IdentityProvider,
+                "type": "provider",
+                "provides": "identityService",
+                "depends": [
+                    "$q"
+                ],
+                "priority": "fallback"
+            },
+            {
+                "type": "decorator",
+                "provides": "creationService",
+                "implementation": IdentityCreationDecorator,
+                "depends": [
+                    "identityService"
+                ]
+            }
+        ],
+        "indicators": [
+            {
+                "implementation": IdentityIndicator,
+                "depends": [
+                    "identityService"
+                ]
+            }
+        ],
+        "types": [
+            {
+                "properties": [
+                    {
+                        "key": "creator",
+                        "name": "Creator"
+                    }
+                ]
+            }
+        ]
+    }
 });

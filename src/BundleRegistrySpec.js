@@ -1,3 +1,4 @@
+import BundleRegistry from ".\\BundleRegistry.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,70 +21,66 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(['./BundleRegistry'], function (BundleRegistry) {
+describe("BundleRegistry", function () {
+    var testPath,
+        bundleRegistry;
 
-    describe("BundleRegistry", function () {
-        var testPath,
-            bundleRegistry;
+    beforeEach(function () {
+        testPath = 'some/bundle';
+        bundleRegistry = new BundleRegistry();
+    });
+
+    it("initially lists no bundles", function () {
+        expect(bundleRegistry.list()).toEqual([]);
+    });
+
+    it("initially contains no bundles", function () {
+        expect(bundleRegistry.contains(testPath))
+            .toBe(false);
+    });
+
+    it("initially provides no bundles", function () {
+        expect(bundleRegistry.get(testPath))
+            .toBeUndefined();
+    });
+
+    describe("when a bundle has been registered", function () {
+        var testBundleDef;
 
         beforeEach(function () {
-            testPath = 'some/bundle';
-            bundleRegistry = new BundleRegistry();
+            testBundleDef = { someKey: "some value" };
+            bundleRegistry.register(testPath, testBundleDef);
+            bundleRegistry.enable(testPath);
         });
 
-        it("initially lists no bundles", function () {
-            expect(bundleRegistry.list()).toEqual([]);
+        it("lists registered bundles", function () {
+            expect(bundleRegistry.list()).toEqual([testPath]);
         });
 
-        it("initially contains no bundles", function () {
+        it("contains registered bundles", function () {
             expect(bundleRegistry.contains(testPath))
-                .toBe(false);
+                .toBe(true);
         });
 
-        it("initially provides no bundles", function () {
+        it("provides registered bundles", function () {
             expect(bundleRegistry.get(testPath))
-                .toBeUndefined();
+                .toBe(testBundleDef);
         });
 
-        describe("when a bundle has been registered", function () {
-            var testBundleDef;
-
+        describe("and then removed", function () {
             beforeEach(function () {
-                testBundleDef = { someKey: "some value" };
-                bundleRegistry.register(testPath, testBundleDef);
-                bundleRegistry.enable(testPath);
+                bundleRegistry.remove(testPath);
             });
 
-            it("lists registered bundles", function () {
-                expect(bundleRegistry.list()).toEqual([testPath]);
+            it("appears empty again", function () {
+                expect(bundleRegistry.list()).toEqual([]);
             });
 
-            it("contains registered bundles", function () {
+            it("does not contain the removed bundle", function () {
                 expect(bundleRegistry.contains(testPath))
-                    .toBe(true);
-            });
-
-            it("provides registered bundles", function () {
-                expect(bundleRegistry.get(testPath))
-                    .toBe(testBundleDef);
-            });
-
-            describe("and then removed", function () {
-                beforeEach(function () {
-                    bundleRegistry.remove(testPath);
-                });
-
-                it("appears empty again", function () {
-                    expect(bundleRegistry.list()).toEqual([]);
-                });
-
-                it("does not contain the removed bundle", function () {
-                    expect(bundleRegistry.contains(testPath))
-                        .toBe(false);
-                });
+                    .toBe(false);
             });
         });
-
     });
 
 });

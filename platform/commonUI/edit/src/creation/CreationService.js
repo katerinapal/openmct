@@ -23,85 +23,82 @@
 /**
  * Module defining CreateService. Created by vwoeltje on 11/10/14.
  */
-define(
-    [],
-    function () {
+;
 
-        var NON_PERSISTENT_WARNING =
-                "Tried to create an object in non-persistent container.";
+var NON_PERSISTENT_WARNING =
+        "Tried to create an object in non-persistent container.";
 
-        /**
-         * The creation service is responsible for instantiating and
-         * persisting new domain objects. Handles all actual object
-         * mutation and persistence associated with domain object
-         * creation.
-         * @memberof platform/commonUI/browse
-         * @constructor
-         */
-        function CreationService($q, $log) {
-            this.$q = $q;
-            this.$log = $log;
-        }
+/**
+ * The creation service is responsible for instantiating and
+ * persisting new domain objects. Handles all actual object
+ * mutation and persistence associated with domain object
+ * creation.
+ * @memberof platform/commonUI/browse
+ * @constructor
+ */
+function CreationService($q, $log) {
+    this.$q = $q;
+    this.$log = $log;
+}
 
-        /**
-         * Create a new domain object with the provided model, as
-         * a member of the provided parent domain object's composition.
-         * This parent will additionally determine which persistence
-         * space an object is created within (as it is possible to
-         * have multiple persistence spaces attached.)
-         *
-         * Note that the model passed in for object creation may be
-         * modified to attach additional initial properties associated
-         * with domain object creation.
-         *
-         * @param {object} model the model for the newly-created
-         *        domain object
-         * @param {DomainObject} parent the domain object which
-         *        should contain the newly-created domain object
-         *        in its composition
-         * @return {Promise} a promise that will resolve when the domain
-         *         object has been created
-         */
-        CreationService.prototype.createObject = function (model, parent) {
-            var persistence = parent.getCapability("persistence"),
-                newObject = parent.useCapability("instantiation", model),
-                newObjectPersistence = newObject.getCapability("persistence"),
-                self = this;
+/**
+ * Create a new domain object with the provided model, as
+ * a member of the provided parent domain object's composition.
+ * This parent will additionally determine which persistence
+ * space an object is created within (as it is possible to
+ * have multiple persistence spaces attached.)
+ *
+ * Note that the model passed in for object creation may be
+ * modified to attach additional initial properties associated
+ * with domain object creation.
+ *
+ * @param {object} model the model for the newly-created
+ *        domain object
+ * @param {DomainObject} parent the domain object which
+ *        should contain the newly-created domain object
+ *        in its composition
+ * @return {Promise} a promise that will resolve when the domain
+ *         object has been created
+ */
+CreationService.prototype.createObject = function (model, parent) {
+    var persistence = parent.getCapability("persistence"),
+        newObject = parent.useCapability("instantiation", model),
+        newObjectPersistence = newObject.getCapability("persistence"),
+        self = this;
 
-            // Add the newly-created object's id to the parent's
-            // composition, so that it will subsequently appear
-            // as a child contained by that parent.
-            function addToComposition() {
-                var compositionCapability = parent.getCapability('composition'),
-                    addResult = compositionCapability &&
-                        compositionCapability.add(newObject);
+    // Add the newly-created object's id to the parent's
+    // composition, so that it will subsequently appear
+    // as a child contained by that parent.
+    function addToComposition() {
+        var compositionCapability = parent.getCapability('composition'),
+            addResult = compositionCapability &&
+                compositionCapability.add(newObject);
 
-                return self.$q.when(addResult).then(function (result) {
-                    if (!result) {
-                        self.$log.error("Could not modify " + parent.getId());
-                        return undefined;
-                    }
-
-                    return persistence.persist().then(function () {
-                        return result;
-                    });
-                });
+        return self.$q.when(addResult).then(function (result) {
+            if (!result) {
+                self.$log.error("Could not modify " + parent.getId());
+                return undefined;
             }
 
-            // We need the parent's persistence capability to determine
-            // what space to create the new object's model in.
-            if (!persistence || !newObjectPersistence) {
-                self.$log.warn(NON_PERSISTENT_WARNING);
-                return self.$q.reject(new Error(NON_PERSISTENT_WARNING));
-            }
-
-            // Persist the new object, then add it to composition.
-            return newObjectPersistence.persist().then(addToComposition);
-        };
-
-
-
-        return CreationService;
+            return persistence.persist().then(function () {
+                return result;
+            });
+        });
     }
-);
+
+    // We need the parent's persistence capability to determine
+    // what space to create the new object's model in.
+    if (!persistence || !newObjectPersistence) {
+        self.$log.warn(NON_PERSISTENT_WARNING);
+        return self.$q.reject(new Error(NON_PERSISTENT_WARNING));
+    }
+
+    // Persist the new object, then add it to composition.
+    return newObjectPersistence.persist().then(addToComposition);
+};
+
+
+
+var bindingVariable = CreationService;
+export default bindingVariable;
 

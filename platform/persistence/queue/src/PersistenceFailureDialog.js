@@ -1,3 +1,4 @@
+import PersistenceFailureConstants from ".\\PersistenceFailureConstants.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,56 +21,53 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./PersistenceFailureConstants'],
-    function (PersistenceFailureConstants) {
+;
 
-        var OVERWRITE_CANCEL_OPTIONS = [
-                {
-                    name: "Overwrite",
-                    key: PersistenceFailureConstants.OVERWRITE_KEY
-                },
-                {
-                    name: "Discard",
-                    key: "cancel"
-                }
-            ],
-            OK_OPTIONS = [{ name: "OK", key: "ok" }];
-
-        /**
-         * Populates a `dialogModel` to pass to `dialogService.getUserChoise`
-         * in order to choose between Overwrite and Cancel.
-         * @constructor
-         * @memberof platform/persistence/queue
-         */
-        function PersistenceFailureDialog(failures) {
-            var revisionErrors = [],
-                otherErrors = [];
-
-            // Place this failure into an appropriate group
-            function categorizeFailure(failure) {
-                // Check if the error is due to object revision
-                var isRevisionError = ((failure || {}).error || {}).key ===
-                    PersistenceFailureConstants.REVISION_ERROR_KEY;
-                // Push the failure into the appropriate group
-                (isRevisionError ? revisionErrors : otherErrors).push(failure);
-            }
-
-            // Separate into revision errors, and other errors
-            failures.forEach(categorizeFailure);
-
-            return {
-                title: "Save Error",
-                template: "persistence-failure-dialog",
-                model: {
-                    revised: revisionErrors,
-                    unrecoverable: otherErrors
-                },
-                options: revisionErrors.length > 0 ?
-                        OVERWRITE_CANCEL_OPTIONS : OK_OPTIONS
-            };
+var OVERWRITE_CANCEL_OPTIONS = [
+        {
+            name: "Overwrite",
+            key: PersistenceFailureConstants.OVERWRITE_KEY
+        },
+        {
+            name: "Discard",
+            key: "cancel"
         }
+    ],
+    OK_OPTIONS = [{ name: "OK", key: "ok" }];
 
-        return PersistenceFailureDialog;
+/**
+ * Populates a `dialogModel` to pass to `dialogService.getUserChoise`
+ * in order to choose between Overwrite and Cancel.
+ * @constructor
+ * @memberof platform/persistence/queue
+ */
+function PersistenceFailureDialog(failures) {
+    var revisionErrors = [],
+        otherErrors = [];
+
+    // Place this failure into an appropriate group
+    function categorizeFailure(failure) {
+        // Check if the error is due to object revision
+        var isRevisionError = ((failure || {}).error || {}).key ===
+            PersistenceFailureConstants.REVISION_ERROR_KEY;
+        // Push the failure into the appropriate group
+        (isRevisionError ? revisionErrors : otherErrors).push(failure);
     }
-);
+
+    // Separate into revision errors, and other errors
+    failures.forEach(categorizeFailure);
+
+    return {
+        title: "Save Error",
+        template: "persistence-failure-dialog",
+        model: {
+            revised: revisionErrors,
+            unrecoverable: otherErrors
+        },
+        options: revisionErrors.length > 0 ?
+                OVERWRITE_CANCEL_OPTIONS : OK_OPTIONS
+    };
+}
+
+var bindingVariable = PersistenceFailureDialog;
+export default bindingVariable;

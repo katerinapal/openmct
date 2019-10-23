@@ -20,49 +20,46 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    [],
-    function () {
+;
 
-        /**
-         * The GestureRepresenter is responsible for installing predefined
-         * gestures upon mct-representation instances.
-         * Gestures themselves are pulled from the gesture service; this
-         * simply wraps that behavior in a Representer interface, such that
-         * it may be included among other such Representers used to prepare
-         * specific representations.
-         * @param {GestureService} gestureService the service which provides
-         *        gestures
-         * @param {Scope} scope the Angular scope for this representation
-         * @param element the JQLite-wrapped mct-representation element
-         * @constructor
-         * @implements {Representer}
-         * @memberof platform/representation
-         */
-        function GestureRepresenter(gestureService, scope, element) {
-            this.gestureService = gestureService;
-            this.element = element;
-        }
+/**
+ * The GestureRepresenter is responsible for installing predefined
+ * gestures upon mct-representation instances.
+ * Gestures themselves are pulled from the gesture service; this
+ * simply wraps that behavior in a Representer interface, such that
+ * it may be included among other such Representers used to prepare
+ * specific representations.
+ * @param {GestureService} gestureService the service which provides
+ *        gestures
+ * @param {Scope} scope the Angular scope for this representation
+ * @param element the JQLite-wrapped mct-representation element
+ * @constructor
+ * @implements {Representer}
+ * @memberof platform/representation
+ */
+function GestureRepresenter(gestureService, scope, element) {
+    this.gestureService = gestureService;
+    this.element = element;
+}
 
-        GestureRepresenter.prototype.represent = function represent(representation, domainObject) {
-            // Clear out any existing gestures
-            this.destroy();
+GestureRepresenter.prototype.represent = function represent(representation, domainObject) {
+    // Clear out any existing gestures
+    this.destroy();
 
-            // Attach gestures - by way of the service.
-            this.gestureHandle = this.gestureService.attachGestures(
-                this.element,
-                domainObject,
-                (representation || {}).gestures || []
-            );
-        };
+    // Attach gestures - by way of the service.
+    this.gestureHandle = this.gestureService.attachGestures(
+        this.element,
+        domainObject,
+        (representation || {}).gestures || []
+    );
+};
 
-        GestureRepresenter.prototype.destroy = function () {
-            // Release any resources associated with these gestures
-            if (this.gestureHandle) {
-                this.gestureHandle.destroy();
-            }
-        };
-
-        return GestureRepresenter;
+GestureRepresenter.prototype.destroy = function () {
+    // Release any resources associated with these gestures
+    if (this.gestureHandle) {
+        this.gestureHandle.destroy();
     }
-);
+};
+
+var bindingVariable = GestureRepresenter;
+export default bindingVariable;

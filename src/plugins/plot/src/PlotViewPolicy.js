@@ -20,48 +20,46 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    function () {
+;
 
-        /**
-         * Policy preventing the Plot view from being made available for
-         * domain objects which have non-numeric telemetry.
-         * @implements {Policy.<View, DomainObject>}
-         * @constructor
-         * @memberof platform/features/plot
-         */
-        function PlotViewPolicy(openmct) {
-            this.openmct = openmct;
-        }
+/**
+ * Policy preventing the Plot view from being made available for
+ * domain objects which have non-numeric telemetry.
+ * @implements {Policy.<View, DomainObject>}
+ * @constructor
+ * @memberof platform/features/plot
+ */
+function PlotViewPolicy(openmct) {
+    this.openmct = openmct;
+}
 
-        PlotViewPolicy.prototype.hasNumericTelemetry = function (domainObject) {
-            var adaptedObject = domainObject.useCapability('adapter');
+PlotViewPolicy.prototype.hasNumericTelemetry = function (domainObject) {
+    var adaptedObject = domainObject.useCapability('adapter');
 
-            if (!adaptedObject.telemetry) {
-                return domainObject.hasCapability('delegation') &&
-                    domainObject.getCapability('delegation')
-                            .doesDelegateCapability('telemetry');
-            }
-
-            var metadata = this.openmct.telemetry.getMetadata(adaptedObject);
-            var rangeValues = metadata.valuesForHints(['range']);
-            if (rangeValues.length === 0) {
-                return false;
-            }
-            return !rangeValues.every(function (value) {
-                return value.format === 'string';
-            });
-        };
-
-        PlotViewPolicy.prototype.allow = function (view, domainObject) {
-            if (view.key === 'plot-single') {
-                return this.hasNumericTelemetry(domainObject);
-            }
-
-            return true;
-        };
-
-        return PlotViewPolicy;
+    if (!adaptedObject.telemetry) {
+        return domainObject.hasCapability('delegation') &&
+            domainObject.getCapability('delegation')
+                    .doesDelegateCapability('telemetry');
     }
-);
+
+    var metadata = this.openmct.telemetry.getMetadata(adaptedObject);
+    var rangeValues = metadata.valuesForHints(['range']);
+    if (rangeValues.length === 0) {
+        return false;
+    }
+    return !rangeValues.every(function (value) {
+        return value.format === 'string';
+    });
+};
+
+PlotViewPolicy.prototype.allow = function (view, domainObject) {
+    if (view.key === 'plot-single') {
+        return this.hasNumericTelemetry(domainObject);
+    }
+
+    return true;
+};
+
+var bindingVariable = PlotViewPolicy;
+export default bindingVariable;
 

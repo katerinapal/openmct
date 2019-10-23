@@ -20,41 +20,39 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    function () {
+;
 
-        /**
-         * Implements the "Go To Original" action, which follows a link back
-         * to an original instance of an object.
-         *
-         * @implements {Action}
-         * @constructor
-         * @private
-         * @memberof platform/entanglement
-         * @param {ActionContext} context the context in which the action
-         *        will be performed
-         */
-        function GoToOriginalAction(context) {
-            this.domainObject = context.domainObject;
-        }
+/**
+ * Implements the "Go To Original" action, which follows a link back
+ * to an original instance of an object.
+ *
+ * @implements {Action}
+ * @constructor
+ * @private
+ * @memberof platform/entanglement
+ * @param {ActionContext} context the context in which the action
+ *        will be performed
+ */
+function GoToOriginalAction(context) {
+    this.domainObject = context.domainObject;
+}
 
-        GoToOriginalAction.prototype.perform = function () {
-            return this.domainObject.getCapability("location").getOriginal()
-                .then(function (originalObject) {
-                    var actionCapability =
-                        originalObject.getCapability("action");
-                    return actionCapability &&
-                            actionCapability.perform("navigate");
-                });
-        };
+GoToOriginalAction.prototype.perform = function () {
+    return this.domainObject.getCapability("location").getOriginal()
+        .then(function (originalObject) {
+            var actionCapability =
+                originalObject.getCapability("action");
+            return actionCapability &&
+                    actionCapability.perform("navigate");
+        });
+};
 
-        GoToOriginalAction.appliesTo = function (context) {
-            var domainObject = context.domainObject;
-            return domainObject && domainObject.hasCapability("location") &&
-                domainObject.getCapability("location").isLink();
-        };
+GoToOriginalAction.appliesTo = function (context) {
+    var domainObject = context.domainObject;
+    return domainObject && domainObject.hasCapability("location") &&
+        domainObject.getCapability("location").isLink();
+};
 
-        return GoToOriginalAction;
-    }
-);
+var bindingVariable = GoToOriginalAction;
+export default bindingVariable;
 

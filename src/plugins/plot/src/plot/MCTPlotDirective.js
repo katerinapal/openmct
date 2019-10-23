@@ -1,3 +1,4 @@
+import MCTPlotController from ".\\MCTPlotController.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2018, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,27 +21,21 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    './MCTPlotController',
-    'text!../../res/templates/mct-plot.html'
-], function (
-    MCTPlotController,
-    PlotTemplate
-) {
+;
 
-    function MCTPlot() {
+function MCTPlot() {
 
-        return {
-            restrict: "E",
-            template: PlotTemplate,
-            controller: MCTPlotController,
-            controllerAs: 'mctPlotController',
-            bindToController: {
-                config: "="
-            },
-            scope: true
-        };
-    }
+    return {
+        restrict: "E",
+        template: PlotTemplate,
+        controller: MCTPlotController,
+        controllerAs: 'mctPlotController',
+        bindToController: {
+            config: "="
+        },
+        scope: true
+    };
+}
 
-    return MCTPlot;
-});
+var bindingVariable = MCTPlot;
+export default bindingVariable;

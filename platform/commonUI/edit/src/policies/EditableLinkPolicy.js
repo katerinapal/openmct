@@ -20,32 +20,32 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([], function () {
+;
 
-    /**
-     * Policy suppressing links when the linked-to domain object is in
-     * edit mode. Domain objects being edited may not have been persisted,
-     * so creating links to these can result in inconsistent state.
-     *
-     * @memberof platform/commonUI/edit
-     * @constructor
-     * @implements {Policy.<View, DomainObject>}
-     */
-    function EditableLinkPolicy() {
+/**
+ * Policy suppressing links when the linked-to domain object is in
+ * edit mode. Domain objects being edited may not have been persisted,
+ * so creating links to these can result in inconsistent state.
+ *
+ * @memberof platform/commonUI/edit
+ * @constructor
+ * @implements {Policy.<View, DomainObject>}
+ */
+function EditableLinkPolicy() {
+}
+
+EditableLinkPolicy.prototype.allow = function (action, context) {
+    var key = action.getMetadata().key,
+        object;
+
+    if (key === 'link') {
+        object = context.selectedObject || context.domainObject;
+        return !(object.hasCapability("editor") && object.getCapability("editor").inEditContext());
     }
 
-    EditableLinkPolicy.prototype.allow = function (action, context) {
-        var key = action.getMetadata().key,
-            object;
+    // Like all policies, allow by default.
+    return true;
+};
 
-        if (key === 'link') {
-            object = context.selectedObject || context.domainObject;
-            return !(object.hasCapability("editor") && object.getCapability("editor").inEditContext());
-        }
-
-        // Like all policies, allow by default.
-        return true;
-    };
-
-    return EditableLinkPolicy;
-});
+var bindingVariable = EditableLinkPolicy;
+export default bindingVariable;

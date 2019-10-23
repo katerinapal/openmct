@@ -1,3 +1,5 @@
+import ToggleView from ".\\ToggleView.js";
+import TreeLabelView from ".\\TreeLabelView.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,136 +22,131 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define([
-    'zepto',
-    'text!../../res/templates/tree/node.html',
-    './ToggleView',
-    './TreeLabelView'
-], function ($, nodeTemplate, ToggleView, TreeLabelView) {
+;
 
-    function TreeNodeView(gestureService, subtreeFactory, selectFn) {
-        this.li = $('<li>');
+function TreeNodeView(gestureService, subtreeFactory, selectFn) {
+    this.li = $('<li>');
 
-        this.statusClasses = [];
+    this.statusClasses = [];
 
-        this.toggleView = new ToggleView(false);
-        this.toggleView.observe(function (state) {
-            if (state) {
-                if (!this.subtreeView) {
-                    this.subtreeView = subtreeFactory();
-                    this.subtreeView.model(this.activeObject);
-                    this.li.find('.tree-item-subtree').eq(0)
-                        .append($(this.subtreeView.elements()));
-                }
-                $(this.subtreeView.elements()).removeClass('hidden');
-            } else if (this.subtreeView) {
-                $(this.subtreeView.elements()).addClass('hidden');
+    this.toggleView = new ToggleView(false);
+    this.toggleView.observe(function (state) {
+        if (state) {
+            if (!this.subtreeView) {
+                this.subtreeView = subtreeFactory();
+                this.subtreeView.model(this.activeObject);
+                this.li.find('.tree-item-subtree').eq(0)
+                    .append($(this.subtreeView.elements()));
             }
-        }.bind(this));
+            $(this.subtreeView.elements()).removeClass('hidden');
+        } else if (this.subtreeView) {
+            $(this.subtreeView.elements()).addClass('hidden');
+        }
+    }.bind(this));
 
-        this.labelView = new TreeLabelView(gestureService);
+    this.labelView = new TreeLabelView(gestureService);
 
-        $(this.labelView.elements()).on('click', function (event) {
-            selectFn(this.activeObject, event);
-        }.bind(this));
+    $(this.labelView.elements()).on('click', function (event) {
+        selectFn(this.activeObject, event);
+    }.bind(this));
 
-        this.li.append($(nodeTemplate));
-        this.li.find('span').eq(0)
-            .append($(this.toggleView.elements()))
-            .append($(this.labelView.elements()));
+    this.li.append($(nodeTemplate));
+    this.li.find('span').eq(0)
+        .append($(this.toggleView.elements()))
+        .append($(this.labelView.elements()));
 
-        this.model(undefined);
+    this.model(undefined);
+}
+
+TreeNodeView.prototype.updateStatusClasses = function (statuses) {
+    this.statusClasses.forEach(function (statusClass) {
+        this.li.removeClass(statusClass);
+    }.bind(this));
+
+    this.statusClasses = statuses.map(function (status) {
+        return 's-status-' + status;
+    });
+
+    this.statusClasses.forEach(function (statusClass) {
+        this.li.addClass(statusClass);
+    }.bind(this));
+};
+
+TreeNodeView.prototype.model = function (domainObject) {
+    if (this.unlisten) {
+        this.unlisten();
     }
 
-    TreeNodeView.prototype.updateStatusClasses = function (statuses) {
-        this.statusClasses.forEach(function (statusClass) {
-            this.li.removeClass(statusClass);
-        }.bind(this));
+    this.activeObject = domainObject;
 
-        this.statusClasses = statuses.map(function (status) {
-            return 's-status-' + status;
-        });
+    if (domainObject && domainObject.hasCapability('composition')) {
+        $(this.toggleView.elements()).removeClass('no-children');
+    } else {
+        $(this.toggleView.elements()).addClass('no-children');
+    }
 
-        this.statusClasses.forEach(function (statusClass) {
-            this.li.addClass(statusClass);
-        }.bind(this));
-    };
+    if (domainObject && domainObject.hasCapability('status')) {
+        this.unlisten = domainObject.getCapability('status')
+            .listen(this.updateStatusClasses.bind(this));
+        this.updateStatusClasses(
+            domainObject.getCapability('status').list()
+        );
+    }
 
-    TreeNodeView.prototype.model = function (domainObject) {
-        if (this.unlisten) {
-            this.unlisten();
-        }
+    this.labelView.model(domainObject);
+    if (this.subtreeView) {
+        this.subtreeView.model(domainObject);
+    }
+};
 
-        this.activeObject = domainObject;
+function getIdPath(domainObject) {
+    var context = domainObject && domainObject.getCapability('context');
 
-        if (domainObject && domainObject.hasCapability('composition')) {
-            $(this.toggleView.elements()).removeClass('no-children');
-        } else {
-            $(this.toggleView.elements()).addClass('no-children');
-        }
+    function getId(domainObj) {
+        return domainObj.getId();
+    }
 
-        if (domainObject && domainObject.hasCapability('status')) {
-            this.unlisten = domainObject.getCapability('status')
-                .listen(this.updateStatusClasses.bind(this));
-            this.updateStatusClasses(
-                domainObject.getCapability('status').list()
-            );
-        }
+    return context ? context.getPath().map(getId) : [];
+}
 
-        this.labelView.model(domainObject);
+TreeNodeView.prototype.value = function (domainObject) {
+    var activeIdPath = getIdPath(this.activeObject),
+        selectedIdPath = getIdPath(domainObject);
+
+    if (this.onSelectionPath) {
+        this.li.find('.tree-item').eq(0).removeClass('selected');
         if (this.subtreeView) {
-            this.subtreeView.model(domainObject);
+            this.subtreeView.value(undefined);
         }
-    };
-
-    function getIdPath(domainObject) {
-        var context = domainObject && domainObject.getCapability('context');
-
-        function getId(domainObj) {
-            return domainObj.getId();
-        }
-
-        return context ? context.getPath().map(getId) : [];
     }
 
-    TreeNodeView.prototype.value = function (domainObject) {
-        var activeIdPath = getIdPath(this.activeObject),
-            selectedIdPath = getIdPath(domainObject);
+    this.onSelectionPath =
+        !!domainObject &&
+        !!this.activeObject &&
+        (activeIdPath.length <= selectedIdPath.length) &&
+            activeIdPath.every(function (id, index) {
+                return selectedIdPath[index] === id;
+            });
 
-        if (this.onSelectionPath) {
-            this.li.find('.tree-item').eq(0).removeClass('selected');
-            if (this.subtreeView) {
-                this.subtreeView.value(undefined);
-            }
+    if (this.onSelectionPath) {
+        if (activeIdPath.length === selectedIdPath.length) {
+            this.li.find('.tree-item').eq(0).addClass('selected');
+        } else {
+            // Expand to reveal the selection
+            this.toggleView.value(true);
+            this.subtreeView.value(domainObject);
         }
+    }
+};
 
-        this.onSelectionPath =
-            !!domainObject &&
-            !!this.activeObject &&
-            (activeIdPath.length <= selectedIdPath.length) &&
-                activeIdPath.every(function (id, index) {
-                    return selectedIdPath[index] === id;
-                });
-
-        if (this.onSelectionPath) {
-            if (activeIdPath.length === selectedIdPath.length) {
-                this.li.find('.tree-item').eq(0).addClass('selected');
-            } else {
-                // Expand to reveal the selection
-                this.toggleView.value(true);
-                this.subtreeView.value(domainObject);
-            }
-        }
-    };
-
-    /**
-     *
-     * @returns {HTMLElement[]}
-     */
-    TreeNodeView.prototype.elements = function () {
-        return this.li;
-    };
+/**
+ *
+ * @returns {HTMLElement[]}
+ */
+TreeNodeView.prototype.elements = function () {
+    return this.li;
+};
 
 
-    return TreeNodeView;
-});
+var bindingVariable = TreeNodeView;
+export default bindingVariable;

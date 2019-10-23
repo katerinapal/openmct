@@ -1,3 +1,4 @@
+import SwimlaneDragConstants from ".\\SwimlaneDragConstants.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,62 +21,59 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./SwimlaneDragConstants'],
-    function (SwimlaneDragConstants) {
+;
 
-        /**
-         * Defines the `mct-resource-graph-drop` directive. When a drop occurs
-         * on an element with this attribute, the swimlane targeted by the drop
-         * will receive the dropped domain object (at which point it can handle
-         * the drop, typically by toggling the swimlane graph.)
-         * @param {DndService} dndService drag-and-drop service
-         */
-        function MCTResourceGraphDrop(dndService) {
+/**
+ * Defines the `mct-resource-graph-drop` directive. When a drop occurs
+ * on an element with this attribute, the swimlane targeted by the drop
+ * will receive the dropped domain object (at which point it can handle
+ * the drop, typically by toggling the swimlane graph.)
+ * @param {DndService} dndService drag-and-drop service
+ */
+function MCTResourceGraphDrop(dndService) {
 
-            function link(scope, element, attrs) {
-                // Handle dragover
-                element.on('dragover', function (e) {
-                    var swimlane = dndService.getData(
-                        SwimlaneDragConstants.TIMELINE_SWIMLANE_DRAG_TYPE
-                    );
+    function link(scope, element, attrs) {
+        // Handle dragover
+        element.on('dragover', function (e) {
+            var swimlane = dndService.getData(
+                SwimlaneDragConstants.TIMELINE_SWIMLANE_DRAG_TYPE
+            );
 
-                    if (typeof swimlane !== "undefined" && !swimlane.graph()) {
-                        element.addClass('drop-over');
-                        scope.$apply();
-                        e.preventDefault();
-                    }
-                });
-                // Handle drops
-                element.on('drop', function (e) {
-                    var swimlane = dndService.getData(
-                        SwimlaneDragConstants.TIMELINE_SWIMLANE_DRAG_TYPE
-                    );
-
-                    element.removeClass('drop-over');
-
-                    // Only toggle if the graph isn't already set
-                    if (typeof swimlane !== "undefined" && !swimlane.graph()) {
-                        swimlane.toggleGraph();
-                        e.preventDefault();
-                    }
-                });
-                // Clear highlights when drag leaves this swimlane
-                element.on('dragleave', function (e) {
-                    element.removeClass('drop-over');
-                    scope.$apply();
-                    e.preventDefault();
-                });
+            if (typeof swimlane !== "undefined" && !swimlane.graph()) {
+                element.addClass('drop-over');
+                scope.$apply();
+                e.preventDefault();
             }
+        });
+        // Handle drops
+        element.on('drop', function (e) {
+            var swimlane = dndService.getData(
+                SwimlaneDragConstants.TIMELINE_SWIMLANE_DRAG_TYPE
+            );
 
-            return {
-                // Applies to attributes
-                restrict: "A",
-                // Link using above function
-                link: link
-            };
-        }
+            element.removeClass('drop-over');
 
-        return MCTResourceGraphDrop;
+            // Only toggle if the graph isn't already set
+            if (typeof swimlane !== "undefined" && !swimlane.graph()) {
+                swimlane.toggleGraph();
+                e.preventDefault();
+            }
+        });
+        // Clear highlights when drag leaves this swimlane
+        element.on('dragleave', function (e) {
+            element.removeClass('drop-over');
+            scope.$apply();
+            e.preventDefault();
+        });
     }
-);
+
+    return {
+        // Applies to attributes
+        restrict: "A",
+        // Link using above function
+        link: link
+    };
+}
+
+var bindingVariable = MCTResourceGraphDrop;
+export default bindingVariable;

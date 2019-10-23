@@ -1,3 +1,4 @@
+import TimerFormatter from ".\\TimerFormatter.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2009-2016, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,209 +21,206 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./TimerFormatter'],
-    function (TimerFormatter) {
+;
 
-        var FORMATTER = new TimerFormatter();
+var FORMATTER = new TimerFormatter();
 
 
-        /**
-         * Controller for views of a Timer domain object.
-         *
-         * @constructor
-         * @memberof platform/features/clock
-         * @param {angular.Scope} $scope the Angular scope
-         * @param $window Angular-provided window object
-         * @param {Function} now a function which returns the current
-         *        time (typically wrapping `Date.now`)
-         */
-        function TimerController($scope, $window, now) {
-            var formatter,
-                active = true,
-                relativeTimestamp,
-                lastTimestamp,
-                relativeTimerState,
-                self = this;
+/**
+ * Controller for views of a Timer domain object.
+ *
+ * @constructor
+ * @memberof platform/features/clock
+ * @param {angular.Scope} $scope the Angular scope
+ * @param $window Angular-provided window object
+ * @param {Function} now a function which returns the current
+ *        time (typically wrapping `Date.now`)
+ */
+function TimerController($scope, $window, now) {
+    var formatter,
+        active = true,
+        relativeTimestamp,
+        lastTimestamp,
+        relativeTimerState,
+        self = this;
 
-            function update() {
-                var timeDelta = lastTimestamp - relativeTimestamp;
+    function update() {
+        var timeDelta = lastTimestamp - relativeTimestamp;
 
-                if (formatter && !isNaN(timeDelta)) {
-                    self.textValue = formatter(timeDelta);
-                    self.signValue = timeDelta < 0 ? "-" :
-                        timeDelta >= 1000 ? "+" : "";
-                } else {
-                    self.textValue = "";
-                    self.signValue = "";
-                }
-            }
+        if (formatter && !isNaN(timeDelta)) {
+            self.textValue = formatter(timeDelta);
+            self.signValue = timeDelta < 0 ? "-" :
+                timeDelta >= 1000 ? "+" : "";
+        } else {
+            self.textValue = "";
+            self.signValue = "";
+        }
+    }
 
-            function updateFormat(key) {
-                formatter = FORMATTER[key] || FORMATTER.long;
-            }
+    function updateFormat(key) {
+        formatter = FORMATTER[key] || FORMATTER.long;
+    }
 
-            function updateTimestamp(timestamp) {
-                relativeTimestamp = timestamp;
-            }
+    function updateTimestamp(timestamp) {
+        relativeTimestamp = timestamp;
+    }
 
-            function updateTimerState(timerState) {
-                self.timerState = relativeTimerState = timerState;
-            }
+    function updateTimerState(timerState) {
+        self.timerState = relativeTimerState = timerState;
+    }
 
-            function updateActions(actionCapability, actionKey) {
-                self.relevantAction = actionCapability &&
-                    actionCapability.getActions(actionKey)[0];
+    function updateActions(actionCapability, actionKey) {
+        self.relevantAction = actionCapability &&
+            actionCapability.getActions(actionKey)[0];
 
-                self.stopAction = relativeTimerState !== 'stopped' ?
-                    actionCapability && actionCapability.getActions('timer.stop')[0] : undefined;
+        self.stopAction = relativeTimerState !== 'stopped' ?
+            actionCapability && actionCapability.getActions('timer.stop')[0] : undefined;
 
-            }
+    }
 
-            function isPaused() {
-                return relativeTimerState === 'paused';
-            }
+    function isPaused() {
+        return relativeTimerState === 'paused';
+    }
 
-            function handleLegacyTimer(model) {
-                if (model.timerState === undefined) {
-                    model.timerState = model.timestamp === undefined ?
-                        'stopped' : 'started';
-                }
-            }
+    function handleLegacyTimer(model) {
+        if (model.timerState === undefined) {
+            model.timerState = model.timestamp === undefined ?
+                'stopped' : 'started';
+        }
+    }
 
-            function updateObject(domainObject) {
-                var model = domainObject.getModel();
-                handleLegacyTimer(model);
+    function updateObject(domainObject) {
+        var model = domainObject.getModel();
+        handleLegacyTimer(model);
 
-                var timestamp = model.timestamp,
-                    formatKey = model.timerFormat,
-                    timerState = model.timerState,
-                    actionCapability = domainObject.getCapability('action'),
-                    actionKey = (timerState !== 'started') ?
-                        'timer.start' : 'timer.pause';
+        var timestamp = model.timestamp,
+            formatKey = model.timerFormat,
+            timerState = model.timerState,
+            actionCapability = domainObject.getCapability('action'),
+            actionKey = (timerState !== 'started') ?
+                'timer.start' : 'timer.pause';
 
-                updateFormat(formatKey);
-                updateTimestamp(timestamp);
-                updateTimerState(timerState);
-                updateActions(actionCapability, actionKey);
+        updateFormat(formatKey);
+        updateTimestamp(timestamp);
+        updateTimerState(timerState);
+        updateActions(actionCapability, actionKey);
 
-                //if paused on startup show last known position
-                if (isPaused() && !lastTimestamp) {
-                    lastTimestamp = model.pausedTime;
-                }
-
-                update();
-            }
-
-            function handleObjectChange(domainObject) {
-                if (domainObject) {
-                    updateObject(domainObject);
-                }
-            }
-
-            function handleModification() {
-                handleObjectChange($scope.domainObject);
-            }
-
-            function tick() {
-                var lastSign = self.signValue,
-                    lastText = self.textValue;
-
-                if (!isPaused()) {
-                    lastTimestamp = now();
-                    update();
-                }
-
-                if (relativeTimerState === undefined) {
-                    handleModification();
-                }
-
-                // We're running in an animation frame, not in a digest cycle.
-                // We need to trigger a digest cycle if our displayable data
-                // changes.
-                if (lastSign !== self.signValue || lastText !== self.textValue) {
-                    $scope.$apply();
-                }
-                if (active) {
-                    $window.requestAnimationFrame(tick);
-                }
-            }
-
-            $window.requestAnimationFrame(tick);
-
-            // Pull in the timer format from the domain object model
-            $scope.$watch('domainObject', handleObjectChange);
-            $scope.$watch('model.modified', handleModification);
-
-            // When the scope is destroyed, stop requesting anim. frames
-            $scope.$on('$destroy', function () {
-                active = false;
-            });
-
-            this.$scope = $scope;
-            this.signValue = '';
-            this.textValue = '';
-            this.updateObject = updateObject;
+        //if paused on startup show last known position
+        if (isPaused() && !lastTimestamp) {
+            lastTimestamp = model.pausedTime;
         }
 
-        /**
-         * Get the CSS class to display the right icon
-         * for the start/pause button.
-         * @returns {string} cssclass to display
-         */
-        TimerController.prototype.buttonCssClass = function () {
-            return this.relevantAction ?
-                this.relevantAction.getMetadata().cssClass : "";
-        };
-
-        /**
-         * Get the text to show for the start/pause button
-         * (e.g. in a tooltip)
-         * @returns {string} name of the action
-         */
-        TimerController.prototype.buttonText = function () {
-            return this.relevantAction ?
-                this.relevantAction.getMetadata().name : "";
-        };
-
-
-        /**
-         * Perform the action associated with the start/pause button.
-         */
-        TimerController.prototype.clickButton = function () {
-            if (this.relevantAction) {
-                this.relevantAction.perform();
-                this.updateObject(this.$scope.domainObject);
-            }
-        };
-
-        /**
-         * Perform the action associated with the stop button.
-         */
-        TimerController.prototype.clickStopButton = function () {
-            if (this.stopAction) {
-                this.stopAction.perform();
-                this.updateObject(this.$scope.domainObject);
-            }
-        };
-
-        /**
-         * Get the sign (+ or -) of the current timer value, as
-         * displayable text.
-         * @returns {string} sign of the current timer value
-         */
-        TimerController.prototype.sign = function () {
-            return this.signValue;
-        };
-
-        /**
-         * Get the text to display for the current timer value.
-         * @returns {string} current timer value
-         */
-        TimerController.prototype.text = function () {
-            return this.textValue;
-        };
-
-        return TimerController;
+        update();
     }
-);
+
+    function handleObjectChange(domainObject) {
+        if (domainObject) {
+            updateObject(domainObject);
+        }
+    }
+
+    function handleModification() {
+        handleObjectChange($scope.domainObject);
+    }
+
+    function tick() {
+        var lastSign = self.signValue,
+            lastText = self.textValue;
+
+        if (!isPaused()) {
+            lastTimestamp = now();
+            update();
+        }
+
+        if (relativeTimerState === undefined) {
+            handleModification();
+        }
+
+        // We're running in an animation frame, not in a digest cycle.
+        // We need to trigger a digest cycle if our displayable data
+        // changes.
+        if (lastSign !== self.signValue || lastText !== self.textValue) {
+            $scope.$apply();
+        }
+        if (active) {
+            $window.requestAnimationFrame(tick);
+        }
+    }
+
+    $window.requestAnimationFrame(tick);
+
+    // Pull in the timer format from the domain object model
+    $scope.$watch('domainObject', handleObjectChange);
+    $scope.$watch('model.modified', handleModification);
+
+    // When the scope is destroyed, stop requesting anim. frames
+    $scope.$on('$destroy', function () {
+        active = false;
+    });
+
+    this.$scope = $scope;
+    this.signValue = '';
+    this.textValue = '';
+    this.updateObject = updateObject;
+}
+
+/**
+ * Get the CSS class to display the right icon
+ * for the start/pause button.
+ * @returns {string} cssclass to display
+ */
+TimerController.prototype.buttonCssClass = function () {
+    return this.relevantAction ?
+        this.relevantAction.getMetadata().cssClass : "";
+};
+
+/**
+ * Get the text to show for the start/pause button
+ * (e.g. in a tooltip)
+ * @returns {string} name of the action
+ */
+TimerController.prototype.buttonText = function () {
+    return this.relevantAction ?
+        this.relevantAction.getMetadata().name : "";
+};
+
+
+/**
+ * Perform the action associated with the start/pause button.
+ */
+TimerController.prototype.clickButton = function () {
+    if (this.relevantAction) {
+        this.relevantAction.perform();
+        this.updateObject(this.$scope.domainObject);
+    }
+};
+
+/**
+ * Perform the action associated with the stop button.
+ */
+TimerController.prototype.clickStopButton = function () {
+    if (this.stopAction) {
+        this.stopAction.perform();
+        this.updateObject(this.$scope.domainObject);
+    }
+};
+
+/**
+ * Get the sign (+ or -) of the current timer value, as
+ * displayable text.
+ * @returns {string} sign of the current timer value
+ */
+TimerController.prototype.sign = function () {
+    return this.signValue;
+};
+
+/**
+ * Get the text to display for the current timer value.
+ * @returns {string} current timer value
+ */
+TimerController.prototype.text = function () {
+    return this.textValue;
+};
+
+var bindingVariable = TimerController;
+export default bindingVariable;

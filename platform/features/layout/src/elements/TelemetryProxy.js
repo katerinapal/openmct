@@ -1,3 +1,4 @@
+import TextProxy from ".\\TextProxy.js";
 /*****************************************************************************
  * Open MCT, Copyright (c) 2014-2017, United States Government
  * as represented by the Administrator of the National Aeronautics and Space
@@ -20,55 +21,52 @@
  * at runtime from the About dialog for additional information.
  *****************************************************************************/
 
-define(
-    ['./TextProxy'],
-    function (TextProxy) {
+;
 
-        // Method names to expose from this proxy
-        var HIDE = 'hideTitle', SHOW = 'showTitle';
+// Method names to expose from this proxy
+var HIDE = 'hideTitle', SHOW = 'showTitle';
 
-        /**
-         * Selection proxy for telemetry elements in a fixed position view.
-         *
-         * Note that arguments here are meant to match those expected
-         * by `Array.prototype.map`
-         *
-         * @memberof platform/features/layout
-         * @constructor
-         * @param element the fixed position element, as stored in its
-         *        configuration
-         * @param index the element's index within its array
-         * @param {Array} elements the full array of elements
-         * @param {number[]} gridSize the current layout grid size in [x,y] form
-         * @augments {platform/features/layout.ElementProxy}
-         */
-        function TelemetryProxy(element, index, elements, gridSize) {
-            var proxy = new TextProxy(element, index, elements, gridSize);
+/**
+ * Selection proxy for telemetry elements in a fixed position view.
+ *
+ * Note that arguments here are meant to match those expected
+ * by `Array.prototype.map`
+ *
+ * @memberof platform/features/layout
+ * @constructor
+ * @param element the fixed position element, as stored in its
+ *        configuration
+ * @param index the element's index within its array
+ * @param {Array} elements the full array of elements
+ * @param {number[]} gridSize the current layout grid size in [x,y] form
+ * @augments {platform/features/layout.ElementProxy}
+ */
+function TelemetryProxy(element, index, elements, gridSize) {
+    var proxy = new TextProxy(element, index, elements, gridSize);
 
-            // Toggle the visibility of the title
-            function toggle() {
-                // Toggle the state
-                element.titled = !element.titled;
+    // Toggle the visibility of the title
+    function toggle() {
+        // Toggle the state
+        element.titled = !element.titled;
 
-                // Change which method is exposed, to influence
-                // which button is shown in the toolbar
-                delete proxy[SHOW];
-                delete proxy[HIDE];
-                proxy[element.titled ? HIDE : SHOW] = toggle;
-            }
-
-            // Expose the domain object identifier
-            proxy.id = element.id;
-
-            // Expose initial toggle
-            proxy[element.titled ? HIDE : SHOW] = toggle;
-
-            // Don't expose text configuration
-            delete proxy.text;
-
-            return proxy;
-        }
-
-        return TelemetryProxy;
+        // Change which method is exposed, to influence
+        // which button is shown in the toolbar
+        delete proxy[SHOW];
+        delete proxy[HIDE];
+        proxy[element.titled ? HIDE : SHOW] = toggle;
     }
-);
+
+    // Expose the domain object identifier
+    proxy.id = element.id;
+
+    // Expose initial toggle
+    proxy[element.titled ? HIDE : SHOW] = toggle;
+
+    // Don't expose text configuration
+    delete proxy.text;
+
+    return proxy;
+}
+
+var bindingVariable = TelemetryProxy;
+export default bindingVariable;
